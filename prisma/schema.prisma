@@ -1,0 +1,384 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ProductStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum AnimalType {
+  DOG
+  CAT
+}
+
+enum ProductImageType {
+  MAIN
+  COLOR
+  INFO
+  LIFESTYLE
+}
+
+enum OrderStatus {
+  PENDIENTE
+  PAGADO
+  PREPARANDO
+  ENVIADO
+  ENTREGADO
+  CANCELADO
+  PENDING_PAYMENT
+  PAID
+  AWAITING_PAYMENT_ON_DELIVERY
+  READY_FOR_LOCAL_DELIVERY
+  READY_FOR_NATIONAL_SHIPPING
+  OUT_FOR_DELIVERY
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum ShippingMethod {
+  BARILOCHE_SAME_DAY
+  NATIONAL
+  LOCAL_DELIVERY
+  NATIONAL_SHIPPING
+}
+
+enum PaymentStatus {
+  PENDIENTE
+  APROBADO
+  RECHAZADO
+  PENDING
+  PAID
+  REJECTED
+  PENDING_ON_DELIVERY
+}
+
+enum PaymentMethod {
+  ONLINE
+  CASH_ON_DELIVERY
+}
+
+enum ShippingStatus {
+  PENDIENTE
+  COTIZADO
+  CREADO
+  EN_PREPARACION
+  DESPACHADO
+  EN_TRANSITO
+  EN_SUCURSAL
+  ENTREGADO
+  INCIDENCIA
+  CANCELADO
+}
+
+enum PrintJobType {
+  LOCAL_TICKET
+  NATIONAL_LABEL
+  ANDREANI_LABEL
+}
+
+enum PrintJobStatus {
+  PENDING
+  PRINTED
+  FAILED
+}
+
+enum DeliveryStatus {
+  PENDING_DELIVERY
+  IN_ROUTE
+  DELIVERED
+  FAILED_DELIVERY
+  RESCHEDULED
+  CANCELLED
+}
+
+enum DeliveryRouteStatus {
+  DRAFT
+  READY
+  IN_PROGRESS
+  COMPLETED
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  description String?
+  products    Product[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("pa2_categories")
+}
+
+model Product {
+  id                String           @id @default(cuid())
+  name              String
+  slug              String           @unique
+  animalType        AnimalType       @default(DOG)
+  mainImageUrl      String?
+  videoUrl          String?
+  description       String
+  shortDescription  String
+  price             Int
+  baseSalesCount    Int              @default(0)
+  compareAtPrice    Int?
+  featured          Boolean          @default(false)
+  productStar       Boolean          @default(false)
+  useTags           String[]
+  featureTags       String[]
+  materials         String[]
+  careInstructions  String[]
+  status            ProductStatus    @default(ACTIVE)
+  categoryId        String
+  category          Category         @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  variants          ProductVariant[]
+  images            ProductImage[]
+  reviews           ProductReview[]
+  orderItems        OrderItem[]
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  @@map("pa2_products")
+}
+
+model ProductVariant {
+  id          String   @id @default(cuid())
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  colorName   String
+  colorHex    String
+  size        String
+  sku         String   @unique
+  stock       Int      @default(0)
+  featured    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("pa2_product_variants")
+}
+
+model ProductImage {
+  id          String   @id @default(cuid())
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  type        ProductImageType @default(COLOR)
+  colorName   String?
+  url         String
+  cloudinaryId String?
+  alt         String
+  position    Int      @default(0)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  @@map("pa2_product_images")
+}
+
+model Customer {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  fullName     String?
+  phone        String?
+  whatsappOptIn Boolean  @default(false)
+  magicCode    String?
+  magicExpires DateTime?
+  addresses    Address[]
+  orders       Order[]
+  reviews      ProductReview[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@map("pa2_customers")
+}
+
+model Address {
+  id          String    @id @default(cuid())
+  customerId  String
+  customer    Customer  @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  line1       String
+  line2       String?
+  city        String
+  province    String
+  postalCode  String
+  country     String    @default("AR")
+  latitude    Float?
+  longitude   Float?
+  pinLabel    String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  orders      Order[]
+
+  @@map("pa2_addresses")
+}
+
+model Order {
+  id              String         @id @default(cuid())
+  orderNumber     String         @unique
+  shortCode       String?        @unique
+  customerId      String
+  customer        Customer       @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  addressId       String?
+  address         Address?       @relation(fields: [addressId], references: [id], onDelete: SetNull)
+  status          OrderStatus    @default(PENDIENTE)
+  paymentStatus   PaymentStatus  @default(PENDIENTE)
+  paymentMethod   PaymentMethod  @default(ONLINE)
+  shippingMethod  ShippingMethod
+  shippingStatus  ShippingStatus @default(PENDIENTE)
+  whatsappOptIn   Boolean        @default(false)
+  subtotal        Int
+  discountAmount  Int            @default(0)
+  shippingAmount  Int
+  total           Int
+  notes           String?
+  mercadopagoRef  String?
+  stockAppliedAt  DateTime?
+  internalQrUrl   String?
+  internalQrImage String?
+  carrier         String?
+  trackingNumber  String?
+  carrierLabelUrl String?
+  fulfillmentNote String?
+  fulfillmentType String?
+  deliveryStatus  DeliveryStatus @default(PENDING_DELIVERY)
+  deliveryDate    DateTime?
+  amountToCollect Int            @default(0)
+  deliveryNotes   String?
+  inRouteAt       DateTime?
+  deliveredAt     DateTime?
+  items           OrderItem[]
+  reviews         ProductReview[]
+  printJobs       PrintJob[]
+  deliveryStops   DeliveryStop[]
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  @@map("pa2_orders")
+}
+
+model OrderItem {
+  id          String   @id @default(cuid())
+  orderId     String
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Restrict)
+  productName String
+  colorName   String
+  size        String
+  quantity    Int
+  unitPrice   Int
+  totalPrice  Int
+
+  @@map("pa2_order_items")
+}
+
+model AdminUser {
+  id         String   @id @default(cuid())
+  email      String   @unique
+  fullName   String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("pa2_admin_users")
+}
+
+model StoreSettings {
+  id                         String   @id @default("default")
+  localDeliveryFreeThreshold Int      @default(120000)
+  localDeliveryCost          Int      @default(4500)
+  nationalShippingCost       Int      @default(8900)
+  barilocheCutoffHour        Int      @default(14)
+  barilocheCutoffMinute      Int      @default(30)
+  barilocheEnabled           Boolean  @default(true)
+  barilocheDiscountPercent   Int      @default(10)
+  createdAt                  DateTime @default(now())
+  updatedAt                  DateTime @updatedAt
+
+  @@map("pa2_store_settings")
+}
+
+model PrintJob {
+  id        String         @id @default(cuid())
+  orderId   String
+  order     Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  type      PrintJobType
+  status    PrintJobStatus @default(PENDING)
+  payload   Json
+  fileUrl   String?
+  createdAt DateTime       @default(now())
+  printedAt DateTime?
+
+  @@map("pa2_print_jobs")
+}
+
+model DeliveryRoute {
+  id            String              @id @default(cuid())
+  date          DateTime
+  status        DeliveryRouteStatus @default(DRAFT)
+  originAddress String
+  originLat     Float?
+  originLng     Float?
+  stops         DeliveryStop[]
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+
+  @@unique([date])
+  @@map("pa2_delivery_routes")
+}
+
+model DeliveryStop {
+  id              String         @id @default(cuid())
+  routeId         String
+  route           DeliveryRoute  @relation(fields: [routeId], references: [id], onDelete: Cascade)
+  orderId         String         @unique
+  order           Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  customerName    String
+  phone           String?
+  address         String
+  city            String?
+  zone            String?
+  lat             Float?
+  lng             Float?
+  stopOrder       Int?
+  paymentMethod   PaymentMethod
+  paymentStatus   PaymentStatus
+  amountToCollect Int            @default(0)
+  status          DeliveryStatus @default(PENDING_DELIVERY)
+  notes           String?
+  deliveredAt     DateTime?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  @@index([routeId, stopOrder])
+  @@map("pa2_delivery_stops")
+}
+
+model ProductReview {
+  id            String    @id @default(cuid())
+  productId      String
+  product        Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  customerId     String?
+  customer       Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  orderId        String?
+  order          Order?    @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  authorName     String
+  authorLocation String?
+  rating         Int
+  title          String?
+  comment        String
+  imageUrl       String?
+  imageAlt       String?
+  imageCloudinaryId String?
+  approved       Boolean   @default(true)
+  purchased      Boolean   @default(true)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@unique([customerId, productId])
+  @@map("pa2_product_reviews")
+}
