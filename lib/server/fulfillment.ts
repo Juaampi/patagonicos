@@ -54,7 +54,7 @@ export const defaultStoreSettings = {
   nationalShippingCost: 8900,
   barilocheCutoffHour: 14,
   barilocheCutoffMinute: 30,
-  barilocheEnabled: true,
+  barilocheEnabled: false,
   barilocheDiscountPercent: 10,
 } as const
 

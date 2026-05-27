@@ -3,7 +3,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { getColorImages, getMainImage, getProductColors, isColorOutOfStock } from '@/lib/variant-utils'
 import type { Product, ProductImage } from '@/types/store'
 import { formatPrice } from '@/lib/utils'
@@ -33,6 +33,7 @@ export function ProductFeature({ product }: { product: Product }) {
   const mainImage = getMainImage(product)
   const [selectedColor, setSelectedColor] = useState(colors[0]?.name ?? '')
   const [activeIndex, setActiveIndex] = useState(0)
+  const touchStartXRef = useRef<number | null>(null)
   const selectedColorOutOfStock = selectedColor ? isColorOutOfStock(product, selectedColor) : false
   const salesBadgeLabel = getSalesBadgeLabel(product.salesCount)
 
@@ -66,12 +67,42 @@ export function ProductFeature({ product }: { product: Product }) {
     setActiveIndex((current) => (current === gallery.length - 1 ? 0 : current + 1))
   }
 
+  const handleTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
+    touchStartXRef.current = event.touches[0]?.clientX ?? null
+  }
+
+  const handleTouchEnd = (event: React.TouchEvent<HTMLDivElement>) => {
+    const startX = touchStartXRef.current
+    const endX = event.changedTouches[0]?.clientX ?? null
+    touchStartXRef.current = null
+
+    if (startX == null || endX == null || gallery.length <= 1) {
+      return
+    }
+
+    const deltaX = endX - startX
+    if (Math.abs(deltaX) < 36) {
+      return
+    }
+
+    if (deltaX > 0) {
+      goPrevious()
+      return
+    }
+
+    goNext()
+  }
+
   return (
     <section className="shell mt-18">
       <div className="card-surface overflow-hidden p-3 md:p-4 xl:p-5">
         <div className="grid gap-5 xl:grid-cols-[0.88fr_1.12fr] xl:items-stretch">
           <div className="overflow-hidden rounded-[28px] bg-[#f3f3ef] xl:max-w-[650px]">
-            <div className="group relative aspect-[4/4.7] w-full md:aspect-[4/3.95] xl:aspect-[4/3.72]">
+            <div
+              className="group relative aspect-[4/4.7] w-full touch-pan-y md:aspect-[4/3.95] xl:aspect-[4/3.72]"
+              onTouchStart={handleTouchStart}
+              onTouchEnd={handleTouchEnd}
+            >
               <div className="absolute inset-5 md:inset-7 xl:inset-8">
                 {activeImage ? (
                   <Image
@@ -193,7 +224,7 @@ export function ProductFeature({ product }: { product: Product }) {
             ) : null}
 
             <div className="mt-auto pt-7">
-              <Link href={`/productos/${product.slug}`} className="button-primary w-full">
+              <Link href={`/productos/${product.slug}`} scroll className="button-primary w-full">
                 Ver producto más vendido
               </Link>
             </div>

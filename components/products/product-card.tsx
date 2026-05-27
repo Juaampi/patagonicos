@@ -3,7 +3,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { getGalleryForColor, getMainImage, getProductColors, isColorOutOfStock } from '@/lib/variant-utils'
 import type { Product, ProductImage } from '@/types/store'
 import { formatPrice } from '@/lib/utils'
@@ -21,6 +21,7 @@ export function ProductCard({ product }: { product: Product }) {
   const mainImage = getMainImage(product)
   const [selectedColor, setSelectedColor] = useState(colors[0]?.name ?? '')
   const [activeIndex, setActiveIndex] = useState(0)
+  const touchStartXRef = useRef<number | null>(null)
   const selectedColorOutOfStock = selectedColor ? isColorOutOfStock(product, selectedColor) : false
 
   const gallery = useMemo(() => {
@@ -46,10 +47,40 @@ export function ProductCard({ product }: { product: Product }) {
     setActiveIndex((current) => (current === gallery.length - 1 ? 0 : current + 1))
   }
 
+  const handleTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
+    touchStartXRef.current = event.touches[0]?.clientX ?? null
+  }
+
+  const handleTouchEnd = (event: React.TouchEvent<HTMLDivElement>) => {
+    const startX = touchStartXRef.current
+    const endX = event.changedTouches[0]?.clientX ?? null
+    touchStartXRef.current = null
+
+    if (startX == null || endX == null || gallery.length <= 1) {
+      return
+    }
+
+    const deltaX = endX - startX
+    if (Math.abs(deltaX) < 36) {
+      return
+    }
+
+    if (deltaX > 0) {
+      goPrevious()
+      return
+    }
+
+    goNext()
+  }
+
   return (
     <article className="card-surface overflow-hidden">
-      <div className="group relative bg-[#f3f3ef]">
-        <Link href={`/productos/${product.slug}`} className="block">
+      <div
+        className="group relative bg-[#f3f3ef] touch-pan-y"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
+        <Link href={`/productos/${product.slug}`} scroll className="block">
           <div className="relative aspect-[4/5] w-full overflow-hidden rounded-b-[28px] bg-[#f3f3ef]">
             {activeImage ? (
               <Image
@@ -99,7 +130,7 @@ export function ProductCard({ product }: { product: Product }) {
         <div className="flex items-start justify-between gap-5">
           <div>
             <p className="text-[11px] uppercase tracking-[0.22em] text-black/45">{product.category}</p>
-            <Link href={`/productos/${product.slug}`} className="mt-2 block font-display text-2xl tracking-[-0.04em] text-black transition hover:text-black/72">
+            <Link href={`/productos/${product.slug}`} scroll className="mt-2 block font-display text-2xl tracking-[-0.04em] text-black transition hover:text-black/72">
               {product.name}
             </Link>
           </div>
@@ -130,7 +161,7 @@ export function ProductCard({ product }: { product: Product }) {
           </p>
         ) : null}
 
-        <Link href={`/productos/${product.slug}`} className="button-secondary w-full">
+        <Link href={`/productos/${product.slug}`} scroll className="button-secondary w-full">
           Ver producto
         </Link>
       </div>

@@ -186,6 +186,7 @@ export function ProductDetail({
   const [deliveryInfoOpen, setDeliveryInfoOpen] = useState(false)
   const reviewsScrollRef = useRef<HTMLDivElement>(null)
   const mobileAddToCartRef = useRef<HTMLButtonElement>(null)
+  const touchStartXRef = useRef<number | null>(null)
   const featureChips = getFeatureChips(product.featureTags)
   const materialSpecs = getMaterialSpecs(product.materials)
 
@@ -219,6 +220,47 @@ export function ProductDetail({
 
   const infoImages = product.images.filter((image) => image.type === 'INFO' || image.type === 'LIFESTYLE')
   const canAddToCart = Boolean(selectedVariant && !(resolvedSelectedSize && selectedSizeInfo && !selectedSizeInfo.inStock))
+
+  const showPreviousGalleryItem = () => {
+    if (gallery.length <= 1) return
+    const currentIndex = gallery.findIndex((item) => item.id === activeGalleryItem?.id)
+    const nextIndex = (currentIndex + gallery.length - 1) % gallery.length
+    setSelectedGalleryId(gallery[nextIndex]?.id ?? gallery[0].id)
+  }
+
+  const showNextGalleryItem = () => {
+    if (gallery.length <= 1) return
+    const currentIndex = gallery.findIndex((item) => item.id === activeGalleryItem?.id)
+    const nextIndex = (currentIndex + 1) % gallery.length
+    setSelectedGalleryId(gallery[nextIndex]?.id ?? gallery[0].id)
+  }
+
+  const handleGalleryTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
+    touchStartXRef.current = event.touches[0]?.clientX ?? null
+  }
+
+  const handleGalleryTouchEnd = (event: React.TouchEvent<HTMLDivElement>) => {
+    const startX = touchStartXRef.current
+    const endX = event.changedTouches[0]?.clientX ?? null
+    touchStartXRef.current = null
+
+    if (startX == null || endX == null) {
+      return
+    }
+
+    const deltaX = endX - startX
+
+    if (Math.abs(deltaX) < 36) {
+      return
+    }
+
+    if (deltaX > 0) {
+      showPreviousGalleryItem()
+      return
+    }
+
+    showNextGalleryItem()
+  }
 
   const handleAddToCart = async () => {
     if (isAddingToCart) {
@@ -314,7 +356,11 @@ export function ProductDetail({
         </div>
 
         <div className="space-y-3">
-          <div className="relative aspect-[4/5] w-full overflow-hidden rounded-[28px] bg-neutral-100">
+          <div
+            className="relative aspect-[4/5] w-full overflow-hidden rounded-[28px] bg-neutral-100 touch-pan-y"
+            onTouchStart={handleGalleryTouchStart}
+            onTouchEnd={handleGalleryTouchEnd}
+          >
             {activeGalleryItem?.kind === 'video' ? (
               isYoutubeUrl(activeGalleryItem.url) ? (
                 <iframe
@@ -341,9 +387,7 @@ export function ProductDetail({
               <>
                 <button
                   type="button"
-                  onClick={() =>
-                    setSelectedGalleryId(gallery[(gallery.findIndex((item) => item.id === activeGalleryItem?.id) + gallery.length - 1) % gallery.length]?.id ?? gallery[0].id)
-                  }
+                  onClick={showPreviousGalleryItem}
                   className="absolute left-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/88 text-black shadow-[0_10px_30px_rgba(0,0,0,0.08)] transition hover:bg-white"
                   aria-label="Imagen anterior"
                 >
@@ -351,9 +395,7 @@ export function ProductDetail({
                 </button>
                 <button
                   type="button"
-                  onClick={() =>
-                    setSelectedGalleryId(gallery[(gallery.findIndex((item) => item.id === activeGalleryItem?.id) + 1) % gallery.length]?.id ?? gallery[0].id)
-                  }
+                  onClick={showNextGalleryItem}
                   className="absolute right-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/88 text-black shadow-[0_10px_30px_rgba(0,0,0,0.08)] transition hover:bg-white"
                   aria-label="Imagen siguiente"
                 >
@@ -364,19 +406,34 @@ export function ProductDetail({
           </div>
 
           {gallery.length > 1 ? (
-            <>
-              <div className="flex justify-center gap-2">
+            <div className="-mx-1 overflow-x-auto px-1 pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              <div className="flex w-max gap-3">
                 {gallery.map((item, index) => (
                   <button
-                    key={`${item.id}-mobile-dot`}
+                    key={`${item.id}-mobile-thumb`}
                     type="button"
                     onClick={() => setSelectedGalleryId(item.id)}
-                    className={`h-2 rounded-full transition ${activeGalleryItem?.id === item.id ? 'w-8 bg-black' : 'w-2 bg-black/18'}`}
+                    className={`relative h-18 w-18 shrink-0 overflow-hidden rounded-[18px] border bg-[#f3f3ef] ${
+                      activeGalleryItem?.id === item.id ? 'border-black shadow-[0_10px_24px_rgba(0,0,0,0.08)]' : 'border-black/10'
+                    }`}
                     aria-label={`Ver imagen ${index + 1}`}
-                  />
+                  >
+                    {item.kind === 'image' ? (
+                      <Image
+                        src={item.image.url}
+                        alt={item.image.alt}
+                        fill
+                        className={getMobileImageFit(item.image)}
+                      />
+                    ) : (
+                      <div className="flex h-full items-center justify-center px-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-black/56">
+                        Video
+                      </div>
+                    )}
+                  </button>
                 ))}
               </div>
-            </>
+            </div>
           ) : null}
         </div>
 

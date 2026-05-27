@@ -294,7 +294,7 @@ model StoreSettings {
   nationalShippingCost       Int      @default(8900)
   barilocheCutoffHour        Int      @default(14)
   barilocheCutoffMinute      Int      @default(30)
-  barilocheEnabled           Boolean  @default(true)
+  barilocheEnabled           Boolean  @default(false)
   barilocheDiscountPercent   Int      @default(10)
   createdAt                  DateTime @default(now())
   updatedAt                  DateTime @updatedAt

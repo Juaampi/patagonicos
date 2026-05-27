@@ -3,6 +3,7 @@ import { Inter, Space_Grotesk } from 'next/font/google'
 import './globals.css'
 import { CartProvider } from '@/components/cart/cart-provider'
 import { FloatingActions } from '@/components/layout/floating-actions'
+import { NavigationFeedback } from '@/components/layout/navigation-feedback'
 import { SiteFooterShell } from '@/components/layout/site-footer-shell'
 import { SiteHeaderShell } from '@/components/layout/site-header-shell'
 
@@ -32,6 +33,7 @@ export default async function RootLayout({
       <body suppressHydrationWarning className="min-h-screen bg-background font-sans text-foreground">
         <CartProvider>
           <div className="page-wrap min-h-screen">
+            <NavigationFeedback />
             <SiteHeaderShell />
             <main className="pt-[94px] md:pt-[108px]">{children}</main>
             <SiteFooterShell />
