@@ -1,7 +1,7 @@
 'use client'
 
 import { usePathname, useSearchParams } from 'next/navigation'
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 function shouldHandleNavigation(anchor: HTMLAnchorElement) {
   const href = anchor.getAttribute('href')
@@ -29,6 +29,22 @@ function shouldHandleNavigation(anchor: HTMLAnchorElement) {
 
 const MIN_VISIBLE_MS = 420
 const SAFETY_TIMEOUT_MS = 12000
+const TAP_FEEDBACK_MS = 900
+
+function isInteractiveTrigger(target: Element | null) {
+  if (!target) {
+    return false
+  }
+
+  const interactive = target.closest('a, button, [role="button"], input[type="submit"], input[type="button"]')
+  return interactive instanceof HTMLElement && !interactive.hasAttribute('disabled')
+}
+
+function forceScrollToTop() {
+  window.scrollTo(0, 0)
+  document.documentElement.scrollTop = 0
+  document.body.scrollTop = 0
+}
 
 export function NavigationFeedback() {
   const pathname = usePathname()
@@ -39,8 +55,10 @@ export function NavigationFeedback() {
   const startedAtRef = useRef<number | null>(null)
   const activeRequestsRef = useRef(0)
   const navigationPendingRef = useRef(false)
+  const tapFeedbackTimeoutRef = useRef<number | null>(null)
+  const scrollResetFrameRef = useRef<number | null>(null)
 
-  const clearTimers = () => {
+  const clearTimers = useCallback(() => {
     if (safetyTimeoutRef.current) {
       window.clearTimeout(safetyTimeoutRef.current)
       safetyTimeoutRef.current = null
@@ -50,9 +68,19 @@ export function NavigationFeedback() {
       window.clearTimeout(hideTimeoutRef.current)
       hideTimeoutRef.current = null
     }
-  }
 
-  const showLoader = () => {
+    if (tapFeedbackTimeoutRef.current) {
+      window.clearTimeout(tapFeedbackTimeoutRef.current)
+      tapFeedbackTimeoutRef.current = null
+    }
+
+    if (scrollResetFrameRef.current) {
+      window.cancelAnimationFrame(scrollResetFrameRef.current)
+      scrollResetFrameRef.current = null
+    }
+  }, [])
+
+  const showLoader = useCallback(() => {
     if (!startedAtRef.current) {
       startedAtRef.current = Date.now()
     }
@@ -67,9 +95,9 @@ export function NavigationFeedback() {
       setIsLoading(false)
       clearTimers()
     }, SAFETY_TIMEOUT_MS)
-  }
+  }, [clearTimers])
 
-  const syncLoader = () => {
+  const syncLoader = useCallback(() => {
     if (activeRequestsRef.current > 0 || navigationPendingRef.current) {
       showLoader()
       return
@@ -83,9 +111,33 @@ export function NavigationFeedback() {
       startedAtRef.current = null
       clearTimers()
     }, remaining)
-  }
+  }, [clearTimers, showLoader])
 
   useEffect(() => {
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual'
+    }
+
+    const handlePointerDown = (event: PointerEvent) => {
+      const target = event.target
+
+      if (!(target instanceof Element) || !isInteractiveTrigger(target)) {
+        return
+      }
+
+      setIsLoading(true)
+
+      if (tapFeedbackTimeoutRef.current) {
+        window.clearTimeout(tapFeedbackTimeoutRef.current)
+      }
+
+      tapFeedbackTimeoutRef.current = window.setTimeout(() => {
+        if (activeRequestsRef.current === 0 && !navigationPendingRef.current && !startedAtRef.current) {
+          setIsLoading(false)
+        }
+      }, TAP_FEEDBACK_MS)
+    }
+
     const handleClick = (event: MouseEvent) => {
       if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
         return
@@ -137,6 +189,7 @@ export function NavigationFeedback() {
       }
     }
 
+    document.addEventListener('pointerdown', handlePointerDown, { passive: true })
     document.addEventListener('click', handleClick)
     document.addEventListener('submit', handleSubmit)
     window.addEventListener('pa2-loading:start', handleRequestStart)
@@ -144,38 +197,58 @@ export function NavigationFeedback() {
 
     return () => {
       window.fetch = originalFetch
+      document.removeEventListener('pointerdown', handlePointerDown)
       document.removeEventListener('click', handleClick)
       document.removeEventListener('submit', handleSubmit)
       window.removeEventListener('pa2-loading:start', handleRequestStart)
       window.removeEventListener('pa2-loading:stop', handleRequestStop)
       clearTimers()
     }
-  }, [])
+  }, [clearTimers, showLoader, syncLoader])
 
   useEffect(() => {
     if (!navigationPendingRef.current) {
       return
     }
 
-    window.requestAnimationFrame(() => {
-      window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
+    scrollResetFrameRef.current = window.requestAnimationFrame(() => {
+      forceScrollToTop()
+
+      scrollResetFrameRef.current = window.requestAnimationFrame(() => {
+        forceScrollToTop()
+        scrollResetFrameRef.current = null
+      })
     })
 
     navigationPendingRef.current = false
     syncLoader()
-  }, [pathname, searchParams])
+  }, [pathname, searchParams, syncLoader])
 
   return (
-    <div
-      aria-hidden="true"
-      className={`pointer-events-none fixed inset-x-0 bottom-0 z-[140] h-[3px] transition-opacity duration-300 ${
-        isLoading ? 'opacity-100' : 'opacity-0'
-      }`}
-    >
-      <div className="nav-loader-shell h-full w-full">
-        <div className="nav-loader-track h-full w-full" />
-        <div className="nav-loader-sweep h-full" />
+    <>
+      <div
+        aria-live="polite"
+        className={`pointer-events-none fixed inset-x-0 bottom-4 z-[141] flex justify-center px-4 transition-all duration-300 ${
+          isLoading ? 'translate-y-0 opacity-100' : 'translate-y-2 opacity-0'
+        }`}
+      >
+        <div className="nav-loader-badge">
+          <span className="nav-loader-badge-dot" />
+          Cargando
+        </div>
       </div>
-    </div>
+
+      <div
+        aria-hidden="true"
+        className={`pointer-events-none fixed inset-x-0 bottom-0 z-[140] h-[3px] transition-opacity duration-300 ${
+          isLoading ? 'opacity-100' : 'opacity-0'
+        }`}
+      >
+        <div className="nav-loader-shell h-full w-full">
+          <div className="nav-loader-track h-full w-full" />
+          <div className="nav-loader-sweep h-full" />
+        </div>
+      </div>
+    </>
   )
 }
