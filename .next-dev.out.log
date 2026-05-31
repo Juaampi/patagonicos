@@ -22,3 +22,13 @@ Creating turbopack project { dir: 'C:\\xampp\\htdocs\\patitasandinas2', testMode
  GET /adoptame 200 in 4.7s (next.js: 311ms, application-code: 4.4s)
  GET /adoptame 200 in 1980ms (next.js: 404ms, application-code: 1576ms)
 ✓ Compiled in 256ms
+ GET / 200 in 8.2s (next.js: 119ms, application-code: 8.1s)
+ GET /productos/para-frio-extremo 200 in 5.6s (next.js: 854ms, application-code: 4.7s)
+ GET /productos/para-frio-extremo-2 200 in 8.3s (next.js: 15ms, application-code: 8.3s)
+prisma:error Error in PostgreSQL connection: Error { kind: Closed, cause: None }
+prisma:error Error in PostgreSQL connection: Error { kind: Closed, cause: None }
+prisma:error Error in PostgreSQL connection: Error { kind: Closed, cause: None }
+ GET /admin/login 404 in 5.2s (next.js: 236ms, application-code: 5.0s)
+prisma:error Error in PostgreSQL connection: Error { kind: Closed, cause: None }
+prisma:error Error in PostgreSQL connection: Error { kind: Closed, cause: None }
+[?25h
