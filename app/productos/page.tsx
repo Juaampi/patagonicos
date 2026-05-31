@@ -70,8 +70,10 @@ function sortProducts(items: Product[], sort: SortValue) {
   }
 
   return cloned.sort((a, b) => {
-    if (a.featured !== b.featured) {
-      return a.featured ? -1 : 1
+    const salesDiff = (b.salesCount ?? 0) - (a.salesCount ?? 0)
+
+    if (salesDiff !== 0) {
+      return salesDiff
     }
 
     return a.name.localeCompare(b.name, 'es')
