@@ -59,10 +59,10 @@ export function FloatingActions() {
       <Link
         href={WHATSAPP_FALLBACK_HREF}
         aria-label="WhatsApp"
-        className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-black/10 bg-white text-black shadow-[0_12px_35px_rgba(0,0,0,0.12)] transition hover:-translate-y-0.5 hover:bg-black hover:text-white"
+        className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-black/10 bg-white text-black shadow-[0_12px_35px_rgba(0,0,0,0.12)] transition hover:-translate-y-0.5 hover:border-black hover:bg-black hover:text-white"
       >
-        <span className="flex h-5 w-5 items-center justify-center">
-          <WhatsAppMonoIcon className="h-5 w-5" />
+        <span className="flex h-[22px] w-[22px] items-center justify-center">
+          <WhatsAppMonoIcon className="h-[22px] w-[22px]" />
         </span>
       </Link>
 

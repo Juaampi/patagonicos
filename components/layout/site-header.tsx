@@ -16,7 +16,6 @@ const navItems = [
   { href: '/adoptame', label: 'Adoptame' },
   { href: '/guia-de-talles', label: 'Guía de talles' },
   { href: '/envios', label: 'Envíos' },
-  { href: '/contacto', label: 'Contacto' },
 ]
 
 type ThemeMode = 'light' | 'dark'

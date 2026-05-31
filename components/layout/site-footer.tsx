@@ -30,7 +30,6 @@ export function SiteFooter({ settings }: { settings: StoreSettingsSnapshot }) {
           <p className="eyebrow">Operación</p>
           <div className="mt-4 space-y-3 text-sm text-black/68">
             <Link href="/envios" className="block hover:text-black">Envíos</Link>
-            <Link href="/contacto" className="block hover:text-black">Contacto</Link>
             <Link href="/terminosycondiciones" className="block hover:text-black">Términos y condiciones</Link>
             <Link href="/politicasdeprivacidad" className="block hover:text-black">Políticas de privacidad</Link>
             <Link href="/admin" className="block hover:text-black">Admin</Link>
