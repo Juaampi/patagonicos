@@ -395,6 +395,7 @@ model AdoptionPet {
   ageLabel   String
   city       String
   province   String
+  contactPhone String?
   status     AdoptionStatus     @default(EN_ADOPCION)
   summary    String?
   images     AdoptionPetImage[]

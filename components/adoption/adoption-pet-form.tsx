@@ -51,12 +51,12 @@ export function AdoptionPetForm({
     >
       <input type="hidden" name="petId" value={pet?.id ?? ''} />
 
-      <p className="eyebrow">{mode === 'edit' ? 'Editar' : 'Nuevo'} animal</p>
+      <p className="eyebrow">{mode === 'edit' ? 'Editar' : 'Nueva'} mascota</p>
       <h2 className="mt-4 font-display text-4xl tracking-[-0.05em]">
         {mode === 'edit' ? 'Actualizar ficha de adopción' : 'Cargar animal para adopción'}
       </h2>
       <p className="mt-4 max-w-3xl text-sm leading-7 text-black/62">
-        Nombre, edad, ubicación, estado e imágenes. La idea es mantenerlo simple para publicar rápido.
+        Nombre, edad, ubicación, contacto, estado e imágenes. La idea es mantenerlo simple para publicar rápido.
       </p>
 
       <div className="mt-6 grid gap-4 md:grid-cols-2">
@@ -82,6 +82,12 @@ export function AdoptionPetForm({
           name="province"
           defaultValue={pet?.province ?? ''}
           placeholder="Provincia"
+          className="rounded-[18px] border border-black/10 bg-[#f7f7f4] px-4 py-4 text-sm outline-none"
+        />
+        <input
+          name="contactPhone"
+          defaultValue={pet?.contactPhone ?? ''}
+          placeholder="Comunicarse al"
           className="rounded-[18px] border border-black/10 bg-[#f7f7f4] px-4 py-4 text-sm outline-none"
         />
       </div>

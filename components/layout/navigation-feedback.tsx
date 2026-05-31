@@ -184,17 +184,6 @@ export function NavigationFeedback() {
       syncLoader()
     }
 
-    const originalFetch = window.fetch.bind(window)
-    window.fetch = async (...args) => {
-      handleRequestStart()
-
-      try {
-        return await originalFetch(...args)
-      } finally {
-        handleRequestStop()
-      }
-    }
-
     document.addEventListener('pointerdown', handlePointerDown, { passive: true })
     document.addEventListener('click', handleClick)
     document.addEventListener('submit', handleSubmit)
@@ -202,7 +191,6 @@ export function NavigationFeedback() {
     window.addEventListener('pa2-loading:stop', handleRequestStop)
 
     return () => {
-      window.fetch = originalFetch
       document.removeEventListener('pointerdown', handlePointerDown)
       document.removeEventListener('click', handleClick)
       document.removeEventListener('submit', handleSubmit)

@@ -28,11 +28,11 @@ export default async function TransitoPage({
               <p className="eyebrow">Tránsito</p>
               <h1 className="mt-4 font-display text-5xl tracking-[-0.05em]">Panel simple de adopciones</h1>
               <p className="mt-4 max-w-3xl text-base leading-8 text-black/62">
-                Alta, edición y control básico de animales en adopción, adoptados o en tránsito.
+                Alta, edición y control básico de mascotas en adopción, adoptadas o en tránsito, con contacto directo para cada ficha.
               </p>
             </div>
             <Link href="/transito/nuevo" className="button-primary">
-              Agregar perrito
+              Agregar mascota
             </Link>
           </div>
 

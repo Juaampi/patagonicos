@@ -1,6 +1,8 @@
 'use client'
 
 import Image from 'next/image'
+import Link from 'next/link'
+import { formatPhoneForDisplay, normalizeWhatsAppPhone } from '@/lib/contact-utils'
 import type { AdoptionPet } from '@/types/store'
 
 export function AdoptionPetCard({
@@ -11,6 +13,11 @@ export function AdoptionPetCard({
   compact?: boolean
 }) {
   const images = pet.images.slice(0, 3)
+  const whatsappPhone = pet.contactPhone ? normalizeWhatsAppPhone(pet.contactPhone) : ''
+  const contactHref = whatsappPhone
+    ? `https://wa.me/${whatsappPhone}?text=${encodeURIComponent(`Hola, quiero consultar por ${pet.name}.`)}` 
+    : undefined
+  const displayPhone = pet.contactPhone ? formatPhoneForDisplay(pet.contactPhone) : ''
 
   return (
     <article className="card-surface overflow-hidden">
@@ -35,6 +42,23 @@ export function AdoptionPetCard({
 
         {pet.summary ? (
           <p className="text-sm leading-7 text-black/62">{pet.summary}</p>
+        ) : null}
+
+        {displayPhone ? (
+          <p className="text-sm leading-6 text-black/66">
+            <span className="font-semibold text-black/82">Comunicarse al:</span> {displayPhone}
+          </p>
+        ) : null}
+
+        {contactHref ? (
+          <Link
+            href={contactHref}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex w-full items-center justify-center rounded-full bg-black px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-white transition hover:bg-black/86"
+          >
+            {`Contactar por ${pet.name}`}
+          </Link>
         ) : null}
       </div>
     </article>

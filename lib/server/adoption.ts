@@ -12,6 +12,7 @@ const samplePets = [
     ageLabel: '2 años',
     city: 'San Carlos de Bariloche',
     province: 'Río Negro',
+    contactPhone: '294 458 1122',
     status: AdoptionStatus.EN_ADOPCION,
     summary: 'Súper compañera, tranquila en casa y muy cariñosa con personas.',
     images: [
@@ -25,6 +26,7 @@ const samplePets = [
     ageLabel: '1 año',
     city: 'Dina Huapi',
     province: 'Río Negro',
+    contactPhone: '294 465 2098',
     status: AdoptionStatus.EN_TRANSITO,
     summary: 'Juguetón, sociable y con mucha energía. Ideal para familia activa.',
     images: [
@@ -38,6 +40,7 @@ const samplePets = [
     ageLabel: '4 años',
     city: 'Villa La Angostura',
     province: 'Neuquén',
+    contactPhone: '294 433 7610',
     status: AdoptionStatus.EN_ADOPCION,
     summary: 'Muy dulce, obediente y lista para una familia definitiva.',
     images: [
@@ -65,6 +68,7 @@ function mapAdoptionPet(
     ageLabel: pet.ageLabel,
     city: pet.city,
     province: pet.province,
+    contactPhone: pet.contactPhone ?? undefined,
     status: pet.status,
     summary: pet.summary ?? undefined,
     images: pet.images.map((image) => ({
@@ -95,6 +99,19 @@ export async function ensureAdoptionPetsSeeded() {
   const total = await prisma.adoptionPet.count()
 
   if (total > 0) {
+    await Promise.all(
+      samplePets.map((pet) =>
+        prisma.adoptionPet.updateMany({
+          where: {
+            name: pet.name,
+            contactPhone: null,
+          },
+          data: {
+            contactPhone: pet.contactPhone,
+          },
+        }),
+      ),
+    )
     return
   }
 
@@ -118,6 +135,7 @@ export async function ensureAdoptionPetsSeeded() {
         ageLabel: pet.ageLabel,
         city: pet.city,
         province: pet.province,
+        contactPhone: pet.contactPhone,
         status: pet.status,
         summary: pet.summary,
         images: {
@@ -174,6 +192,7 @@ export async function saveAdoptionPetAction(
     const city = String(formData.get('city') ?? '').trim()
     const province = String(formData.get('province') ?? '').trim()
     const summary = String(formData.get('summary') ?? '').trim()
+    const contactPhone = String(formData.get('contactPhone') ?? '').trim()
     const statusValue = String(formData.get('status') ?? AdoptionStatus.EN_ADOPCION).trim()
     const deleteImageIds = formData.getAll('deleteImageIds').map((value) => String(value).trim()).filter(Boolean)
     const imageFiles = formData
@@ -263,6 +282,7 @@ export async function saveAdoptionPetAction(
           ageLabel,
           city,
           province,
+          contactPhone: contactPhone || null,
           summary: summary || null,
           status,
           images: {
@@ -278,6 +298,7 @@ export async function saveAdoptionPetAction(
           ageLabel,
           city,
           province,
+          contactPhone: contactPhone || null,
           summary: summary || null,
           status,
           images: {

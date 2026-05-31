@@ -28,6 +28,7 @@ export function AdoptionAdminTable({ pets }: { pets: AdoptionPet[] }) {
                 <th className="px-5 py-3 text-left font-medium">Animal</th>
                 <th className="px-5 py-3 text-left font-medium">Ubicación</th>
                 <th className="px-5 py-3 text-left font-medium">Estado</th>
+                <th className="px-5 py-3 text-left font-medium">Contacto</th>
                 <th className="px-5 py-3 text-left font-medium">Imágenes</th>
                 <th className="px-5 py-3 text-right font-medium">Acciones</th>
               </tr>
@@ -55,6 +56,7 @@ export function AdoptionAdminTable({ pets }: { pets: AdoptionPet[] }) {
                       {getStatusLabel(pet.status)}
                     </span>
                   </td>
+                  <td className="px-5 py-4 text-black/66">{pet.contactPhone ?? 'Sin cargar'}</td>
                   <td className="px-5 py-4 text-black/66">{pet.images.length}</td>
                   <td className="px-5 py-4">
                     <div className="flex justify-end gap-2">

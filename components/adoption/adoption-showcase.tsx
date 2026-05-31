@@ -14,10 +14,10 @@ export function AdoptionShowcase({ pets }: { pets: AdoptionPet[] }) {
           <div>
             <p className="eyebrow">Adoptame</p>
             <h2 className="mt-4 font-display text-4xl tracking-[-0.05em] md:text-5xl">
-              Perritos que hoy están buscando hogar
+              Mascotas que hoy están buscando hogar
             </h2>
             <p className="mt-4 max-w-3xl text-sm leading-7 text-black/62 md:text-base md:leading-8">
-              Algunos de los perros que hoy están en adopción. Vas a ver nombre, edad y de qué ciudad y provincia vienen.
+              Algunas de las mascotas que hoy están en adopción. Vas a ver nombre, edad, ciudad, provincia y cómo consultar por cada una.
             </p>
           </div>
           <Link href="/adoptame" className="button-secondary">

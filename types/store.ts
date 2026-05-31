@@ -103,6 +103,7 @@ export type AdoptionPet = {
   ageLabel: string
   city: string
   province: string
+  contactPhone?: string
   status: 'EN_ADOPCION' | 'ADOPTADO' | 'EN_TRANSITO'
   summary?: string
   images: AdoptionPetImage[]
