@@ -32,6 +32,21 @@ type GeoRefLocality = {
   nombre: string
 }
 
+function MercadoPagoBadge({ compact = false }: { compact?: boolean }) {
+  return (
+    <span
+      className={`inline-flex items-center rounded-full border border-black/10 bg-white text-black/82 ${
+        compact ? 'px-2.5 py-1 text-[10px]' : 'px-3 py-1.5 text-[11px]'
+      } font-semibold uppercase tracking-[0.12em]`}
+    >
+      <span className={`inline-flex items-center rounded-full bg-black ${compact ? 'px-2 py-0.5' : 'px-2.5 py-0.5'} text-white`}>
+        MP
+      </span>
+      <span className="ml-2">Mercado Pago</span>
+    </span>
+  )
+}
+
 export function CheckoutForm({ items, settings }: CheckoutFormProps) {
   const router = useRouter()
   const { clearCart } = useCart()
@@ -346,9 +361,11 @@ export function CheckoutForm({ items, settings }: CheckoutFormProps) {
         <div className="space-y-6">
           <div className="card-surface p-7">
             <p className="eyebrow">Checkout</p>
-            <h1 className="mt-4 font-display text-4xl tracking-[-0.05em] md:text-5xl">Compra rápida con entrega local y despacho nacional</h1>
+            <h1 className="mt-4 font-display text-4xl tracking-[-0.05em] text-black md:text-5xl">Despacho rápido y seguimiento claro de tu pedido</h1>
             <p className="mt-4 max-w-3xl text-sm leading-7 text-black/62 md:text-base md:leading-8">
-              Te ayudamos a completar bien tus datos, ubicar el pin de entrega y seguir el pedido desde tu cuenta.
+              Comprando antes de las 17 hs, el pedido sale en el día. Si entra después de ese horario, se despacha al día siguiente.
+              Contamos con una logística muy ágil, lo que nos permite preparar compras rápido y sostener envíos inmediatos a todo el país.
+              Además, una vez realizada la compra, vas a poder seguir el estado del pedido y del envío desde tu cuenta.
             </p>
             {state.status !== 'idle' ? (
               <div
@@ -600,7 +617,7 @@ export function CheckoutForm({ items, settings }: CheckoutFormProps) {
                 <div className="mt-3 space-y-2">
                   <p
                     className={`text-sm ${
-                      shippingPreview.shippingAmount === 0 ? 'text-emerald-700' : 'font-medium text-red-700'
+                      shippingPreview.shippingAmount === 0 ? 'font-medium text-emerald-700' : 'font-medium text-red-700'
                     }`}
                   >
                     {shippingPreview.shippingAmount === 0
@@ -614,73 +631,81 @@ export function CheckoutForm({ items, settings }: CheckoutFormProps) {
                   ) : null}
                 </div>
               ) : (
-                <p className="mt-3 text-sm text-black/58">
-                  Tenemos una logística muy cuidada: despachamos en el día para todo Argentina comprando antes de las 18 hs.
-                  Si la compra entra después de ese horario, se despacha al día siguiente.
-                </p>
+                <div className="mt-3 space-y-3">
+                  <p className="text-sm text-black/58">
+                    Comprando antes de las 17 hs despachamos en el día. Si la compra entra después, sale al día siguiente.
+                  </p>
+                  {shippingPreview.shippingAmount === 0 ? (
+                    <p className="rounded-[18px] border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">
+                      Envío nacional gratis por superar {formatPrice(settings.localDeliveryFreeThreshold)}.
+                    </p>
+                  ) : null}
+                </div>
               )}
             </div>
 
-            <div className="mt-6 grid gap-3 md:grid-cols-2">
-              <label className="rounded-[22px] border border-black/10 bg-white px-4 py-4 text-sm uppercase tracking-[0.12em]">
+            <div className="mt-6 grid gap-3">
+              <label
+                className={`group cursor-pointer rounded-[24px] border px-4 py-4 text-sm transition ${
+                  paymentMethod === 'ONLINE'
+                    ? 'border-black bg-[#f7f7f4] shadow-[0_12px_28px_rgba(0,0,0,0.06)]'
+                    : 'border-black/10 bg-white hover:border-black/20 hover:bg-[#fafaf7]'
+                }`}
+              >
                 <input
                   type="radio"
                   name="paymentMethod"
                   checked={paymentMethod === 'ONLINE'}
                   onChange={() => setPaymentMethod('ONLINE')}
-                  className="mr-3"
+                  className="sr-only"
                 />
-                Pagado online
-              </label>
-              {settings.barilocheEnabled ? (
-                <label
-                  className={`rounded-[22px] border border-black/10 px-4 py-4 text-sm uppercase tracking-[0.12em] ${
-                    shippingPreview.allowCashOnDelivery ? 'bg-white' : 'bg-[#f7f7f4] text-black/34'
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="paymentMethod"
-                    checked={paymentMethod === 'CASH_ON_DELIVERY'}
-                    onChange={() => setPaymentMethod(shippingPreview.allowCashOnDelivery ? 'CASH_ON_DELIVERY' : 'ONLINE')}
-                    disabled={!shippingPreview.allowCashOnDelivery}
-                    className="mr-3"
-                  />
-                  Pago contra entrega
-                </label>
-              ) : null}
-            </div>
-
-            {shippingPreview.allowCashOnDelivery && paymentMethod === 'CASH_ON_DELIVERY' ? (
-              <div className="mt-4 rounded-[24px] border border-black/8 bg-[#fafaf8] px-5 py-5 text-sm text-black/68">
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-black/46">¿Cómo funciona?</p>
-                <p className="mt-3 text-[15px] leading-7 text-black/76">
-                  Si elegís <strong>pago contra entrega</strong>, confirmamos tu pedido ahora y lo llevamos a domicilio en Bariloche.
-                  Cuando llegue el repartidor, vas a poder pagar de la forma que te resulte más cómoda.
-                </p>
-                <div className="mt-4 grid gap-3 sm:grid-cols-3">
-                  <div className="rounded-[18px] border border-black/8 bg-white px-4 py-4">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-black/42">QR Mercado Pago</p>
-                    <p className="mt-2 text-sm leading-6 text-black/66">Te mostramos un QR al momento de la entrega para pagar rápido desde el celu.</p>
-                  </div>
-                  <div className="rounded-[18px] border border-black/8 bg-white px-4 py-4">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-black/42">Transferencia</p>
-                    <p className="mt-2 text-sm leading-6 text-black/66">Si preferís, también podés transferir en el momento y te esperamos la confirmación.</p>
-                  </div>
-                  <div className="rounded-[18px] border border-black/8 bg-white px-4 py-4">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-black/42">Efectivo</p>
-                    <p className="mt-2 text-sm leading-6 text-black/66">También podés abonarlo en efectivo cuando recibís el pedido en tu domicilio.</p>
+                <div className="flex items-start gap-3">
+                  <span
+                    className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition ${
+                      paymentMethod === 'ONLINE' ? 'border-black bg-black' : 'border-black/22 bg-white'
+                    }`}
+                    aria-hidden="true"
+                  >
+                    <span
+                      className={`h-2 w-2 rounded-full bg-white transition ${
+                        paymentMethod === 'ONLINE' ? 'scale-100 opacity-100' : 'scale-0 opacity-0'
+                      }`}
+                    />
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <MercadoPagoBadge compact />
+                      <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-black/42">Recomendado</span>
+                    </div>
+                    <p className="text-sm font-semibold tracking-normal text-black/84">Pagar con Mercado Pago</p>
+                    <p className="mt-1 text-xs tracking-normal text-black/56">Checkout seguro para tarjeta, saldo o dinero en cuenta.</p>
                   </div>
                 </div>
-                <p className="mt-4 text-sm leading-6 text-black/54">
-                  La idea es que tengas una compra simple y tranquila: reservás ahora y pagás recién cuando te lo entregamos.
-                </p>
-                <p className="mt-3 text-sm leading-6 text-black/54">
-                  Además, trabajamos con una logística muy ágil: para envíos a todo Argentina, las compras que entran antes de
-                  las 18 hs se despachan en el día. Si entran después, salen al día siguiente.
-                </p>
+              </label>
+              <div className="rounded-[24px] border border-dashed border-black/14 bg-[#fafaf8] px-4 py-4 text-sm">
+                <div className="flex items-start gap-3">
+                  <span
+                    className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-black/18 bg-white"
+                    aria-hidden="true"
+                  >
+                    <span className="h-2 w-2 rounded-full bg-black/18" />
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="text-sm font-semibold uppercase tracking-[0.12em] text-black/84">
+                        Pago contra entrega solo Bariloche
+                      </p>
+                      <span className="rounded-full border border-black/10 bg-white px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-black/54">
+                        Próximamente
+                      </span>
+                    </div>
+                    <p className="mt-1 text-xs normal-case tracking-normal text-black/56">
+                      Lo vamos a habilitar dentro de poco para entregas en San Carlos de Bariloche.
+                    </p>
+                  </div>
+                </div>
               </div>
-            ) : null}
+            </div>
           </div>
         </div>
 
@@ -712,7 +737,9 @@ export function CheckoutForm({ items, settings }: CheckoutFormProps) {
             ) : null}
             <div className="flex justify-between">
               <span>{shippingPreview.isBariloche ? 'Envío Bariloche' : 'Envío nacional'}</span>
-              <span>{shippingPreview.shippingAmount === 0 ? 'Gratis' : formatPrice(shippingPreview.shippingAmount)}</span>
+              <span className={shippingPreview.shippingAmount === 0 ? 'font-semibold text-emerald-700' : ''}>
+                {shippingPreview.shippingAmount === 0 ? 'Envío gratis' : formatPrice(shippingPreview.shippingAmount)}
+              </span>
             </div>
             <div className="flex justify-between border-t border-black/10 pt-4 text-base font-semibold text-black">
               <span>Total</span>
@@ -737,7 +764,7 @@ export function CheckoutForm({ items, settings }: CheckoutFormProps) {
             />
             <span className="relative z-10 inline-flex items-center justify-center gap-2">
               {state.status === 'saving' ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
-              {state.status === 'saving' ? 'Procesando compra…' : paymentMethod === 'CASH_ON_DELIVERY' ? 'Confirmar y ver mi cuenta' : 'Continuar con la compra'}
+              {state.status === 'saving' ? 'Cargando Mercado Pago…' : 'Pagar con Mercado Pago'}
             </span>
           </button>
         </aside>

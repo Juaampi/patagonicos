@@ -1,0 +1,24 @@
+
+> patitasandinas2@0.1.0 dev
+> next dev
+
+▲ Next.js 16.2.4 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.1.248:3000
+- Environments: .env
+✓ Ready in 547ms
+Creating turbopack project { dir: 'C:\\xampp\\htdocs\\patitasandinas2', testMode: true }
+- Experiments (use with caution):
+  · serverActions
+
+ GET /carrito 200 in 5.4s (next.js: 255ms, application-code: 5.2s)
+ GET /transito 200 in 1719ms (next.js: 93ms, application-code: 1626ms)
+ GET /adoptame 200 in 1587ms (next.js: 51ms, application-code: 1536ms)
+✓ Compiled in 1025ms
+ GET /adoptame 500 in 293ms (next.js: 164ms, application-code: 130ms)
+ GET /adoptame 500 in 37ms (next.js: 14ms, application-code: 23ms)
+ GET /adoptame 500 in 25ms (next.js: 11ms, application-code: 14ms)
+ GET /adoptame 500 in 39ms (next.js: 20ms, application-code: 19ms)
+ GET /adoptame 200 in 4.7s (next.js: 311ms, application-code: 4.4s)
+ GET /adoptame 200 in 1980ms (next.js: 404ms, application-code: 1576ms)
+✓ Compiled in 256ms

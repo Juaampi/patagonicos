@@ -7,7 +7,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useCart } from '@/components/cart/cart-provider'
 import { CashOnDeliveryInfo } from '@/components/marketing/cash-on-delivery-info'
 import { BarilocheDeliveryCountdown } from '@/components/marketing/bariloche-delivery-countdown'
-import { getFeatureChips, getMaterialSpecs } from '@/lib/product-display'
+import { getFeatureChips } from '@/lib/product-display'
 import type { StoreSettingsSnapshot } from '@/lib/store-settings'
 import {
   getAvailableSizes,
@@ -78,6 +78,32 @@ function getSoldScale(count?: number) {
   if (count >= 50) return '+50'
   if (count >= 20) return '+20'
   return '+5'
+}
+
+function getInstallmentPrice(price: number) {
+  return Math.round(price / 3)
+}
+
+function getVariantStockNotice(stock?: number) {
+  if (!stock || stock <= 0) {
+    return null
+  }
+
+  if (stock === 1) {
+    return {
+      label: 'Ultima unidad',
+      className: 'border border-red-200 bg-red-50 text-red-700',
+    }
+  }
+
+  if (stock <= 3) {
+    return {
+      label: `Quedan ${stock} unidades`,
+      className: 'border border-orange-200 bg-orange-50 text-orange-700',
+    }
+  }
+
+  return null
 }
 
 function RatingStars({ value, size = 'h-4 w-4' }: { value: number; size?: string }) {
@@ -188,7 +214,6 @@ export function ProductDetail({
   const mobileAddToCartRef = useRef<HTMLButtonElement>(null)
   const touchStartXRef = useRef<number | null>(null)
   const featureChips = getFeatureChips(product.featureTags)
-  const materialSpecs = getMaterialSpecs(product.materials)
 
   const gallery = useMemo(() => getGalleryForColor(product, selectedColor), [product, selectedColor])
   const availableSizes = useMemo(() => getAvailableSizes(product, selectedColor), [product, selectedColor])
@@ -200,8 +225,8 @@ export function ProductDetail({
   const averageRating = getReviewAverage(product)
   const reviewCount = product.reviews.length
   const soldScale = getSoldScale(product.salesCount)
-  const lowStockLabel =
-    selectedSizeInfo?.inStock && selectedSizeInfo.stock <= 3 ? `Quedan ${selectedSizeInfo.stock}` : ''
+  const installmentPrice = getInstallmentPrice(product.price)
+  const variantStockNotice = getVariantStockNotice(selectedSizeInfo?.stock)
   const [cartFeedback, setCartFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
   const [isAddingToCart, setIsAddingToCart] = useState(false)
   const [mobileButtonInView, setMobileButtonInView] = useState(false)
@@ -352,6 +377,9 @@ export function ProductDetail({
               <p className="pt-1 text-sm text-black/40 line-through">{formatPrice(product.compareAtPrice)}</p>
             ) : null}
           </div>
+          <p className="mt-3 text-sm font-medium leading-6 text-emerald-700">
+            Mismo precio en 3 cuotas de {formatPrice(installmentPrice)}
+          </p>
           <p className="mt-4 max-w-[28rem] text-sm leading-7 text-black/62">{product.shortDescription}</p>
         </div>
 
@@ -506,6 +534,11 @@ export function ProductDetail({
               <span className="text-sm text-black/56">No hay talles disponibles para este color.</span>
             )}
           </div>
+          {resolvedSelectedSize && selectedSizeInfo?.inStock && variantStockNotice ? (
+            <p className={`mt-3 inline-flex rounded-full px-3 py-1.5 text-sm font-medium ${variantStockNotice.className}`}>
+              {variantStockNotice.label}
+            </p>
+          ) : null}
         </div>
 
         <div className="card-surface p-5">
@@ -537,10 +570,16 @@ export function ProductDetail({
                 Disponible en Bariloche para entrega local.
               </PurchaseBenefitRow>
             ) : null}
-            {resolvedSelectedSize && selectedSizeInfo && (!selectedSizeInfo.inStock || lowStockLabel) ? (
-              <p className="text-base font-medium text-black/86">
-                {selectedSizeInfo.inStock ? lowStockLabel : 'Sin stock'}
-              </p>
+            {resolvedSelectedSize && selectedSizeInfo ? (
+              selectedSizeInfo.inStock && variantStockNotice ? (
+                <p
+                  className={`inline-flex rounded-full px-3 py-1.5 text-sm font-medium ${variantStockNotice.className}`}
+                >
+                  {variantStockNotice.label}
+                </p>
+              ) : (
+                <p className="text-base font-medium text-black/86">Sin stock</p>
+              )
             ) : null}
             <button
               ref={mobileAddToCartRef}
@@ -652,6 +691,9 @@ export function ProductDetail({
               {product.compareAtPrice ? (
                 <p className="mt-1 text-sm text-black/40 line-through">{formatPrice(product.compareAtPrice)}</p>
               ) : null}
+              <p className="mt-2 text-sm font-medium leading-6 text-emerald-700">
+                3 cuotas de {formatPrice(installmentPrice)}
+              </p>
             </div>
           </div>
 
@@ -716,6 +758,11 @@ export function ProductDetail({
                 <span className="text-sm text-black/56">No hay talles disponibles para este color.</span>
               )}
             </div>
+            {resolvedSelectedSize && selectedSizeInfo?.inStock && variantStockNotice ? (
+              <p className={`mt-3 inline-flex rounded-full px-3 py-1.5 text-sm font-medium ${variantStockNotice.className}`}>
+                {variantStockNotice.label}
+              </p>
+            ) : null}
           </div>
 
           <div className="mt-6 space-y-3 border-t border-black/8 pt-5">
@@ -779,7 +826,6 @@ export function ProductDetail({
               {canAddToCart ? (isAddingToCart ? 'Agregando...' : 'Agregar al carrito') : 'Sin stock'}
             </span>
           </button>
-          {lowStockLabel ? <p className="mt-3 text-sm font-medium text-black/72">{lowStockLabel}</p> : null}
           <AddToCartFeedback feedback={cartFeedback} />
 
         </div>
@@ -807,26 +853,6 @@ export function ProductDetail({
                 {chip.text ? <p className="mt-2 text-sm leading-6 text-black/58">{chip.text}</p> : null}
               </div>
             ))}
-          </div>
-        </section>
-
-        <section className="card-surface p-7 md:p-9">
-          <p className="eyebrow">Materiales</p>
-          <div className="mt-5 grid gap-3 md:grid-cols-2">
-            {materialSpecs.map((material) => {
-              const Icon = material.icon
-              return (
-                <div key={material.title} className="flex items-center gap-4 rounded-[24px] bg-[#f4f4f1] px-5 py-5">
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-black/8 bg-white">
-                    <Icon className="h-4 w-4 text-black/82" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-black/76">{material.title}</p>
-                    {material.description ? <p className="mt-1 text-sm leading-6 text-black/56">{material.description}</p> : null}
-                  </div>
-                </div>
-              )
-            })}
           </div>
         </section>
 

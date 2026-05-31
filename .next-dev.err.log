@@ -1,0 +1,336 @@
+[browser] Image with src "https://res.cloudinary.com/dz3sofmyu/image/upload/v1777999602/patitas-andinas/products/efwox4vd6lvkf9msjkp6.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://res.cloudinary.com/dz3sofmyu/image/upload/v1778095815/patitas-andinas/products/cxz5swotqwbnsjqn633c.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://res.cloudinary.com/dz3sofmyu/image/upload/v1780185035/patitas-andinas/adoptions/vl8di4m4uijy8hdfw8it.jpg" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://res.cloudinary.com/dz3sofmyu/image/upload/v1780185031/patitas-andinas/adoptions/rnabru9f3bxftixilp1w.jpg" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://res.cloudinary.com/dz3sofmyu/image/upload/v1780185033/patitas-andinas/adoptions/ob4pdmmt9qzftoihnqnv.jpg" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+[browser] Image with src "https://res.cloudinary.com/dz3sofmyu/image/upload/v1780185035/patitas-andinas/adoptions/qw8s9d5c8pigmt1eg7dt.jpg" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://res.cloudinary.com/dz3sofmyu/image/upload/v1780185031/patitas-andinas/adoptions/uynpsxmzc6buovstk1nz.jpg" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://res.cloudinary.com/dz3sofmyu/image/upload/v1780185031/patitas-andinas/adoptions/ho9c37kfti5iz2rqpqnn.jpg" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+⨯ upstream image response failed for https://images.unsplash.com/photo-1518715308788-3005759c95e8?auto=format&fit=crop&w=1400&q=80 404
+⨯ ./app/layout.tsx:7:1
+Module not found: Can't resolve '@/components/layout/navigation-feedback'
+  [90m 5 |[0m [36mimport[0m { [33mCartProvider[0m } [36mfrom[0m [32m'@/components/cart/cart-provider'[0m
+  [90m 6 |[0m [36mimport[0m { [33mFloatingActions[0m } [36mfrom[0m [32m'@/components/layout/floating-actions'[0m
+[31m[1m>[0m [90m 7 |[0m [36mimport[0m { [33mNavigationFeedback[0m } [36mfrom[0m [32m'@/components/layout/navigation-feedback'[0m
+  [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m 8 |[0m [36mimport[0m { [33mSiteFooterShell[0m } [36mfrom[0m [32m'@/components/layout/site-footer-shell'[0m
+  [90m 9 |[0m [36mimport[0m { [33mSiteHeaderShell[0m } [36mfrom[0m [32m'@/components/layout/site-header-shell'[0m
+  [90m10 |[0m
+
+Import map: aliased to relative './components/layout/navigation-feedback' inside of [project]/
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./app/layout.tsx:7:1
+Module not found: Can't resolve '@/components/layout/navigation-feedback'
+  [90m 5 |[0m [36mimport[0m { [33mCartProvider[0m } [36mfrom[0m [32m'@/components/cart/cart-provider'[0m
+  [90m 6 |[0m [36mimport[0m { [33mFloatingActions[0m } [36mfrom[0m [32m'@/components/layout/floating-actions'[0m
+[31m[1m>[0m [90m 7 |[0m [36mimport[0m { [33mNavigationFeedback[0m } [36mfrom[0m [32m'@/components/layout/navigation-feedback'[0m
+  [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m 8 |[0m [36mimport[0m { [33mSiteFooterShell[0m } [36mfrom[0m [32m'@/components/layout/site-footer-shell'[0m
+  [90m 9 |[0m [36mimport[0m { [33mSiteHeaderShell[0m } [36mfrom[0m [32m'@/components/layout/site-header-shell'[0m
+  [90m10 |[0m
+
+Import map: aliased to relative './components/layout/navigation-feedback' inside of [project]/
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./app/layout.tsx:7:1
+Module not found: Can't resolve '@/components/layout/navigation-feedback'
+  [90m 5 |[0m [36mimport[0m { [33mCartProvider[0m } [36mfrom[0m [32m'@/components/cart/cart-provider'[0m
+  [90m 6 |[0m [36mimport[0m { [33mFloatingActions[0m } [36mfrom[0m [32m'@/components/layout/floating-actions'[0m
+[31m[1m>[0m [90m 7 |[0m [36mimport[0m { [33mNavigationFeedback[0m } [36mfrom[0m [32m'@/components/layout/navigation-feedback'[0m
+  [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m 8 |[0m [36mimport[0m { [33mSiteFooterShell[0m } [36mfrom[0m [32m'@/components/layout/site-footer-shell'[0m
+  [90m 9 |[0m [36mimport[0m { [33mSiteHeaderShell[0m } [36mfrom[0m [32m'@/components/layout/site-header-shell'[0m
+  [90m10 |[0m
+
+Import map: aliased to relative './components/layout/navigation-feedback' inside of [project]/
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./app/layout.tsx:7:1
+Module not found: Can't resolve '@/components/layout/navigation-feedback'
+  [90m 5 |[0m [36mimport[0m { [33mCartProvider[0m } [36mfrom[0m [32m'@/components/cart/cart-provider'[0m
+  [90m 6 |[0m [36mimport[0m { [33mFloatingActions[0m } [36mfrom[0m [32m'@/components/layout/floating-actions'[0m
+[31m[1m>[0m [90m 7 |[0m [36mimport[0m { [33mNavigationFeedback[0m } [36mfrom[0m [32m'@/components/layout/navigation-feedback'[0m
+  [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m 8 |[0m [36mimport[0m { [33mSiteFooterShell[0m } [36mfrom[0m [32m'@/components/layout/site-footer-shell'[0m
+  [90m 9 |[0m [36mimport[0m { [33mSiteHeaderShell[0m } [36mfrom[0m [32m'@/components/layout/site-header-shell'[0m
+  [90m10 |[0m
+
+Import map: aliased to relative './components/layout/navigation-feedback' inside of [project]/
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./app/layout.tsx:7:1
+Module not found: Can't resolve '@/components/layout/navigation-feedback'
+  [90m 5 |[0m [36mimport[0m { [33mCartProvider[0m } [36mfrom[0m [32m'@/components/cart/cart-provider'[0m
+  [90m 6 |[0m [36mimport[0m { [33mFloatingActions[0m } [36mfrom[0m [32m'@/components/layout/floating-actions'[0m
+[31m[1m>[0m [90m 7 |[0m [36mimport[0m { [33mNavigationFeedback[0m } [36mfrom[0m [32m'@/components/layout/navigation-feedback'[0m
+  [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m 8 |[0m [36mimport[0m { [33mSiteFooterShell[0m } [36mfrom[0m [32m'@/components/layout/site-footer-shell'[0m
+  [90m 9 |[0m [36mimport[0m { [33mSiteHeaderShell[0m } [36mfrom[0m [32m'@/components/layout/site-header-shell'[0m
+  [90m10 |[0m
+
+Import map: aliased to relative './components/layout/navigation-feedback' inside of [project]/
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./app/layout.tsx:7:1
+Module not found: Can't resolve '@/components/layout/navigation-feedback'
+  [90m 5 |[0m [36mimport[0m { [33mCartProvider[0m } [36mfrom[0m [32m'@/components/cart/cart-provider'[0m
+  [90m 6 |[0m [36mimport[0m { [33mFloatingActions[0m } [36mfrom[0m [32m'@/components/layout/floating-actions'[0m
+[31m[1m>[0m [90m 7 |[0m [36mimport[0m { [33mNavigationFeedback[0m } [36mfrom[0m [32m'@/components/layout/navigation-feedback'[0m
+  [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m 8 |[0m [36mimport[0m { [33mSiteFooterShell[0m } [36mfrom[0m [32m'@/components/layout/site-footer-shell'[0m
+  [90m 9 |[0m [36mimport[0m { [33mSiteHeaderShell[0m } [36mfrom[0m [32m'@/components/layout/site-header-shell'[0m
+  [90m10 |[0m
+
+Import map: aliased to relative './components/layout/navigation-feedback' inside of [project]/
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./app/layout.tsx:7:1
+Module not found: Can't resolve '@/components/layout/navigation-feedback'
+  [90m 5 |[0m [36mimport[0m { [33mCartProvider[0m } [36mfrom[0m [32m'@/components/cart/cart-provider'[0m
+  [90m 6 |[0m [36mimport[0m { [33mFloatingActions[0m } [36mfrom[0m [32m'@/components/layout/floating-actions'[0m
+[31m[1m>[0m [90m 7 |[0m [36mimport[0m { [33mNavigationFeedback[0m } [36mfrom[0m [32m'@/components/layout/navigation-feedback'[0m
+  [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m 8 |[0m [36mimport[0m { [33mSiteFooterShell[0m } [36mfrom[0m [32m'@/components/layout/site-footer-shell'[0m
+  [90m 9 |[0m [36mimport[0m { [33mSiteHeaderShell[0m } [36mfrom[0m [32m'@/components/layout/site-header-shell'[0m
+  [90m10 |[0m
+
+Import map: aliased to relative './components/layout/navigation-feedback' inside of [project]/
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./app/layout.tsx:7:1
+Module not found: Can't resolve '@/components/layout/navigation-feedback'
+  [90m 5 |[0m [36mimport[0m { [33mCartProvider[0m } [36mfrom[0m [32m'@/components/cart/cart-provider'[0m
+  [90m 6 |[0m [36mimport[0m { [33mFloatingActions[0m } [36mfrom[0m [32m'@/components/layout/floating-actions'[0m
+[31m[1m>[0m [90m 7 |[0m [36mimport[0m { [33mNavigationFeedback[0m } [36mfrom[0m [32m'@/components/layout/navigation-feedback'[0m
+  [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m 8 |[0m [36mimport[0m { [33mSiteFooterShell[0m } [36mfrom[0m [32m'@/components/layout/site-footer-shell'[0m
+  [90m 9 |[0m [36mimport[0m { [33mSiteHeaderShell[0m } [36mfrom[0m [32m'@/components/layout/site-header-shell'[0m
+  [90m10 |[0m
+
+Import map: aliased to relative './components/layout/navigation-feedback' inside of [project]/
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./app/layout.tsx:7:1
+Module not found: Can't resolve '@/components/layout/navigation-feedback'
+  [90m 5 |[0m [36mimport[0m { [33mCartProvider[0m } [36mfrom[0m [32m'@/components/cart/cart-provider'[0m
+  [90m 6 |[0m [36mimport[0m { [33mFloatingActions[0m } [36mfrom[0m [32m'@/components/layout/floating-actions'[0m
+[31m[1m>[0m [90m 7 |[0m [36mimport[0m { [33mNavigationFeedback[0m } [36mfrom[0m [32m'@/components/layout/navigation-feedback'[0m
+  [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m 8 |[0m [36mimport[0m { [33mSiteFooterShell[0m } [36mfrom[0m [32m'@/components/layout/site-footer-shell'[0m
+  [90m 9 |[0m [36mimport[0m { [33mSiteHeaderShell[0m } [36mfrom[0m [32m'@/components/layout/site-header-shell'[0m
+  [90m10 |[0m
+
+Import map: aliased to relative './components/layout/navigation-feedback' inside of [project]/
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./app/layout.tsx:7:1
+Module not found: Can't resolve '@/components/layout/navigation-feedback'
+  [90m 5 |[0m [36mimport[0m { [33mCartProvider[0m } [36mfrom[0m [32m'@/components/cart/cart-provider'[0m
+  [90m 6 |[0m [36mimport[0m { [33mFloatingActions[0m } [36mfrom[0m [32m'@/components/layout/floating-actions'[0m
+[31m[1m>[0m [90m 7 |[0m [36mimport[0m { [33mNavigationFeedback[0m } [36mfrom[0m [32m'@/components/layout/navigation-feedback'[0m
+  [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m 8 |[0m [36mimport[0m { [33mSiteFooterShell[0m } [36mfrom[0m [32m'@/components/layout/site-footer-shell'[0m
+  [90m 9 |[0m [36mimport[0m { [33mSiteHeaderShell[0m } [36mfrom[0m [32m'@/components/layout/site-header-shell'[0m
+  [90m10 |[0m
+
+Import map: aliased to relative './components/layout/navigation-feedback' inside of [project]/
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./app/layout.tsx:7:1
+Module not found: Can't resolve '@/components/layout/navigation-feedback'
+  [90m 5 |[0m [36mimport[0m { [33mCartProvider[0m } [36mfrom[0m [32m'@/components/cart/cart-provider'[0m
+  [90m 6 |[0m [36mimport[0m { [33mFloatingActions[0m } [36mfrom[0m [32m'@/components/layout/floating-actions'[0m
+[31m[1m>[0m [90m 7 |[0m [36mimport[0m { [33mNavigationFeedback[0m } [36mfrom[0m [32m'@/components/layout/navigation-feedback'[0m
+  [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m 8 |[0m [36mimport[0m { [33mSiteFooterShell[0m } [36mfrom[0m [32m'@/components/layout/site-footer-shell'[0m
+  [90m 9 |[0m [36mimport[0m { [33mSiteHeaderShell[0m } [36mfrom[0m [32m'@/components/layout/site-header-shell'[0m
+  [90m10 |[0m
+
+Import map: aliased to relative './components/layout/navigation-feedback' inside of [project]/
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./app/layout.tsx:7:1
+Module not found: Can't resolve '@/components/layout/navigation-feedback'
+  [90m 5 |[0m [36mimport[0m { [33mCartProvider[0m } [36mfrom[0m [32m'@/components/cart/cart-provider'[0m
+  [90m 6 |[0m [36mimport[0m { [33mFloatingActions[0m } [36mfrom[0m [32m'@/components/layout/floating-actions'[0m
+[31m[1m>[0m [90m 7 |[0m [36mimport[0m { [33mNavigationFeedback[0m } [36mfrom[0m [32m'@/components/layout/navigation-feedback'[0m
+  [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m 8 |[0m [36mimport[0m { [33mSiteFooterShell[0m } [36mfrom[0m [32m'@/components/layout/site-footer-shell'[0m
+  [90m 9 |[0m [36mimport[0m { [33mSiteHeaderShell[0m } [36mfrom[0m [32m'@/components/layout/site-header-shell'[0m
+  [90m10 |[0m
+
+Import map: aliased to relative './components/layout/navigation-feedback' inside of [project]/
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./app/layout.tsx:7:1
+Module not found: Can't resolve '@/components/layout/navigation-feedback'
+  [90m 5 |[0m [36mimport[0m { [33mCartProvider[0m } [36mfrom[0m [32m'@/components/cart/cart-provider'[0m
+  [90m 6 |[0m [36mimport[0m { [33mFloatingActions[0m } [36mfrom[0m [32m'@/components/layout/floating-actions'[0m
+[31m[1m>[0m [90m 7 |[0m [36mimport[0m { [33mNavigationFeedback[0m } [36mfrom[0m [32m'@/components/layout/navigation-feedback'[0m
+  [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m 8 |[0m [36mimport[0m { [33mSiteFooterShell[0m } [36mfrom[0m [32m'@/components/layout/site-footer-shell'[0m
+  [90m 9 |[0m [36mimport[0m { [33mSiteHeaderShell[0m } [36mfrom[0m [32m'@/components/layout/site-header-shell'[0m
+  [90m10 |[0m
+
+Import map: aliased to relative './components/layout/navigation-feedback' inside of [project]/
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./app/layout.tsx:7:1
+Module not found: Can't resolve '@/components/layout/navigation-feedback'
+  [90m 5 |[0m [36mimport[0m { [33mCartProvider[0m } [36mfrom[0m [32m'@/components/cart/cart-provider'[0m
+  [90m 6 |[0m [36mimport[0m { [33mFloatingActions[0m } [36mfrom[0m [32m'@/components/layout/floating-actions'[0m
+[31m[1m>[0m [90m 7 |[0m [36mimport[0m { [33mNavigationFeedback[0m } [36mfrom[0m [32m'@/components/layout/navigation-feedback'[0m
+  [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m 8 |[0m [36mimport[0m { [33mSiteFooterShell[0m } [36mfrom[0m [32m'@/components/layout/site-footer-shell'[0m
+  [90m 9 |[0m [36mimport[0m { [33mSiteHeaderShell[0m } [36mfrom[0m [32m'@/components/layout/site-header-shell'[0m
+  [90m10 |[0m
+
+Import map: aliased to relative './components/layout/navigation-feedback' inside of [project]/
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./app/layout.tsx:7:1
+Module not found: Can't resolve '@/components/layout/navigation-feedback'
+  [90m 5 |[0m [36mimport[0m { [33mCartProvider[0m } [36mfrom[0m [32m'@/components/cart/cart-provider'[0m
+  [90m 6 |[0m [36mimport[0m { [33mFloatingActions[0m } [36mfrom[0m [32m'@/components/layout/floating-actions'[0m
+[31m[1m>[0m [90m 7 |[0m [36mimport[0m { [33mNavigationFeedback[0m } [36mfrom[0m [32m'@/components/layout/navigation-feedback'[0m
+  [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m 8 |[0m [36mimport[0m { [33mSiteFooterShell[0m } [36mfrom[0m [32m'@/components/layout/site-footer-shell'[0m
+  [90m 9 |[0m [36mimport[0m { [33mSiteHeaderShell[0m } [36mfrom[0m [32m'@/components/layout/site-header-shell'[0m
+  [90m10 |[0m
+
+Import map: aliased to relative './components/layout/navigation-feedback' inside of [project]/
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./app/layout.tsx:7:1
+Module not found: Can't resolve '@/components/layout/navigation-feedback'
+  [90m 5 |[0m [36mimport[0m { [33mCartProvider[0m } [36mfrom[0m [32m'@/components/cart/cart-provider'[0m
+  [90m 6 |[0m [36mimport[0m { [33mFloatingActions[0m } [36mfrom[0m [32m'@/components/layout/floating-actions'[0m
+[31m[1m>[0m [90m 7 |[0m [36mimport[0m { [33mNavigationFeedback[0m } [36mfrom[0m [32m'@/components/layout/navigation-feedback'[0m
+  [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m 8 |[0m [36mimport[0m { [33mSiteFooterShell[0m } [36mfrom[0m [32m'@/components/layout/site-footer-shell'[0m
+  [90m 9 |[0m [36mimport[0m { [33mSiteHeaderShell[0m } [36mfrom[0m [32m'@/components/layout/site-header-shell'[0m
+  [90m10 |[0m
+
+Import map: aliased to relative './components/layout/navigation-feedback' inside of [project]/
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./app/layout.tsx:7:1
+Module not found: Can't resolve '@/components/layout/navigation-feedback'
+  [90m 5 |[0m [36mimport[0m { [33mCartProvider[0m } [36mfrom[0m [32m'@/components/cart/cart-provider'[0m
+  [90m 6 |[0m [36mimport[0m { [33mFloatingActions[0m } [36mfrom[0m [32m'@/components/layout/floating-actions'[0m
+[31m[1m>[0m [90m 7 |[0m [36mimport[0m { [33mNavigationFeedback[0m } [36mfrom[0m [32m'@/components/layout/navigation-feedback'[0m
+  [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m 8 |[0m [36mimport[0m { [33mSiteFooterShell[0m } [36mfrom[0m [32m'@/components/layout/site-footer-shell'[0m
+  [90m 9 |[0m [36mimport[0m { [33mSiteHeaderShell[0m } [36mfrom[0m [32m'@/components/layout/site-header-shell'[0m
+  [90m10 |[0m
+
+Import map: aliased to relative './components/layout/navigation-feedback' inside of [project]/
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./app/layout.tsx:7:1
+Module not found: Can't resolve '@/components/layout/navigation-feedback'
+  [90m 5 |[0m [36mimport[0m { [33mCartProvider[0m } [36mfrom[0m [32m'@/components/cart/cart-provider'[0m
+  [90m 6 |[0m [36mimport[0m { [33mFloatingActions[0m } [36mfrom[0m [32m'@/components/layout/floating-actions'[0m
+[31m[1m>[0m [90m 7 |[0m [36mimport[0m { [33mNavigationFeedback[0m } [36mfrom[0m [32m'@/components/layout/navigation-feedback'[0m
+  [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m 8 |[0m [36mimport[0m { [33mSiteFooterShell[0m } [36mfrom[0m [32m'@/components/layout/site-footer-shell'[0m
+  [90m 9 |[0m [36mimport[0m { [33mSiteHeaderShell[0m } [36mfrom[0m [32m'@/components/layout/site-header-shell'[0m
+  [90m10 |[0m
+
+Import map: aliased to relative './components/layout/navigation-feedback' inside of [project]/
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[browser] Uncaught Error: ./app/layout.tsx:7:1
+Module not found: Can't resolve '@/components/layout/navigation-feedback'
+   5 | import { CartProvider } from '@/components/cart/cart-provider'
+   6 | import { FloatingActions } from '@/components/layout/floating-actions'
+>  7 | import { NavigationFeedback } from '@/components/layout/navigation-feedback'
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   8 | import { SiteFooterShell } from '@/components/layout/site-footer-shell'
+   9 | import { SiteHeaderShell } from '@/components/layout/site-header-shell'
+  10 |
+
+Import map: aliased to relative './components/layout/navigation-feedback' inside of [project]/
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+    at <unknown> (Error: ./app/layout.tsx:7:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> (Error: (./app/layout.tsx:7:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+⨯ Error: useCart debe usarse dentro de CartProvider
+    at useCart (components\cart\cart-provider.tsx:132:11)
+    at SiteHeader (components\layout\site-header.tsx:33:44)
+  130 |   const context = useContext(CartContext)
+  131 |   if (!context) {
+> 132 |     throw new Error('useCart debe usarse dentro de CartProvider')
+      |           ^
+  133 |   }
+  134 |   return context
+  135 | } {
+  digest: '2195073812'
+}
+[browser] Image with src "https://res.cloudinary.com/dz3sofmyu/image/upload/v1780185035/patitas-andinas/adoptions/vl8di4m4uijy8hdfw8it.jpg" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://res.cloudinary.com/dz3sofmyu/image/upload/v1780185035/patitas-andinas/adoptions/qw8s9d5c8pigmt1eg7dt.jpg" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://res.cloudinary.com/dz3sofmyu/image/upload/v1780185031/patitas-andinas/adoptions/rnabru9f3bxftixilp1w.jpg" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://res.cloudinary.com/dz3sofmyu/image/upload/v1780185031/patitas-andinas/adoptions/uynpsxmzc6buovstk1nz.jpg" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://res.cloudinary.com/dz3sofmyu/image/upload/v1780185031/patitas-andinas/adoptions/ho9c37kfti5iz2rqpqnn.jpg" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+⨯ upstream image response failed for https://images.unsplash.com/photo-1518715308788-3005759c95e8?auto=format&fit=crop&w=1400&q=80 404

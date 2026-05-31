@@ -17,6 +17,7 @@ export function SiteFooter({ settings }: { settings: StoreSettingsSnapshot }) {
           <p className="eyebrow">Tienda</p>
           <div className="mt-4 space-y-3 text-sm text-black/68">
             <Link href="/productos" className="block hover:text-black">Productos</Link>
+            <Link href="/adoptame" className="block hover:text-black">Adoptame</Link>
             <Link href="/guia-de-talles" className="block hover:text-black">Guía de talles</Link>
             <Link href="/carrito" className="block hover:text-black">Carrito</Link>
           </div>

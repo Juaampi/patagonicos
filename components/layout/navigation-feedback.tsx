@@ -27,11 +27,63 @@ function shouldHandleNavigation(anchor: HTMLAnchorElement) {
   return url.pathname + url.search !== window.location.pathname + window.location.search
 }
 
+const MIN_VISIBLE_MS = 420
+const SAFETY_TIMEOUT_MS = 12000
+
 export function NavigationFeedback() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const [isLoading, setIsLoading] = useState(false)
-  const timeoutRef = useRef<number | null>(null)
+  const safetyTimeoutRef = useRef<number | null>(null)
+  const hideTimeoutRef = useRef<number | null>(null)
+  const startedAtRef = useRef<number | null>(null)
+  const activeRequestsRef = useRef(0)
+  const navigationPendingRef = useRef(false)
+
+  const clearTimers = () => {
+    if (safetyTimeoutRef.current) {
+      window.clearTimeout(safetyTimeoutRef.current)
+      safetyTimeoutRef.current = null
+    }
+
+    if (hideTimeoutRef.current) {
+      window.clearTimeout(hideTimeoutRef.current)
+      hideTimeoutRef.current = null
+    }
+  }
+
+  const showLoader = () => {
+    if (!startedAtRef.current) {
+      startedAtRef.current = Date.now()
+    }
+
+    clearTimers()
+    setIsLoading(true)
+
+    safetyTimeoutRef.current = window.setTimeout(() => {
+      activeRequestsRef.current = 0
+      navigationPendingRef.current = false
+      startedAtRef.current = null
+      setIsLoading(false)
+      clearTimers()
+    }, SAFETY_TIMEOUT_MS)
+  }
+
+  const syncLoader = () => {
+    if (activeRequestsRef.current > 0 || navigationPendingRef.current) {
+      showLoader()
+      return
+    }
+
+    const elapsed = startedAtRef.current ? Date.now() - startedAtRef.current : 0
+    const remaining = Math.max(0, MIN_VISIBLE_MS - elapsed)
+
+    hideTimeoutRef.current = window.setTimeout(() => {
+      setIsLoading(false)
+      startedAtRef.current = null
+      clearTimers()
+    }, remaining)
+  }
 
   useEffect(() => {
     const handleClick = (event: MouseEvent) => {
@@ -49,53 +101,81 @@ export function NavigationFeedback() {
         return
       }
 
-      setIsLoading(true)
+      navigationPendingRef.current = true
+      showLoader()
+    }
 
-      if (timeoutRef.current) {
-        window.clearTimeout(timeoutRef.current)
+    const handleSubmit = (event: SubmitEvent) => {
+      const target = event.target
+
+      if (!(target instanceof HTMLFormElement)) {
+        return
       }
 
-      timeoutRef.current = window.setTimeout(() => {
-        setIsLoading(false)
-      }, 5000)
+      navigationPendingRef.current = true
+      showLoader()
+    }
+
+    const handleRequestStart = () => {
+      activeRequestsRef.current += 1
+      showLoader()
+    }
+
+    const handleRequestStop = () => {
+      activeRequestsRef.current = Math.max(0, activeRequestsRef.current - 1)
+      syncLoader()
+    }
+
+    const originalFetch = window.fetch.bind(window)
+    window.fetch = async (...args) => {
+      handleRequestStart()
+
+      try {
+        return await originalFetch(...args)
+      } finally {
+        handleRequestStop()
+      }
     }
 
     document.addEventListener('click', handleClick)
+    document.addEventListener('submit', handleSubmit)
+    window.addEventListener('pa2-loading:start', handleRequestStart)
+    window.addEventListener('pa2-loading:stop', handleRequestStop)
 
     return () => {
+      window.fetch = originalFetch
       document.removeEventListener('click', handleClick)
-      if (timeoutRef.current) {
-        window.clearTimeout(timeoutRef.current)
-      }
+      document.removeEventListener('submit', handleSubmit)
+      window.removeEventListener('pa2-loading:start', handleRequestStart)
+      window.removeEventListener('pa2-loading:stop', handleRequestStop)
+      clearTimers()
     }
   }, [])
 
   useEffect(() => {
+    if (!navigationPendingRef.current) {
+      return
+    }
+
     window.requestAnimationFrame(() => {
-      setIsLoading(false)
       window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
     })
+
+    navigationPendingRef.current = false
+    syncLoader()
   }, [pathname, searchParams])
 
   return (
-    <>
-      <div
-        aria-hidden="true"
-        className={`pointer-events-none fixed bottom-0 left-0 right-0 z-[120] h-[2px] overflow-hidden bg-black/8 transition-opacity duration-300 ${
-          isLoading ? 'opacity-100' : 'opacity-0'
-        }`}
-      >
-        <div className="nav-loader-sweep h-full w-[34%] rounded-full bg-black" />
+    <div
+      aria-hidden="true"
+      className={`pointer-events-none fixed inset-x-0 bottom-0 z-[140] h-[3px] transition-opacity duration-300 ${
+        isLoading ? 'opacity-100' : 'opacity-0'
+      }`}
+    >
+      <div className="nav-loader-shell h-full w-full">
+        <div className="nav-loader-track h-full w-full" />
+        <div className="nav-loader-sweep h-full" />
       </div>
-
-      <div
-        aria-live="polite"
-        className={`pointer-events-none fixed bottom-3 left-3 z-[121] rounded-full border border-black/8 bg-white/92 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-black/56 shadow-[0_10px_30px_rgba(0,0,0,0.08)] backdrop-blur transition-all duration-300 md:bottom-4 md:left-4 ${
-          isLoading ? 'translate-y-0 opacity-100' : 'translate-y-2 opacity-0'
-        }`}
-      >
-        Cargando
-      </div>
-    </>
+    </div>
   )
 }

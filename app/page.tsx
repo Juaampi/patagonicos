@@ -1,4 +1,5 @@
 import { HeroSlider } from '@/components/marketing/hero-slider'
+import { AdoptionShowcase } from '@/components/adoption/adoption-showcase'
 import { BarilocheDeliveryCountdown } from '@/components/marketing/bariloche-delivery-countdown'
 import { BrandStory } from '@/components/marketing/brand-story'
 import { ShoppingBenefits } from '@/components/marketing/shopping-benefits'
@@ -6,6 +7,7 @@ import { SectionHeading } from '@/components/marketing/section-heading'
 import { ProductFeature } from '@/components/products/product-feature'
 import { ProductCard } from '@/components/products/product-card'
 import { faqItems } from '@/lib/store-data'
+import { getPublicAdoptionPets } from '@/lib/server/adoption'
 import { ensureStoreSettings } from '@/lib/server/fulfillment'
 import { getProductsByAnimal, getStarProduct, groupProductsByCategory } from '@/lib/store'
 
@@ -54,6 +56,7 @@ export default async function HomePage() {
   const starProduct = await getStarProduct('DOG')
   const dogProducts = await getProductsByAnimal('DOG')
   const catProducts = await getProductsByAnimal('CAT')
+  const adoptionPets = await getPublicAdoptionPets()
 
   return (
     <>
@@ -67,6 +70,8 @@ export default async function HomePage() {
         localDeliveryFreeThreshold={settings.localDeliveryFreeThreshold}
         barilocheEnabled={settings.barilocheEnabled}
       />
+
+      <AdoptionShowcase pets={adoptionPets.slice(0, 6)} />
 
       <section className="shell mt-20">
         <SectionHeading

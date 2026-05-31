@@ -16,6 +16,10 @@ function getImageFit(image?: ProductImage | null) {
   return 'object-cover'
 }
 
+function getInstallmentPrice(price: number) {
+  return Math.round(price / 3)
+}
+
 export function ProductCard({ product }: { product: Product }) {
   const colors = getProductColors(product)
   const mainImage = getMainImage(product)
@@ -23,6 +27,7 @@ export function ProductCard({ product }: { product: Product }) {
   const [activeIndex, setActiveIndex] = useState(0)
   const touchStartXRef = useRef<number | null>(null)
   const selectedColorOutOfStock = selectedColor ? isColorOutOfStock(product, selectedColor) : false
+  const installmentPrice = getInstallmentPrice(product.price)
 
   const gallery = useMemo(() => {
     return getGalleryForColor(product, selectedColor)
@@ -134,7 +139,18 @@ export function ProductCard({ product }: { product: Product }) {
               {product.name}
             </Link>
           </div>
-          <p className="text-lg font-semibold">{formatPrice(product.price)}</p>
+          <div className="text-right">
+            <p className="text-lg font-semibold">{formatPrice(product.price)}</p>
+            <p className="mt-1 text-[11px] uppercase tracking-[0.16em] text-black/44">3 cuotas sin interés</p>
+          </div>
+        </div>
+
+        <div className="rounded-[22px] border border-black/8 bg-[#f7f7f4] px-4 py-3">
+          <p className="text-[12px] leading-5 text-black/58">Mismo precio en 3 cuotas de</p>
+          <p className="mt-1 font-display text-[1.55rem] leading-none tracking-[-0.05em] text-black">
+            3x {formatPrice(installmentPrice)}
+          </p>
+          <p className="mt-2 text-[11px] uppercase tracking-[0.16em] text-black/46">Sin interés</p>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">

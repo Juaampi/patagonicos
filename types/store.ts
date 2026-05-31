@@ -89,3 +89,21 @@ export type CartItem = {
   quantity: number
   maxStock: number
 }
+
+export type AdoptionPetImage = {
+  id: string
+  url: string
+  alt: string
+  sortOrder: number
+}
+
+export type AdoptionPet = {
+  id: string
+  name: string
+  ageLabel: string
+  city: string
+  province: string
+  status: 'EN_ADOPCION' | 'ADOPTADO' | 'EN_TRANSITO'
+  summary?: string
+  images: AdoptionPetImage[]
+}
