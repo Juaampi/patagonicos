@@ -3,7 +3,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { getGalleryForColor, getMainImage, getProductColors, isColorOutOfStock } from '@/lib/variant-utils'
 import type { Product, ProductImage } from '@/types/store'
 import { formatPrice } from '@/lib/utils'
@@ -78,6 +78,17 @@ export function ProductCard({ product }: { product: Product }) {
     goNext()
   }
 
+  useEffect(() => {
+    if (typeof window === 'undefined' || gallery.length <= 1) {
+      return
+    }
+
+    gallery.forEach((image) => {
+      const preloadImage = new window.Image()
+      preloadImage.src = image.url
+    })
+  }, [gallery])
+
   return (
     <article className="card-surface overflow-hidden">
       <div
@@ -89,10 +100,12 @@ export function ProductCard({ product }: { product: Product }) {
           <div className="relative aspect-[4/5] w-full overflow-hidden rounded-b-[28px] bg-[#f3f3ef]">
             {activeImage ? (
               <Image
+                key={activeImage.url}
                 src={activeImage.url}
                 alt={activeImage.alt}
                 fill
-                className={`h-full w-full transition duration-500 ${getImageFit(activeImage)}`}
+                sizes="(min-width: 1280px) 30vw, (min-width: 768px) 45vw, 100vw"
+                className={`h-full w-full transition duration-200 ${getImageFit(activeImage)}`}
               />
             ) : null}
           </div>
