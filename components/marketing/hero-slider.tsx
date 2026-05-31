@@ -5,13 +5,14 @@ export function HeroSlider() {
     <section className="relative isolate bg-black text-white">
       <div className="relative min-h-[calc(100svh-96px)] md:min-h-[calc(100svh-108px)]">
         <Image
-          src="/hero-header.png"
-          alt="Perro con abrigo técnico frente a montañas nevadas"
+          src="/hero-header-otono.png"
+          alt="Perro con abrigo negro técnico en exterior durante temporada otoñal"
           fill
           priority
-          className="object-cover object-[74%_center] md:object-[center]"
+          sizes="100vw"
+          className="object-cover object-[68%_center] md:object-[76%_center] xl:object-[72%_center]"
         />
-        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,0.74)_0%,rgba(0,0,0,0.56)_32%,rgba(0,0,0,0.28)_58%,rgba(0,0,0,0.22)_100%)] md:bg-[linear-gradient(90deg,rgba(0,0,0,0.72)_0%,rgba(0,0,0,0.5)_34%,rgba(0,0,0,0.18)_64%,rgba(0,0,0,0.12)_100%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,0.76)_0%,rgba(0,0,0,0.58)_34%,rgba(0,0,0,0.26)_62%,rgba(0,0,0,0.18)_100%)] md:bg-[linear-gradient(90deg,rgba(0,0,0,0.72)_0%,rgba(0,0,0,0.44)_36%,rgba(0,0,0,0.16)_66%,rgba(0,0,0,0.1)_100%)]" />
 
         <div className="relative z-10 flex min-h-[calc(100svh-96px)] items-center md:min-h-[calc(100svh-108px)]">
           <div className="shell w-full py-12 md:py-18">

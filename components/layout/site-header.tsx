@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Menu, Moon, Search, ShoppingBag, Sun, UserRound, X } from 'lucide-react'
+import { Menu, Moon, ShoppingBag, Sun, UserRound, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useCart } from '@/components/cart/cart-provider'
 import { BarilocheDeliveryCountdown } from '@/components/marketing/bariloche-delivery-countdown'
@@ -161,7 +161,7 @@ export function SiteHeader({ settings }: { settings: StoreSettingsSnapshot }) {
             : 'border-b border-black/8 bg-white/92 text-black backdrop-blur-xl',
         )}
       >
-        <div className="shell flex items-center justify-between gap-3 py-2.5 md:gap-5 md:py-3.5">
+        <div className="shell flex items-center justify-between gap-3 py-2 md:gap-5 md:py-2.5">
           <div className="flex items-center gap-2 lg:hidden">
             <button
               type="button"
@@ -173,8 +173,8 @@ export function SiteHeader({ settings }: { settings: StoreSettingsSnapshot }) {
             </button>
           </div>
 
-          <div className="min-w-0 shrink max-[420px]:scale-[0.88] max-[420px]:origin-left">
-            <Logo />
+          <div className="min-w-0 shrink">
+            <Logo variant="header" inverted={theme === 'dark'} />
           </div>
 
           <div className="hidden items-center gap-4 lg:flex">
@@ -200,13 +200,6 @@ export function SiteHeader({ settings }: { settings: StoreSettingsSnapshot }) {
           </div>
 
           <div className="flex items-center gap-0.5 md:gap-2">
-            <button
-              type="button"
-              aria-label="Buscar"
-              className="inline-flex h-8 w-8 items-center justify-center rounded-full text-black/82 transition hover:bg-black/4 hover:text-black md:h-9 md:w-9"
-            >
-              <Search className="h-4 w-4 md:h-4.5 md:w-4.5" />
-            </button>
             <Link
               href="/perfil"
               aria-label="Perfil"

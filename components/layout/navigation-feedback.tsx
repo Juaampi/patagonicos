@@ -2,6 +2,7 @@
 
 import { usePathname, useSearchParams } from 'next/navigation'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { LoadingBadge } from '@/components/layout/loading-badge'
 
 function shouldHandleNavigation(anchor: HTMLAnchorElement) {
   const href = anchor.getAttribute('href')
@@ -36,8 +37,13 @@ function isInteractiveTrigger(target: Element | null) {
     return false
   }
 
-  const interactive = target.closest('a, button, [role="button"], input[type="submit"], input[type="button"]')
-  return interactive instanceof HTMLElement && !interactive.hasAttribute('disabled')
+  const link = target.closest('a[href]')
+  if (link instanceof HTMLElement && !link.hasAttribute('disabled')) {
+    return true
+  }
+
+  const submitControl = target.closest('button[type="submit"], input[type="submit"]')
+  return submitControl instanceof HTMLElement && !submitControl.hasAttribute('disabled')
 }
 
 function forceScrollToTop() {
@@ -227,15 +233,21 @@ export function NavigationFeedback() {
   return (
     <>
       <div
-        aria-live="polite"
-        className={`pointer-events-none fixed inset-x-0 bottom-4 z-[141] flex justify-center px-4 transition-all duration-300 ${
-          isLoading ? 'translate-y-0 opacity-100' : 'translate-y-2 opacity-0'
+        aria-hidden="true"
+        className={`pointer-events-none fixed inset-0 z-[139] transition-opacity duration-300 ${
+          isLoading ? 'opacity-100' : 'opacity-0'
         }`}
       >
-        <div className="nav-loader-badge">
-          <span className="nav-loader-badge-dot" />
-          Cargando
-        </div>
+        <div className="nav-loader-overlay h-full w-full" />
+      </div>
+
+      <div
+        aria-live="polite"
+        className={`pointer-events-none fixed inset-0 z-[141] flex items-center justify-center px-4 transition-all duration-300 ${
+          isLoading ? 'scale-100 opacity-100' : 'scale-[0.985] opacity-0'
+        }`}
+      >
+        <LoadingBadge />
       </div>
 
       <div

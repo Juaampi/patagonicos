@@ -441,20 +441,77 @@ html[data-theme="dark"] .nav-loader-track {
 .nav-loader-badge {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.55rem;
   border-radius: 999px;
   border: 1px solid rgba(17, 17, 17, 0.1);
-  background: rgba(255, 255, 255, 0.9);
-  padding: 0.5rem 0.9rem;
-  font-size: 0.68rem;
+  background: rgba(255, 255, 255, 0.18);
+  padding: 0.42rem 0.82rem;
+  font-size: 0.66rem;
   font-weight: 700;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: rgba(17, 17, 17, 0.88);
   backdrop-filter: blur(12px);
   box-shadow:
-    0 10px 28px rgba(17, 17, 17, 0.1),
-    0 0 22px rgba(17, 17, 17, 0.08);
+    0 8px 22px rgba(17, 17, 17, 0.08),
+    0 0 18px rgba(17, 17, 17, 0.05);
+}
+
+.nav-loader-stack {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.nav-loader-logo-wrap {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 5.25rem;
+  height: 5.25rem;
+}
+
+.nav-loader-logo-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background:
+    conic-gradient(
+      from 0deg,
+      rgba(17, 17, 17, 0.02) 0deg,
+      rgba(17, 17, 17, 0.02) 210deg,
+      rgba(17, 17, 17, 0.92) 282deg,
+      rgba(17, 17, 17, 0.12) 330deg,
+      rgba(17, 17, 17, 0.02) 360deg
+    );
+  box-shadow:
+    0 0 18px rgba(17, 17, 17, 0.12),
+    0 0 30px rgba(17, 17, 17, 0.08);
+  mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2px));
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2px));
+}
+
+.nav-loader-logo-ring-animated {
+  animation: nav-loader-ring-spin 1.05s linear infinite;
+}
+
+.nav-loader-logo-core {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 4.85rem;
+  height: 4.85rem;
+  border-radius: 999px;
+  background: transparent;
+  backdrop-filter: blur(6px);
+}
+
+.nav-loader-logo-image {
+  width: 4.35rem;
+  height: 4.35rem;
+  object-fit: contain;
 }
 
 .nav-loader-badge-dot {
@@ -470,15 +527,66 @@ html[data-theme="dark"] .nav-loader-track {
 html.theme-dark .nav-loader-badge,
 html[data-theme="dark"] .nav-loader-badge {
   border-color: rgba(248, 250, 252, 0.16);
-  background: rgba(12, 16, 22, 0.88);
+  background: rgba(12, 16, 22, 0.24);
   color: rgba(248, 250, 252, 0.92);
   box-shadow:
-    0 10px 28px rgba(0, 0, 0, 0.28),
-    0 0 22px rgba(248, 250, 252, 0.08);
+    0 8px 22px rgba(0, 0, 0, 0.18),
+    0 0 18px rgba(248, 250, 252, 0.06);
 }
 
 html.theme-dark .nav-loader-badge-dot,
 html[data-theme="dark"] .nav-loader-badge-dot {
   background: #f8fafc;
   box-shadow: 0 0 0 4px rgba(248, 250, 252, 0.08);
+}
+
+html.theme-dark .nav-loader-logo-ring,
+html[data-theme="dark"] .nav-loader-logo-ring {
+  background:
+    conic-gradient(
+      from 0deg,
+      rgba(248, 250, 252, 0.02) 0deg,
+      rgba(248, 250, 252, 0.02) 210deg,
+      rgba(248, 250, 252, 0.96) 282deg,
+      rgba(248, 250, 252, 0.16) 330deg,
+      rgba(248, 250, 252, 0.02) 360deg
+    );
+  box-shadow:
+    0 0 18px rgba(248, 250, 252, 0.1),
+    0 0 30px rgba(248, 250, 252, 0.08);
+}
+
+html.theme-dark .nav-loader-logo-core,
+html[data-theme="dark"] .nav-loader-logo-core {
+  background: transparent;
+}
+
+html.theme-dark .nav-loader-logo-image,
+html[data-theme="dark"] .nav-loader-logo-image {
+  filter: invert(1) brightness(1.02);
+}
+
+.nav-loader-overlay {
+  background: rgba(245, 245, 243, 0.12);
+  backdrop-filter: blur(14px) saturate(1.02);
+}
+
+html.theme-dark .nav-loader-overlay,
+html[data-theme="dark"] .nav-loader-overlay {
+  background: rgba(8, 10, 14, 0.18);
+  backdrop-filter: blur(14px) saturate(1.02);
+}
+
+html.theme-dark .brand-logo-image,
+html[data-theme="dark"] .brand-logo-image {
+  filter: invert(1) brightness(1.04) !important;
+}
+
+@keyframes nav-loader-ring-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }

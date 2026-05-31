@@ -1,31 +1,52 @@
+import Image from 'next/image'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
-import { LogoMark } from './logo-mark'
 
-export function Logo({ inverted = false }: { inverted?: boolean }) {
+type LogoVariant = 'header' | 'footer'
+
+export function Logo({
+  inverted = false,
+  variant = 'header',
+}: {
+  inverted?: boolean
+  variant?: LogoVariant
+}) {
+  const isHeader = variant === 'header'
+
   return (
-    <Link href="/" className="inline-flex flex-col items-center text-center">
-      <LogoMark className="h-4.5 w-10 md:h-6 md:w-12" />
-      <div className="mt-1 leading-tight">
-        <div
+    <Link
+      href="/"
+      className={cn(
+        'inline-flex flex-col items-center text-center',
+        isHeader ? 'gap-0' : 'gap-1.5 md:gap-2',
+      )}
+    >
+      <div
+        className={cn(
+          'relative overflow-hidden',
+          isHeader ? 'h-[28px] w-[132px] md:h-[38px] md:w-[186px]' : 'h-[34px] w-[152px] md:h-[44px] md:w-[236px]',
+        )}
+      >
+        <Image
+          src="/brand-logo-tight.png"
+          alt="Patagónicos"
+          fill
+          priority
+          sizes={isHeader ? '(min-width: 768px) 186px, 132px' : '(min-width: 768px) 236px, 152px'}
+          className={cn('brand-logo-image object-contain', inverted ? 'invert brightness-0' : 'invert-0')}
+        />
+      </div>
+
+      {!isHeader ? (
+        <span
           className={cn(
-            'font-display text-[11px] uppercase tracking-[0.28em] md:text-[1rem] md:tracking-[0.34em]',
-            inverted ? 'text-white' : 'text-black',
-          )}
-          aria-label="Patagónicos"
-        >
-          PATAGÓNICOS
-        </div>
-        <div className={cn('mx-auto mt-1 h-px w-7 md:w-8', inverted ? 'bg-white/55' : 'bg-black/55')} />
-        <p
-          className={cn(
-            'mt-1 text-[7px] uppercase tracking-[0.12em] md:text-[9px] md:tracking-[0.14em]',
-            inverted ? 'text-white/72' : 'text-black/72',
+            'block whitespace-nowrap uppercase leading-none text-[9px] font-medium tracking-[0.2em] md:text-[11px] md:tracking-[0.22em]',
+            inverted ? 'text-white/74' : 'text-black/68',
           )}
         >
           Indumentaria para mascotas
-        </p>
-      </div>
+        </span>
+      ) : null}
     </Link>
   )
 }
