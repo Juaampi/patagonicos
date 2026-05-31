@@ -100,49 +100,20 @@ export default async function ProductsPage({
     : filteredByAnimal
   const sortedProducts = sortProducts(filteredProducts, selectedSort)
   const grouped = Array.from(groupProductsByCategory(sortedProducts).entries())
-  const totalProducts = sortedProducts.length
 
   return (
     <section className="shell pb-12 pt-6 md:pt-12">
       <div className="card-surface overflow-hidden p-7 md:p-9">
-        <div className="flex flex-col gap-7 xl:flex-row xl:items-end xl:justify-between">
-          <div className="max-w-3xl">
-            <SectionHeading
-              eyebrow={selectedAnimal ? speciesContent[selectedAnimal].eyebrow : 'Colección completa'}
-              title={selectedAnimal ? speciesContent[selectedAnimal].title : 'Productos ordenados para encontrar más rápido'}
-              description={
-                selectedAnimal
-                  ? speciesContent[selectedAnimal].description
-                  : 'Unificamos la lectura del catálogo para que la navegación sea más clara, sin repetir filtros ni mezclar especies.'
-              }
-            />
-          </div>
-
-          <div className="rounded-[28px] border border-black/8 bg-[#f7f7f4] px-5 py-5 xl:min-w-[280px]">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-black/46">Resumen</p>
-            <div className="mt-4 grid gap-3 sm:grid-cols-3 xl:grid-cols-1">
-              <div>
-                <p className="text-[11px] uppercase tracking-[0.16em] text-black/44">Mostrando</p>
-                <p className="mt-1 text-lg font-medium text-black/84">{totalProducts} producto{totalProducts === 1 ? '' : 's'}</p>
-              </div>
-              <div>
-                <p className="text-[11px] uppercase tracking-[0.16em] text-black/44">Línea</p>
-                <p className="mt-1 text-lg font-medium text-black/84">
-                  {selectedAnimal === 'DOG' ? 'Perros' : selectedAnimal === 'CAT' ? 'Gatos' : 'Todo el catálogo'}
-                </p>
-              </div>
-              <div>
-                <p className="text-[11px] uppercase tracking-[0.16em] text-black/44">Categoría</p>
-                <p className="mt-1 text-lg font-medium text-black/84">{normalizedCategory ?? 'Todas'}</p>
-              </div>
-              <div>
-                <p className="text-[11px] uppercase tracking-[0.16em] text-black/44">Orden</p>
-                <p className="mt-1 text-lg font-medium text-black/84">
-                  {sortOptions.find((option) => option.value === selectedSort)?.label ?? 'Destacados'}
-                </p>
-              </div>
-            </div>
-          </div>
+        <div className="max-w-3xl">
+          <SectionHeading
+            eyebrow={selectedAnimal ? speciesContent[selectedAnimal].eyebrow : 'Colección completa'}
+            title={selectedAnimal ? speciesContent[selectedAnimal].title : 'Productos ordenados para encontrar más rápido'}
+            description={
+              selectedAnimal
+                ? speciesContent[selectedAnimal].description
+                : 'Unificamos la lectura del catálogo para que la navegación sea más clara, sin repetir filtros ni mezclar especies.'
+            }
+          />
         </div>
 
         <div className="mt-8 space-y-5">

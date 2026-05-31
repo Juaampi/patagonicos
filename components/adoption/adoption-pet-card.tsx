@@ -55,7 +55,7 @@ export function AdoptionPetCard({
             href={contactHref}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex w-full items-center justify-center rounded-full bg-black px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-white transition hover:bg-black/86"
+            className="inline-flex w-full items-center justify-center rounded-full bg-black px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.16em] !text-white transition hover:bg-black/86 hover:!text-white visited:!text-white"
           >
             {`Contactar por ${pet.name}`}
           </Link>
