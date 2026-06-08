@@ -27,7 +27,7 @@ export function HeroSlider() {
                 Protegé a tu mascota del frío.
               </h1>
               <p className="mt-5 max-w-[34rem] text-[14px] leading-6 text-white/84 md:mt-6 md:text-[17px] md:leading-8">
-                En Patagónicos donamos el 10% de cada compra a refugios de animales de la Patagonia
+                En Patagónicos donamos el 5% de cada compra a refugios de animales en toda
                 Argentina, porque sabemos que ellos también pasan frío y necesidades.
               </p>
             </div>

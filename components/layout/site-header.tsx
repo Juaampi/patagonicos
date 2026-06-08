@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { Menu, Moon, ShoppingBag, Sun, UserRound, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useCart } from '@/components/cart/cart-provider'
@@ -14,7 +14,6 @@ const navItems = [
   { href: '/', label: 'Inicio' },
   { href: '/productos', label: 'Productos' },
   { href: '/adoptame', label: 'Adoptame' },
-  { href: '/guia-de-talles', label: 'Guía de talles' },
   { href: '/envios', label: 'Envíos' },
 ]
 
@@ -29,6 +28,7 @@ function applyTheme(theme: ThemeMode) {
 
 export function SiteHeader({ settings }: { settings: StoreSettingsSnapshot }) {
   const pathname = usePathname()
+  const router = useRouter()
   const { itemCount, isHydrated } = useCart()
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -89,6 +89,11 @@ export function SiteHeader({ settings }: { settings: StoreSettingsSnapshot }) {
   const updateTheme = (nextTheme: ThemeMode) => {
     applyTheme(nextTheme)
     setTheme(nextTheme)
+  }
+
+  const handleMobileNavigation = (href: string) => {
+    setMobileOpen(false)
+    router.push(href)
   }
 
   const renderThemeToggle = (compact = false) => (
@@ -232,17 +237,17 @@ export function SiteHeader({ settings }: { settings: StoreSettingsSnapshot }) {
                     const isActive = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href)
 
                     return (
-                      <Link
+                      <button
                         key={item.href}
-                        href={item.href}
-                        onClick={() => setMobileOpen(false)}
+                        type="button"
+                        onClick={() => handleMobileNavigation(item.href)}
                         className={cn(
-                          'block rounded-[18px] px-4 py-3 text-[12px] font-semibold uppercase tracking-[0.12em] transition',
+                          'block w-full rounded-[18px] px-4 py-3 text-left text-[12px] font-semibold uppercase tracking-[0.12em] transition',
                           isActive ? 'bg-black !text-white shadow-[0_10px_24px_rgba(0,0,0,0.16)]' : 'text-black/86 hover:bg-white',
                         )}
                       >
                         {item.label}
-                      </Link>
+                      </button>
                     )
                   })}
                 </div>

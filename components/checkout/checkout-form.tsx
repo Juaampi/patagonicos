@@ -748,7 +748,7 @@ export function CheckoutForm({ items, settings }: CheckoutFormProps) {
           </div>
 
           <p className="mt-4 text-sm leading-6 text-red-700">
-            Donamos el 10% de tu compra a refugios para mascotas en la Patagonia y en toda Argentina.
+            Donamos el 5% de tu compra a refugios para mascotas en toda Argentina.
           </p>
 
           <button

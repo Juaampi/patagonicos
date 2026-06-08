@@ -36,7 +36,7 @@ export function ProfileSavedAlert({
             Gracias por elegirnos para vestir a tu mascota.
           </h2>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-emerald-900/82">
-            Con tu compra ayudás también a los refugios de animales en la Patagonia Argentina.
+            Con tu compra ayudás también a los refugios de animales en toda Argentina.
           </p>
         </>
       ) : (

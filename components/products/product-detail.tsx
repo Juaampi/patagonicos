@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { Check, ChevronLeft, ChevronRight, CircleHelp, Clock3, CreditCard, LoaderCircle, LockKeyhole, ShoppingBag, Star, Truck, WalletCards, X } from 'lucide-react'
+import { Check, ChevronLeft, ChevronRight, CircleHelp, Clock3, CreditCard, LoaderCircle, LockKeyhole, Search, ShoppingBag, Star, Truck, WalletCards, X } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useCart } from '@/components/cart/cart-provider'
 import { CashOnDeliveryInfo } from '@/components/marketing/cash-on-delivery-info'
@@ -56,6 +56,14 @@ function getMobileImageFit(image: ProductImage) {
   }
 
   return 'object-contain scale-[0.94]'
+}
+
+function getGalleryImageUrl(item: ProductGalleryItem | null) {
+  if (!item || item.kind !== 'image') {
+    return null
+  }
+
+  return item.image.url
 }
 
 function getReviewAverage(product: Product) {
@@ -213,6 +221,7 @@ export function ProductDetail({
   const reviewsScrollRef = useRef<HTMLDivElement>(null)
   const mobileAddToCartRef = useRef<HTMLButtonElement>(null)
   const touchStartXRef = useRef<number | null>(null)
+  const wasSwipingRef = useRef(false)
   const featureChips = getFeatureChips(product.featureTags)
 
   const gallery = useMemo(() => getGalleryForColor(product, selectedColor), [product, selectedColor])
@@ -230,10 +239,12 @@ export function ProductDetail({
   const [cartFeedback, setCartFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
   const [isAddingToCart, setIsAddingToCart] = useState(false)
   const [mobileButtonInView, setMobileButtonInView] = useState(false)
+  const [lightboxImage, setLightboxImage] = useState<ProductImage | null>(null)
   const activeGalleryItem =
     gallery.find((item) => item.id === selectedGalleryId) ??
     gallery[0] ??
     (mainImage ? ({ kind: 'image', id: mainImage.id ?? `main-${mainImage.url}`, image: mainImage } as ProductGalleryItem) : null)
+  const activeGalleryIndex = activeGalleryItem ? gallery.findIndex((item) => item.id === activeGalleryItem.id) : -1
 
   const onColorChange = (colorName: string) => {
     setSelectedColor(colorName)
@@ -261,6 +272,7 @@ export function ProductDetail({
   }
 
   const handleGalleryTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
+    wasSwipingRef.current = false
     touchStartXRef.current = event.touches[0]?.clientX ?? null
   }
 
@@ -279,12 +291,25 @@ export function ProductDetail({
       return
     }
 
+    wasSwipingRef.current = true
+
     if (deltaX > 0) {
       showPreviousGalleryItem()
       return
     }
 
     showNextGalleryItem()
+  }
+
+  const handleActiveImageZoom = () => {
+    if (wasSwipingRef.current) {
+      wasSwipingRef.current = false
+      return
+    }
+
+    if (activeGalleryItem?.kind === 'image') {
+      setLightboxImage(activeGalleryItem.image)
+    }
   }
 
   const handleAddToCart = async () => {
@@ -353,6 +378,30 @@ export function ProductDetail({
     return () => observer.disconnect()
   }, [resolvedSelectedSize, selectedColor, canAddToCart])
 
+  useEffect(() => {
+    gallery.forEach((item) => {
+      const imageUrl = getGalleryImageUrl(item)
+      if (!imageUrl) {
+        return
+      }
+
+      const image = new window.Image()
+      image.decoding = 'async'
+      image.src = imageUrl
+    })
+  }, [gallery])
+
+  useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setLightboxImage(null)
+      }
+    }
+
+    window.addEventListener('keydown', handleEscape)
+    return () => window.removeEventListener('keydown', handleEscape)
+  }, [])
+
   return (
     <div className="space-y-10 pb-28 md:pb-0">
       <div className="space-y-6 md:hidden">
@@ -360,6 +409,7 @@ export function ProductDetail({
           {(soldScale || averageRating > 0) ? (
             <div className="flex flex-wrap items-center gap-3 text-xs text-black/58">
               {soldScale ? <span>{soldScale} vendidos</span> : null}
+              {soldScale && averageRating > 0 ? <span aria-hidden="true" className="h-3.5 w-px bg-black/12" /> : null}
               {averageRating > 0 ? (
                 <div className="flex items-center gap-2">
                   <RatingStars value={averageRating} size="h-3.5 w-3.5" />
@@ -407,8 +457,24 @@ export function ProductDetail({
                 alt={activeGalleryItem.image.alt}
                 width={1400}
                 height={1750}
+                priority
+                sizes="100vw"
                 className={`h-full w-full transition duration-300 ${getMobileImageFit(activeGalleryItem.image)}`}
               />
+            ) : null}
+
+            {activeGalleryItem?.kind === 'image' ? (
+              <button
+                type="button"
+                onClick={handleActiveImageZoom}
+                className="absolute inset-0 z-[1] cursor-zoom-in"
+                aria-label="Ampliar imagen del producto"
+              >
+                <span className="absolute bottom-3 right-3 inline-flex items-center gap-2 rounded-full bg-white/90 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-black shadow-[0_10px_28px_rgba(0,0,0,0.12)]">
+                  <Search className="h-3.5 w-3.5" />
+                  Ampliar
+                </span>
+              </button>
             ) : null}
 
             {gallery.length > 1 ? (
@@ -451,6 +517,7 @@ export function ProductDetail({
                         src={item.image.url}
                         alt={item.image.alt}
                         fill
+                        sizes="72px"
                         className={getMobileImageFit(item.image)}
                       />
                     ) : (
@@ -482,6 +549,7 @@ export function ProductDetail({
                     src={(getColorImages(product, color.name)[0] ?? mainImage)?.url ?? '/hero-header.png'}
                     alt={(getColorImages(product, color.name)[0] ?? mainImage)?.alt ?? `${product.name} ${color.name}`}
                     fill
+                    sizes="106px"
                     className={getColorImages(product, color.name)[0] ? getMobileImageFit(getColorImages(product, color.name)[0]!) : 'object-contain scale-[0.92]'}
                   />
                 </div>
@@ -623,13 +691,26 @@ export function ProductDetail({
                 <video src={activeGalleryItem.url} controls className="h-full w-full object-cover" />
               )
             ) : activeGalleryItem?.kind === 'image' ? (
-              <Image
-                src={activeGalleryItem.image.url}
-                alt={activeGalleryItem.image.alt}
-                width={1400}
-                height={1400}
-                className={`h-full w-full ${getImageFit(activeGalleryItem.image)}`}
-              />
+              <button
+                type="button"
+                onClick={handleActiveImageZoom}
+                className="group relative block h-full w-full cursor-zoom-in"
+                aria-label="Ampliar imagen del producto"
+              >
+                <Image
+                  src={activeGalleryItem.image.url}
+                  alt={activeGalleryItem.image.alt}
+                  width={1400}
+                  height={1400}
+                  priority={activeGalleryIndex <= 1}
+                  sizes="(min-width: 1280px) 42vw, (min-width: 768px) 50vw, 100vw"
+                  className={`h-full w-full transition duration-300 group-hover:scale-[1.015] ${getImageFit(activeGalleryItem.image)}`}
+                />
+                <span className="absolute bottom-4 right-4 inline-flex items-center gap-2 rounded-full bg-white/92 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-black shadow-[0_10px_28px_rgba(0,0,0,0.12)]">
+                  <Search className="h-3.5 w-3.5" />
+                  Click para ampliar
+                </span>
+              </button>
             ) : (
               <div className="flex h-full items-center justify-center text-sm text-black/50">
                 No hay imágenes disponibles para este producto.
@@ -653,6 +734,7 @@ export function ProductDetail({
                       src={item.image.url}
                       alt={item.image.alt}
                       fill
+                      sizes="96px"
                       className={getImageFit(item.image)}
                     />
                   ) : (
@@ -671,6 +753,7 @@ export function ProductDetail({
           {(soldScale || averageRating > 0) ? (
             <div className="mt-4 flex flex-wrap items-center gap-4 text-sm text-black/58">
               {soldScale ? <span>{soldScale} vendidos</span> : null}
+              {soldScale && averageRating > 0 ? <span aria-hidden="true" className="h-4 w-px bg-black/12" /> : null}
               {averageRating > 0 ? (
                 <div className="flex items-center gap-2">
                   <RatingStars value={averageRating} />
@@ -875,7 +958,7 @@ export function ProductDetail({
               <div className="grid gap-3 md:grid-cols-2">
                 {infoImages.map((image) => (
                   <div key={image.id ?? image.url} className="relative aspect-[4/3] overflow-hidden rounded-[24px] bg-[#f3f3ef]">
-                    <Image src={image.url} alt={image.alt} fill className={getImageFit(image)} />
+                    <Image src={image.url} alt={image.alt} fill sizes="(min-width: 768px) 50vw, 100vw" className={getImageFit(image)} />
                   </div>
                 ))}
                 {product.videoUrl ? (
@@ -959,6 +1042,7 @@ export function ProductDetail({
                           src={review.imageUrl}
                           alt={review.imageAlt ?? review.authorName}
                           fill
+                          sizes="130px"
                           className="object-cover"
                         />
                       </div>
@@ -993,8 +1077,38 @@ export function ProductDetail({
                 src="/size-guide-modal.png"
                 alt="Guía de talles con medidas de cuello, pecho y largo para XS, S, M y L"
                 fill
+                sizes="100vw"
                 className="object-contain"
               />
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {lightboxImage ? (
+        <div className="fixed inset-0 z-[90] bg-black/88 px-4 py-6" onClick={() => setLightboxImage(null)}>
+          <div className="mx-auto flex h-full max-w-6xl flex-col" onClick={(event) => event.stopPropagation()}>
+            <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={() => setLightboxImage(null)}
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/18 bg-white/8 text-white transition hover:bg-white/14"
+                aria-label="Cerrar imagen ampliada"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="flex min-h-0 flex-1 items-center justify-center py-4">
+              <div className="relative h-full w-full">
+                <Image
+                  src={lightboxImage.url}
+                  alt={lightboxImage.alt}
+                  fill
+                  priority
+                  sizes="100vw"
+                  className="object-contain"
+                />
+              </div>
             </div>
           </div>
         </div>
