@@ -10,6 +10,7 @@ import {
   Prisma,
 } from '@prisma/client'
 import { revalidatePath } from 'next/cache'
+import { cache } from 'react'
 import { normalizeProvinceName } from '@/lib/argentina-data'
 import { env } from '@/lib/env'
 import { prisma } from '@/lib/prisma'
@@ -58,7 +59,7 @@ export const defaultStoreSettings = {
   barilocheDiscountPercent: 10,
 } as const
 
-export async function ensureStoreSettings() {
+export const ensureStoreSettings = cache(async function ensureStoreSettings() {
   await prisma.storeSettings.upsert({
     where: { id: 'default' },
     update: {},
@@ -71,7 +72,7 @@ export async function ensureStoreSettings() {
   return prisma.storeSettings.findUniqueOrThrow({
     where: { id: 'default' },
   })
-}
+})
 
 export function normalizeCity(value: string) {
   return value

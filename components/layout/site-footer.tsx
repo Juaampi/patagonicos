@@ -1,5 +1,4 @@
 import Link from 'next/link'
-import { BrandPaw } from '@/components/brand/brand-paw'
 import { BarilocheDeliveryCountdown } from '@/components/marketing/bariloche-delivery-countdown'
 import { Logo } from '@/components/brand/logo'
 import type { StoreSettingsSnapshot } from '@/lib/store-settings'
@@ -10,9 +9,6 @@ export function SiteFooter({ settings }: { settings: StoreSettingsSnapshot }) {
       <div className={`shell grid gap-10 py-14 ${settings.barilocheEnabled ? 'md:grid-cols-[1.4fr_1fr_1fr_1fr]' : 'md:grid-cols-[1.4fr_1fr_1fr]'}`}>
         <div>
           <Logo variant="footer" />
-          <div className="mt-3">
-            <BrandPaw className="h-7 w-7 opacity-85" />
-          </div>
           <p className="mt-5 max-w-sm text-sm leading-7 text-black/62">
             Indumentaria outdoor para mascotas de clima frío. Diseño sobrio, materiales técnicos y foco real en Bariloche, nieve y protección.
           </p>

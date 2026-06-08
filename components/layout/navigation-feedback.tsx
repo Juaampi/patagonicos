@@ -30,21 +30,6 @@ function shouldHandleNavigation(anchor: HTMLAnchorElement) {
 
 const MIN_VISIBLE_MS = 420
 const SAFETY_TIMEOUT_MS = 12000
-const TAP_FEEDBACK_MS = 900
-
-function isInteractiveTrigger(target: Element | null) {
-  if (!target) {
-    return false
-  }
-
-  const link = target.closest('a[href]')
-  if (link instanceof HTMLElement && !link.hasAttribute('disabled')) {
-    return true
-  }
-
-  const submitControl = target.closest('button[type="submit"], input[type="submit"]')
-  return submitControl instanceof HTMLElement && !submitControl.hasAttribute('disabled')
-}
 
 function forceScrollToTop() {
   window.scrollTo(0, 0)
@@ -61,7 +46,6 @@ export function NavigationFeedback() {
   const startedAtRef = useRef<number | null>(null)
   const activeRequestsRef = useRef(0)
   const navigationPendingRef = useRef(false)
-  const tapFeedbackTimeoutRef = useRef<number | null>(null)
   const scrollResetFrameRef = useRef<number | null>(null)
 
   const clearTimers = useCallback(() => {
@@ -73,11 +57,6 @@ export function NavigationFeedback() {
     if (hideTimeoutRef.current) {
       window.clearTimeout(hideTimeoutRef.current)
       hideTimeoutRef.current = null
-    }
-
-    if (tapFeedbackTimeoutRef.current) {
-      window.clearTimeout(tapFeedbackTimeoutRef.current)
-      tapFeedbackTimeoutRef.current = null
     }
 
     if (scrollResetFrameRef.current) {
@@ -124,26 +103,6 @@ export function NavigationFeedback() {
       window.history.scrollRestoration = 'manual'
     }
 
-    const handlePointerDown = (event: PointerEvent) => {
-      const target = event.target
-
-      if (!(target instanceof Element) || !isInteractiveTrigger(target)) {
-        return
-      }
-
-      setIsLoading(true)
-
-      if (tapFeedbackTimeoutRef.current) {
-        window.clearTimeout(tapFeedbackTimeoutRef.current)
-      }
-
-      tapFeedbackTimeoutRef.current = window.setTimeout(() => {
-        if (activeRequestsRef.current === 0 && !navigationPendingRef.current && !startedAtRef.current) {
-          setIsLoading(false)
-        }
-      }, TAP_FEEDBACK_MS)
-    }
-
     const handleClick = (event: MouseEvent) => {
       if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
         return
@@ -163,17 +122,6 @@ export function NavigationFeedback() {
       showLoader()
     }
 
-    const handleSubmit = (event: SubmitEvent) => {
-      const target = event.target
-
-      if (!(target instanceof HTMLFormElement)) {
-        return
-      }
-
-      navigationPendingRef.current = true
-      showLoader()
-    }
-
     const handleRequestStart = () => {
       activeRequestsRef.current += 1
       showLoader()
@@ -184,16 +132,12 @@ export function NavigationFeedback() {
       syncLoader()
     }
 
-    document.addEventListener('pointerdown', handlePointerDown, { passive: true })
     document.addEventListener('click', handleClick)
-    document.addEventListener('submit', handleSubmit)
     window.addEventListener('pa2-loading:start', handleRequestStart)
     window.addEventListener('pa2-loading:stop', handleRequestStop)
 
     return () => {
-      document.removeEventListener('pointerdown', handlePointerDown)
       document.removeEventListener('click', handleClick)
-      document.removeEventListener('submit', handleSubmit)
       window.removeEventListener('pa2-loading:start', handleRequestStart)
       window.removeEventListener('pa2-loading:stop', handleRequestStop)
       clearTimers()
