@@ -56,7 +56,7 @@ export function AdoptionPetForm({
         {mode === 'edit' ? 'Actualizar ficha de adopción' : 'Cargar animal para adopción'}
       </h2>
       <p className="mt-4 max-w-3xl text-sm leading-7 text-black/62">
-        Nombre, edad, ubicación, contacto, estado e imágenes. La idea es mantenerlo simple para publicar rápido.
+        Nombre, tipo, edad, ubicación, contacto, estado e imágenes. La idea es mantenerlo simple para publicar rápido.
       </p>
 
       <div className="mt-6 grid gap-4 md:grid-cols-2">
@@ -66,6 +66,17 @@ export function AdoptionPetForm({
           placeholder="Nombre"
           className="rounded-[18px] border border-black/10 bg-[#f7f7f4] px-4 py-4 text-sm outline-none"
         />
+        <label className="rounded-[18px] border border-black/10 bg-[#f7f7f4] px-4 py-4 text-sm">
+          <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-black/46">Tipo</span>
+          <select
+            name="animalType"
+            defaultValue={pet?.animalType ?? 'DOG'}
+            className="mt-3 w-full bg-transparent text-sm outline-none"
+          >
+            <option value="DOG">Perro</option>
+            <option value="CAT">Gato</option>
+          </select>
+        </label>
         <input
           name="ageLabel"
           defaultValue={pet?.ageLabel ?? ''}

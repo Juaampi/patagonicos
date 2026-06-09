@@ -13,7 +13,7 @@ import { cn } from '@/lib/utils'
 const navItems = [
   { href: '/', label: 'Inicio' },
   { href: '/productos', label: 'Productos' },
-  { href: '/adoptame', label: 'Adoptame' },
+  { href: '/adoptame', label: 'Mascotas en adopción' },
   { href: '/envios', label: 'Envíos' },
 ]
 

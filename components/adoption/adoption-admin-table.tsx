@@ -11,6 +11,10 @@ function getStatusLabel(status: AdoptionPet['status']) {
   return 'En adopción'
 }
 
+function getAnimalTypeLabel(animalType: AdoptionPet['animalType']) {
+  return animalType === 'CAT' ? 'Gato' : 'Perro'
+}
+
 export function AdoptionAdminTable({ pets }: { pets: AdoptionPet[] }) {
   return (
     <div className="card-surface overflow-hidden">
@@ -43,7 +47,9 @@ export function AdoptionAdminTable({ pets }: { pets: AdoptionPet[] }) {
                       </div>
                       <div>
                         <p className="font-medium text-black/84">{pet.name}</p>
-                        <p className="mt-1 text-xs uppercase tracking-[0.14em] text-black/46">{pet.ageLabel}</p>
+                        <p className="mt-1 text-xs uppercase tracking-[0.14em] text-black/46">
+                          {getAnimalTypeLabel(pet.animalType)} · {pet.ageLabel}
+                        </p>
                       </div>
                     </div>
                   </td>

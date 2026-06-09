@@ -1,7 +1,10 @@
 import { updateCustomerWhatsappOptInAction } from '@/lib/server/fulfillment-actions'
 import { getOrderStateLabel, getProfileSavedMessage, getShippingMethodLabel } from '@/lib/server/fulfillment'
 import { ProfileSavedAlert } from '@/components/profile/profile-saved-alert'
+import { getAndreaniTrackingUrl } from '@/lib/server/andreani'
 import { formatPrice } from '@/lib/utils'
+import Link from 'next/link'
+import { CheckCheck, CreditCard, Package, PackageCheck, Truck } from 'lucide-react'
 
 type ProfilePanelProps = {
   email?: string
@@ -23,6 +26,7 @@ type ProfilePanelProps = {
           total: number
           createdAt: string
           whatsappOptIn: boolean
+          trackingNumber?: string | null
           address?: { city?: string | null; province?: string | null; line1?: string | null } | null
           items: Array<{ name: string; quantity: number; color: string; size: string }>
         }>
@@ -32,6 +36,84 @@ type ProfilePanelProps = {
 
 export function ProfilePanel({ email, saved, profile }: ProfilePanelProps) {
   const savedMessage = getProfileSavedMessage(saved)
+
+  const getStatusBadgeClass = (status: string) => {
+    if (['SHIPPED', 'OUT_FOR_DELIVERY', 'READY_FOR_NATIONAL_SHIPPING', 'READY_FOR_LOCAL_DELIVERY', 'EN_PREPARACION', 'DESPACHADO', 'EN_TRANSITO'].includes(status)) {
+      return 'border border-emerald-200 bg-emerald-50 text-emerald-800'
+    }
+
+    if (['DELIVERED', 'ENTREGADO'].includes(status)) {
+      return 'border border-black/10 bg-black text-white'
+    }
+
+    if (['CANCELLED', 'CANCELADO'].includes(status)) {
+      return 'border border-red-200 bg-red-50 text-red-700'
+    }
+
+    return 'border border-amber-200 bg-amber-50 text-amber-800'
+  }
+
+  const getTimeline = (order: NonNullable<ProfilePanelProps['profile']>['orders'][number]) => {
+    const paymentConfirmed = order.paymentStatus === 'PAID'
+    const prepared = paymentConfirmed || ['SHIPPED', 'OUT_FOR_DELIVERY', 'DELIVERED'].includes(order.status)
+    const dispatched = ['SHIPPED', 'OUT_FOR_DELIVERY', 'DELIVERED'].includes(order.status)
+    const inTransit = ['OUT_FOR_DELIVERY', 'DELIVERED'].includes(order.status) || Boolean(order.trackingNumber)
+    const delivered = order.status === 'DELIVERED'
+    const currentKey = delivered
+      ? 'delivered'
+      : inTransit
+        ? 'transit'
+        : dispatched
+          ? 'dispatched'
+          : prepared
+            ? 'prepared'
+            : paymentConfirmed
+              ? 'payment'
+              : null
+
+    return [
+      {
+        key: 'payment',
+        label: 'Pago confirmado',
+        description: paymentConfirmed ? 'El pago ya fue acreditado y el pedido quedó validado.' : 'Estamos esperando la confirmación del pago.',
+        done: paymentConfirmed,
+        current: currentKey === 'payment',
+        icon: CreditCard,
+      },
+      {
+        key: 'prepared',
+        label: 'En preparación',
+        description: prepared ? 'El pedido ya entró a preparación y embalaje.' : 'Todavía no empezó el armado del paquete.',
+        done: prepared,
+        current: currentKey === 'prepared',
+        icon: Package,
+      },
+      {
+        key: 'dispatched',
+        label: 'Despachado',
+        description: dispatched ? 'Ya lo entregamos al correo con tu código de seguimiento.' : 'Todavía no fue despachado al correo.',
+        done: dispatched,
+        current: currentKey === 'dispatched',
+        icon: PackageCheck,
+      },
+      {
+        key: 'transit',
+        label: 'En proceso',
+        description: inTransit ? 'El paquete ya está en movimiento hacia tu zona.' : 'Aún no figura en tránsito.',
+        done: inTransit,
+        current: currentKey === 'transit',
+        icon: Truck,
+      },
+      {
+        key: 'delivered',
+        label: 'Entregado',
+        description: delivered ? 'El pedido figura como entregado.' : 'Todavía no aparece como entregado.',
+        done: delivered,
+        current: currentKey === 'delivered',
+        icon: CheckCheck,
+      },
+    ]
+  }
 
   return (
     <section className="shell pb-12 pt-32">
@@ -87,17 +169,84 @@ export function ProfilePanel({ email, saved, profile }: ProfilePanelProps) {
               Tu cuenta ya existe pero todavía no tiene pedidos.
             </div>
           ) : (
-            profile.orders.map((order) => (
-              <article key={order.id} className="card-surface p-7">
+            profile.orders.map((order) => {
+              const andreaniTrackingUrl = getAndreaniTrackingUrl(order.trackingNumber)
+
+              return (
+                <article key={order.id} className="card-surface p-7">
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div>
                     <p className="eyebrow">Pedido {order.shortCode ?? order.orderNumber}</p>
-                    <h2 className="mt-3 font-display text-3xl tracking-[-0.05em]">{getOrderStateLabel(order.status)}</h2>
+                    <div className="mt-3 flex flex-wrap items-center gap-3">
+                      <h2 className="font-display text-3xl tracking-[-0.05em]">{getOrderStateLabel(order.status)}</h2>
+                      <span className={`rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] ${getStatusBadgeClass(order.status)}`}>
+                        {getOrderStateLabel(order.status)}
+                      </span>
+                    </div>
                     <p className="mt-2 text-sm text-black/55">
                       {new Date(order.createdAt).toLocaleDateString('es-AR')} · {getShippingMethodLabel(order.shippingMethod)}
                     </p>
                   </div>
                   <p className="text-xl font-semibold">{formatPrice(order.total)}</p>
+                </div>
+
+                <div className="shipment-timeline mt-6 rounded-[26px] border border-black/8 bg-[linear-gradient(180deg,#fbfbf8_0%,#f4f4ef_100%)] p-5 md:p-6">
+                  <p className="text-xs uppercase tracking-[0.18em] text-black/46">Camino del envío</p>
+                  <div className="mt-5 space-y-4">
+                    {getTimeline(order).map((step, index, steps) => {
+                      const Icon = step.icon
+                      const isLast = index === steps.length - 1
+
+                      return (
+                        <div key={`${order.id}-${step.key}`} className="flex gap-4">
+                          <div className="flex w-10 flex-col items-center">
+                            <div
+                              className={`flex h-8 w-8 items-center justify-center rounded-full ${
+                                step.current
+                                  ? 'bg-emerald-600 text-white'
+                                  : step.done
+                                    ? 'bg-black text-white'
+                                    : 'bg-black/8 text-black/42'
+                              }`}
+                            >
+                              <Icon className="h-4 w-4" />
+                            </div>
+                            {!isLast ? (
+                              <div
+                                className={`mt-2 w-px flex-1 ${
+                                  step.current ? 'bg-emerald-300' : step.done ? 'bg-black/22' : 'bg-black/10'
+                                }`}
+                              />
+                            ) : null}
+                          </div>
+                          <div className="min-w-0 flex-1 pb-4">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <p className={`shipment-timeline__step-label ${step.current ? 'shipment-timeline__step-label--current text-emerald-800' : step.done ? 'text-black/86' : 'text-black/56'} text-sm font-semibold`}>
+                                {step.label}
+                              </p>
+                              <span
+                                className={`rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] ${
+                                  step.current
+                                    ? 'bg-emerald-600 text-white'
+                                    : step.done
+                                      ? 'bg-black text-white'
+                                      : 'border border-black/10 bg-white text-black/48'
+                                }`}
+                              >
+                                {step.current ? 'En curso' : step.done ? 'Hecho' : 'Pendiente'}
+                              </span>
+                            </div>
+                            <p className="mt-2 text-sm leading-6 text-black/58">{step.description}</p>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                  {order.trackingNumber ? (
+                    <Link href={andreaniTrackingUrl} target="_blank" className="button-secondary mt-2">
+                      Seguimiento de mi envío
+                    </Link>
+                  ) : null}
                 </div>
 
                 <div className="mt-6 grid gap-4 md:grid-cols-3">
@@ -113,6 +262,11 @@ export function ProfilePanel({ email, saved, profile }: ProfilePanelProps) {
                     <p className="text-xs uppercase tracking-[0.18em] text-black/50">Pago y envío</p>
                     <p className="mt-3 text-sm text-black/72">{getOrderStateLabel(order.paymentStatus)}</p>
                     <p className="mt-1 text-sm text-black/52">{order.address?.city ?? ''} {order.address?.province ? `· ${order.address.province}` : ''}</p>
+                    {order.trackingNumber ? (
+                      <Link href={`/seguimiento?code=${encodeURIComponent(order.trackingNumber)}`} className="mt-3 inline-flex rounded-full border border-black/10 bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-black/74 transition hover:bg-black hover:text-white">
+                        Seguir envío
+                      </Link>
+                    ) : null}
                   </div>
                   <div className="rounded-[22px] bg-[#f7f7f4] p-4">
                     <p className="text-xs uppercase tracking-[0.18em] text-black/50">Notificaciones</p>
@@ -132,8 +286,9 @@ export function ProfilePanel({ email, saved, profile }: ProfilePanelProps) {
                     ) : null}
                   </div>
                 </div>
-              </article>
-            ))
+                </article>
+              )
+            })
           )}
         </div>
       </div>

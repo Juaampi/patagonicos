@@ -10,14 +10,14 @@ export function SiteFooter({ settings }: { settings: StoreSettingsSnapshot }) {
         <div>
           <Logo variant="footer" />
           <p className="mt-5 max-w-sm text-sm leading-7 text-black/62">
-            Indumentaria outdoor para mascotas de clima frío. Diseño sobrio, materiales técnicos y foco real en Bariloche, nieve y protección.
+            Abrigo pensado para acompañar a perros y gatos en los días fríos, con comodidad, cuidado y protección real para cada paseo.
           </p>
         </div>
         <div>
           <p className="eyebrow">Tienda</p>
           <div className="mt-4 space-y-3 text-sm text-black/68">
             <Link href="/productos" className="block hover:text-black">Productos</Link>
-            <Link href="/adoptame" className="block hover:text-black">Adoptame</Link>
+            <Link href="/adoptame" className="block hover:text-black">Mascotas en adopción</Link>
             <Link href="/carrito" className="block hover:text-black">Carrito</Link>
           </div>
         </div>
@@ -27,7 +27,6 @@ export function SiteFooter({ settings }: { settings: StoreSettingsSnapshot }) {
             <Link href="/envios" className="block hover:text-black">Envíos</Link>
             <Link href="/terminosycondiciones" className="block hover:text-black">Términos y condiciones</Link>
             <Link href="/politicasdeprivacidad" className="block hover:text-black">Políticas de privacidad</Link>
-            <Link href="/admin" className="block hover:text-black">Admin</Link>
           </div>
         </div>
         {settings.barilocheEnabled ? (

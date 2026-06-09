@@ -1,8 +1,9 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { AdminShell } from '@/components/admin/admin-shell'
+import { getAndreaniTrackingUrl } from '@/lib/server/andreani'
 import { buildGoogleMapsPinUrl, getOrderForTicket, getOrderStateLabel, getShippingMethodLabel } from '@/lib/server/fulfillment'
-import { markOrderPaidAction, updateOrderStatusAction } from '@/lib/server/fulfillment-actions'
+import { markOrderPaidAction, markOrderShippedWithTrackingAction, updateOrderStatusAction } from '@/lib/server/fulfillment-actions'
 import { formatPrice } from '@/lib/utils'
 
 export default async function AdminOrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -14,6 +15,7 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
   }
 
   const pinUrl = buildGoogleMapsPinUrl(order.address?.latitude, order.address?.longitude)
+  const andreaniTrackerUrl = getAndreaniTrackingUrl()
 
   return (
     <AdminShell>
@@ -115,6 +117,12 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
                   <span>Estado envío</span>
                   <strong>{getOrderStateLabel(order.shippingStatus)}</strong>
                 </div>
+                {order.trackingNumber ? (
+                  <div className="flex items-center justify-between">
+                    <span>Tracking</span>
+                    <strong>{order.trackingNumber}</strong>
+                  </div>
+                ) : null}
               </div>
             </div>
 
@@ -138,6 +146,41 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
                 <div className="flex items-center justify-between border-t border-black/8 pt-3 text-base text-black">
                   <span>Total</span>
                   <strong>{formatPrice(order.total)}</strong>
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-[24px] border border-black/8 p-5">
+              <h2 className="text-lg font-semibold text-black/82">Despacho Andreani</h2>
+              <div className="mt-4 space-y-4 text-sm text-black/64">
+                <form action={markOrderShippedWithTrackingAction} className="space-y-3">
+                  <input type="hidden" name="orderId" value={order.id} />
+                  <input
+                    name="trackingNumber"
+                    defaultValue={order.trackingNumber ?? ''}
+                    placeholder="Código de seguimiento Andreani"
+                    className="w-full rounded-[18px] border border-black/10 bg-[#f7f7f4] px-4 py-4 text-sm outline-none"
+                  />
+                  <button className="rounded-full border border-black/10 px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-black/72 transition hover:bg-black hover:text-white">
+                    Marcar despachada
+                  </button>
+                </form>
+                <div className="flex flex-wrap gap-2">
+                  {order.trackingNumber ? (
+                    <Link
+                      href={`/seguimiento?code=${encodeURIComponent(order.trackingNumber)}`}
+                      className="rounded-full border border-black/10 px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-black/72 transition hover:bg-black hover:text-white"
+                    >
+                      Ver seguimiento interno
+                    </Link>
+                  ) : null}
+                  <Link
+                    href={andreaniTrackerUrl}
+                    target="_blank"
+                    className="rounded-full border border-black/10 px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-black/72 transition hover:bg-black hover:text-white"
+                  >
+                    Abrir Andreani
+                  </Link>
                 </div>
               </div>
             </div>

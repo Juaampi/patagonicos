@@ -34,6 +34,7 @@ export default async function ProfilePage({
                 total: order.total,
                 createdAt: order.createdAt.toISOString(),
                 whatsappOptIn: order.whatsappOptIn,
+                trackingNumber: order.trackingNumber,
                 address: order.address
                   ? {
                       city: order.address.city,

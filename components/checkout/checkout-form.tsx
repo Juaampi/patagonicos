@@ -13,7 +13,6 @@ import {
   getProvinceCitySuggestions,
   normalizeProvinceName,
 } from '@/lib/argentina-data'
-import { formatPhoneForDisplay } from '@/lib/contact-utils'
 import { getCheckoutPreview, isBarilocheLocation, type StoreSettingsSnapshot } from '@/lib/store-settings'
 import type { CartItem } from '@/types/store'
 import { formatPrice } from '@/lib/utils'
@@ -51,9 +50,16 @@ export function CheckoutForm({ items, settings }: CheckoutFormProps) {
   const router = useRouter()
   const { clearCart } = useCart()
   const fullNameRef = useRef<HTMLInputElement>(null)
+  const lastNameRef = useRef<HTMLInputElement>(null)
+  const dniRef = useRef<HTMLInputElement>(null)
   const emailRef = useRef<HTMLInputElement>(null)
   const phoneRef = useRef<HTMLInputElement>(null)
+  const phoneAreaCodeRef = useRef<HTMLInputElement>(null)
+  const phoneNumberRef = useRef<HTMLInputElement>(null)
   const addressRef = useRef<HTMLInputElement>(null)
+  const streetNumberRef = useRef<HTMLInputElement>(null)
+  const floorRef = useRef<HTMLInputElement>(null)
+  const apartmentRef = useRef<HTMLInputElement>(null)
   const provinceRef = useRef<HTMLInputElement>(null)
   const cityRef = useRef<HTMLInputElement>(null)
   const postalCodeRef = useRef<HTMLInputElement>(null)
@@ -61,9 +67,16 @@ export function CheckoutForm({ items, settings }: CheckoutFormProps) {
   const subtotal = items.reduce((total, item) => total + item.price * item.quantity, 0)
   const [form, setForm] = useState({
     fullName: '',
+    lastName: '',
+    dni: '',
     email: '',
     phone: '',
+    phoneAreaCode: '',
+    phoneNumber: '',
     address: '',
+    streetNumber: '',
+    floor: '',
+    apartment: '',
     city: settings.barilocheEnabled ? 'San Carlos de Bariloche' : '',
     province: settings.barilocheEnabled ? 'Río Negro' : '',
     postalCode: '',
@@ -161,17 +174,19 @@ export function CheckoutForm({ items, settings }: CheckoutFormProps) {
     setForm((current) => ({ ...current, [key]: value }))
   }
 
-  function handlePhoneChange(value: string) {
-    const digits = value.replace(/\D/g, '').slice(0, 14)
-    updateField('phone', formatPhoneForDisplay(digits))
-  }
-
   function focusField(name: string) {
     const refMap: Record<string, HTMLElement | null> = {
       fullName: fullNameRef.current,
+      lastName: lastNameRef.current,
+      dni: dniRef.current,
       email: emailRef.current,
       phone: phoneRef.current,
+      phoneAreaCode: phoneAreaCodeRef.current,
+      phoneNumber: phoneNumberRef.current,
       address: addressRef.current,
+      streetNumber: streetNumberRef.current,
+      floor: floorRef.current,
+      apartment: apartmentRef.current,
       province: provinceRef.current,
       city: cityRef.current,
       postalCode: postalCodeRef.current,
@@ -205,11 +220,15 @@ export function CheckoutForm({ items, settings }: CheckoutFormProps) {
   function validateBeforeSubmit() {
     const requiredChecks = [
       { key: 'fullName', valid: form.fullName.trim().length >= 2, message: 'Completá tu nombre para continuar.' },
+      { key: 'lastName', valid: form.lastName.trim().length >= 2, message: 'Completá tu apellido para continuar.' },
+      { key: 'dni', valid: form.dni.replace(/\D/g, '').length >= 7, message: 'Completá un DNI válido.' },
       { key: 'email', valid: /\S+@\S+\.\S+/.test(form.email.trim()), message: 'Completá un email válido.' },
-      { key: 'phone', valid: form.phone.replace(/\D/g, '').length >= 8, message: 'Completá un teléfono válido.' },
+      { key: 'phoneAreaCode', valid: form.phoneAreaCode.replace(/\D/g, '').length >= 2, message: 'Completá el código de celular.' },
+      { key: 'phoneNumber', valid: form.phoneNumber.replace(/\D/g, '').length >= 6, message: 'Completá el número de celular.' },
       { key: 'province', valid: hasValidProvince, message: 'Elegí una provincia válida de la lista.' },
       { key: 'city', valid: hasValidCity, message: 'Elegí una ciudad válida de la lista.' },
       { key: 'address', valid: form.address.trim().length >= 4, message: 'Completá la dirección de entrega.' },
+      { key: 'streetNumber', valid: form.streetNumber.trim().length >= 1, message: 'Completá la numeración de la dirección.' },
       { key: 'postalCode', valid: form.postalCode.trim().length >= 3, message: 'Completá el código postal.' },
       {
         key: 'pin',
@@ -287,7 +306,7 @@ export function CheckoutForm({ items, settings }: CheckoutFormProps) {
 
     const payload = {
       ...form,
-      phone: form.phone.trim(),
+      phone: `${form.phoneAreaCode.trim()} ${form.phoneNumber.trim()}`.trim(),
       paymentMethod,
       latitude: form.latitude ? Number(form.latitude) : undefined,
       longitude: form.longitude ? Number(form.longitude) : undefined,
@@ -398,6 +417,20 @@ export function CheckoutForm({ items, settings }: CheckoutFormProps) {
                 className="rounded-[20px] border border-black/10 bg-[#f7f7f4] px-4 py-4 text-sm outline-none"
               />
               <input
+                ref={lastNameRef}
+                value={form.lastName}
+                onChange={(event) => updateField('lastName', event.target.value)}
+                placeholder="Apellido"
+                className="rounded-[20px] border border-black/10 bg-[#f7f7f4] px-4 py-4 text-sm outline-none"
+              />
+              <input
+                ref={dniRef}
+                value={form.dni}
+                onChange={(event) => updateField('dni', event.target.value.replace(/\D/g, '').slice(0, 10))}
+                placeholder="DNI"
+                className="rounded-[20px] border border-black/10 bg-[#f7f7f4] px-4 py-4 text-sm outline-none"
+              />
+              <input
                 ref={emailRef}
                 value={form.email}
                 onChange={(event) => updateField('email', event.target.value.toLowerCase())}
@@ -406,20 +439,31 @@ export function CheckoutForm({ items, settings }: CheckoutFormProps) {
               />
 
               <div className="md:col-span-2">
-                <div className="grid gap-4 md:grid-cols-[1fr_auto]">
+                <div className="grid gap-4 md:grid-cols-[minmax(0,220px)_minmax(0,1fr)_auto]">
+                  <div className="rounded-[20px] border border-black/10 bg-[#f7f7f4] px-4 py-3">
+                    <p className="text-[11px] uppercase tracking-[0.16em] text-black/42">Código celular</p>
+                    <input
+                      ref={phoneAreaCodeRef}
+                      value={form.phoneAreaCode}
+                      onChange={(event) => updateField('phoneAreaCode', event.target.value.replace(/\D/g, '').slice(0, 5))}
+                      placeholder="223"
+                      className="mt-2 h-8 w-full bg-transparent text-sm outline-none"
+                    />
+                  </div>
                   <div className="rounded-[20px] border border-black/10 bg-[#f7f7f4] px-4 py-3">
                     <div className="flex items-center gap-3 text-black/44">
                       <Phone className="h-4 w-4" />
                       <input
-                        ref={phoneRef}
-                        value={form.phone}
-                        onChange={(event) => handlePhoneChange(event.target.value)}
-                        placeholder="0 223 15 6355537"
+                        ref={phoneNumberRef}
+                        value={form.phoneNumber}
+                        onChange={(event) => updateField('phoneNumber', event.target.value.replace(/\D/g, '').slice(0, 10))}
+                        placeholder="6355537"
                         className="h-8 w-full bg-transparent text-sm outline-none"
                       />
                     </div>
-                    <p className="mt-1 text-[11px] text-black/44">Escribilo como lo usarías para llamadas o WhatsApp y lo acomodamos visualmente.</p>
+                    <p className="mt-1 text-[11px] text-black/44">Lo usamos para seguimiento y despacho con Andreani.</p>
                   </div>
+                  <input ref={phoneRef} value={`${form.phoneAreaCode} ${form.phoneNumber}`.trim()} readOnly className="hidden" />
 
                   <label className="flex items-center gap-3 rounded-[20px] border border-black/10 bg-white px-4 py-3 text-sm text-black/72">
                     <input
@@ -505,51 +549,77 @@ export function CheckoutForm({ items, settings }: CheckoutFormProps) {
 
               {hasValidCity ? (
                 <div className="relative md:col-span-2">
-                  <input
-                    ref={addressRef}
-                    name="delivery-address-search"
-                    value={form.address}
-                    autoComplete="off"
-                    autoCorrect="off"
-                    autoCapitalize="words"
-                    spellCheck={false}
-                    data-form-type="other"
-                    data-lpignore="true"
-                    onChange={(event) => {
-                      updateField('address', event.target.value)
-                      setAddressSuggestionsOpen(true)
-                    }}
-                    onBlur={() => {
-                      window.setTimeout(() => {
-                        setAddressSuggestionsOpen(false)
-                        if (shouldShowPinPicker) {
-                          pinRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-                        }
-                      }, 140)
-                    }}
-                    placeholder="Dirección"
-                    className="w-full rounded-[20px] border border-black/10 bg-[#f7f7f4] px-4 py-4 text-sm outline-none"
-                  />
-                  {addressSuggestionsOpen && addressSuggestions.length > 0 ? (
-                    <div className="absolute left-0 right-0 top-[calc(100%+8px)] z-20 max-h-64 overflow-y-auto rounded-[20px] border border-black/10 bg-white p-2 shadow-[0_18px_50px_rgba(0,0,0,0.08)]">
-                      {addressSuggestions.map((suggestion) => (
-                        <button
-                          key={suggestion.displayName}
-                          type="button"
-                          onMouseDown={(event) => {
-                            event.preventDefault()
-                            applyAddressSuggestion(suggestion)
-                          }}
-                          onTouchStart={() => applyAddressSuggestion(suggestion)}
-                          className="block w-full rounded-[14px] px-3 py-3 text-left text-sm text-black/72 transition hover:bg-[#f6f6f3]"
-                        >
-                          {suggestion.displayName}
-                        </button>
-                      ))}
+                  <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_160px]">
+                    <div className="relative">
+                      <input
+                        ref={addressRef}
+                        name="delivery-address-search"
+                        value={form.address}
+                        autoComplete="off"
+                        autoCorrect="off"
+                        autoCapitalize="words"
+                        spellCheck={false}
+                        data-form-type="other"
+                        data-lpignore="true"
+                        onChange={(event) => {
+                          updateField('address', event.target.value)
+                          setAddressSuggestionsOpen(true)
+                        }}
+                        onBlur={() => {
+                          window.setTimeout(() => {
+                            setAddressSuggestionsOpen(false)
+                            if (shouldShowPinPicker) {
+                              pinRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                            }
+                          }, 140)
+                        }}
+                        placeholder="Calle"
+                        className="w-full rounded-[20px] border border-black/10 bg-[#f7f7f4] px-4 py-4 text-sm outline-none"
+                      />
+                      {addressSuggestionsOpen && addressSuggestions.length > 0 ? (
+                        <div className="absolute left-0 right-0 top-[calc(100%+8px)] z-20 max-h-64 overflow-y-auto rounded-[20px] border border-black/10 bg-white p-2 shadow-[0_18px_50px_rgba(0,0,0,0.08)]">
+                          {addressSuggestions.map((suggestion) => (
+                            <button
+                              key={suggestion.displayName}
+                              type="button"
+                              onMouseDown={(event) => {
+                                event.preventDefault()
+                                applyAddressSuggestion(suggestion)
+                              }}
+                              onTouchStart={() => applyAddressSuggestion(suggestion)}
+                              className="block w-full rounded-[14px] px-3 py-3 text-left text-sm text-black/72 transition hover:bg-[#f6f6f3]"
+                            >
+                              {suggestion.displayName}
+                            </button>
+                          ))}
+                        </div>
+                      ) : null}
                     </div>
-                  ) : null}
+                    <input
+                      ref={streetNumberRef}
+                      value={form.streetNumber}
+                      onChange={(event) => updateField('streetNumber', event.target.value.replace(/[^\dA-Za-z/-]/g, '').slice(0, 10))}
+                      placeholder="Número"
+                      className="w-full rounded-[20px] border border-black/10 bg-[#f7f7f4] px-4 py-4 text-sm outline-none"
+                    />
+                  </div>
                 </div>
               ) : null}
+
+              <input
+                ref={floorRef}
+                value={form.floor}
+                onChange={(event) => updateField('floor', event.target.value.slice(0, 10))}
+                placeholder="Piso (opcional)"
+                className="rounded-[20px] border border-black/10 bg-[#f7f7f4] px-4 py-4 text-sm outline-none"
+              />
+              <input
+                ref={apartmentRef}
+                value={form.apartment}
+                onChange={(event) => updateField('apartment', event.target.value.slice(0, 10))}
+                placeholder="Departamento (opcional)"
+                className="rounded-[20px] border border-black/10 bg-[#f7f7f4] px-4 py-4 text-sm outline-none"
+              />
 
               <input
                 ref={postalCodeRef}

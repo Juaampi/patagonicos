@@ -7,6 +7,7 @@ import { FloatingActions } from '@/components/layout/floating-actions'
 import { NavigationFeedback } from '@/components/layout/navigation-feedback'
 import { SiteFooterShell } from '@/components/layout/site-footer-shell'
 import { SiteHeaderShell } from '@/components/layout/site-header-shell'
+import { ThemeSync } from '@/components/layout/theme-sync'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -52,6 +53,7 @@ export default async function RootLayout({
       </head>
       <body suppressHydrationWarning className="min-h-screen bg-background font-sans text-foreground">
         <CartProvider>
+          <ThemeSync />
           <div className="page-wrap min-h-screen">
             <Suspense fallback={null}>
               <NavigationFeedback />

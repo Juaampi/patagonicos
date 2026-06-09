@@ -9,6 +9,7 @@ import type { AdoptionPet } from '@/types/store'
 const samplePets = [
   {
     name: 'Luna',
+    animalType: 'DOG',
     ageLabel: '2 años',
     city: 'San Carlos de Bariloche',
     province: 'Río Negro',
@@ -23,6 +24,7 @@ const samplePets = [
   },
   {
     name: 'Toby',
+    animalType: 'DOG',
     ageLabel: '1 año',
     city: 'Dina Huapi',
     province: 'Río Negro',
@@ -37,6 +39,7 @@ const samplePets = [
   },
   {
     name: 'Mora',
+    animalType: 'CAT',
     ageLabel: '4 años',
     city: 'Villa La Angostura',
     province: 'Neuquén',
@@ -65,6 +68,7 @@ function mapAdoptionPet(
   return {
     id: pet.id,
     name: pet.name,
+    animalType: pet.animalType,
     ageLabel: pet.ageLabel,
     city: pet.city,
     province: pet.province,
@@ -108,6 +112,7 @@ export async function ensureAdoptionPetsSeeded() {
           },
           data: {
             contactPhone: pet.contactPhone,
+            animalType: pet.animalType,
           },
         }),
       ),
@@ -132,6 +137,7 @@ export async function ensureAdoptionPetsSeeded() {
     await prisma.adoptionPet.create({
       data: {
         name: pet.name,
+        animalType: pet.animalType,
         ageLabel: pet.ageLabel,
         city: pet.city,
         province: pet.province,
@@ -188,6 +194,7 @@ export async function saveAdoptionPetAction(
   try {
     const petId = String(formData.get('petId') ?? '').trim()
     const name = String(formData.get('name') ?? '').trim()
+    const animalTypeValue = String(formData.get('animalType') ?? 'DOG').trim().toUpperCase()
     const ageLabel = String(formData.get('ageLabel') ?? '').trim()
     const city = String(formData.get('city') ?? '').trim()
     const province = String(formData.get('province') ?? '').trim()
@@ -273,12 +280,14 @@ export async function saveAdoptionPetAction(
         : statusValue === AdoptionStatus.EN_TRANSITO
           ? AdoptionStatus.EN_TRANSITO
           : AdoptionStatus.EN_ADOPCION
+    const animalType = animalTypeValue === 'CAT' ? 'CAT' : 'DOG'
 
     if (existingPet) {
       await prisma.adoptionPet.update({
         where: { id: existingPet.id },
         data: {
           name,
+          animalType,
           ageLabel,
           city,
           province,
@@ -295,6 +304,7 @@ export async function saveAdoptionPetAction(
       await prisma.adoptionPet.create({
         data: {
           name,
+          animalType,
           ageLabel,
           city,
           province,

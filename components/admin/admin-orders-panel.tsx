@@ -18,6 +18,7 @@ type AdminOrdersPanelProps = {
     customerName: string
     customerPhone?: string
     city?: string
+    trackingNumber?: string
     pinUrl?: string
     printJobs: Array<{ id: string; status: string; type: string }>
   }>
@@ -66,6 +67,7 @@ export function AdminOrdersPanel({ orders }: AdminOrdersPanelProps) {
                 <td className="px-5 py-3">
                   <p className="text-black/74">{getShippingMethodLabel(order.shippingMethod)}</p>
                   <p className="mt-1 text-xs text-black/45">{getOrderStateLabel(order.status)}</p>
+                  {order.trackingNumber ? <p className="mt-1 text-xs text-black/45">Tracking: {order.trackingNumber}</p> : null}
                 </td>
                 <td className="px-5 py-3">
                   <p className="text-black/74">{getOrderStateLabel(order.paymentStatus)}</p>

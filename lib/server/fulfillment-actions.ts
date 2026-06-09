@@ -151,6 +151,29 @@ export async function markOrderPaidAction(formData: FormData) {
   revalidateAdminPaths(orderId)
 }
 
+export async function markOrderShippedWithTrackingAction(formData: FormData) {
+  const orderId = String(formData.get('orderId') ?? '').trim()
+  const trackingNumber = String(formData.get('trackingNumber') ?? '').trim()
+
+  if (!orderId || !trackingNumber) {
+    throw new Error('Orden o tracking inválido.')
+  }
+
+  await prisma.order.update({
+    where: { id: orderId },
+    data: {
+      status: OrderStatus.SHIPPED,
+      shippingStatus: ShippingStatus.DESPACHADO,
+      carrier: 'Andreani',
+      trackingNumber,
+    },
+  })
+
+  revalidatePath('/perfil')
+  revalidatePath('/seguimiento')
+  revalidateAdminPaths(orderId)
+}
+
 export async function updateCustomerWhatsappOptInAction(formData: FormData) {
   const customerId = String(formData.get('customerId') ?? '').trim()
   const email = String(formData.get('email') ?? '').trim()

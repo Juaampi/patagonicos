@@ -204,21 +204,30 @@ model Customer {
 }
 
 model Address {
-  id          String    @id @default(cuid())
-  customerId  String
-  customer    Customer  @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  line1       String
-  line2       String?
-  city        String
-  province    String
-  postalCode  String
-  country     String    @default("AR")
-  latitude    Float?
-  longitude   Float?
-  pinLabel    String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  orders      Order[]
+  id                 String    @id @default(cuid())
+  customerId         String
+  customer           Customer  @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  recipientFirstName String?
+  recipientLastName  String?
+  recipientDni       String?
+  phoneAreaCode      String?
+  phoneNumber        String?
+  streetName         String?
+  streetNumber       String?
+  floor              String?
+  apartment          String?
+  line1              String
+  line2              String?
+  city               String
+  province           String
+  postalCode         String
+  country            String    @default("AR")
+  latitude           Float?
+  longitude          Float?
+  pinLabel           String?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  orders             Order[]
 
   @@map("pa2_addresses")
 }
@@ -392,6 +401,7 @@ model ProductReview {
 model AdoptionPet {
   id         String             @id @default(cuid())
   name       String
+  animalType AnimalType         @default(DOG)
   ageLabel   String
   city       String
   province   String

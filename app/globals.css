@@ -145,6 +145,11 @@ html[data-theme="dark"] textarea::placeholder {
   @apply text-[11px] font-semibold uppercase tracking-[0.32em] text-black/55;
 }
 
+html.theme-dark .eyebrow,
+html[data-theme="dark"] .eyebrow {
+  color: rgba(241, 245, 249, 0.6) !important;
+}
+
 .display-title {
   @apply font-display text-4xl leading-none tracking-[-0.05em] md:text-6xl xl:text-7xl;
 }
@@ -580,6 +585,86 @@ html[data-theme="dark"] .nav-loader-overlay {
 html.theme-dark .brand-logo-image,
 html[data-theme="dark"] .brand-logo-image {
   filter: invert(1) brightness(1.04) !important;
+}
+
+html.theme-dark .adoption-pet-card,
+html[data-theme="dark"] .adoption-pet-card {
+  background:
+    linear-gradient(180deg, rgba(20, 25, 33, 0.98) 0%, rgba(11, 14, 19, 0.96) 100%) !important;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.24);
+}
+
+html.theme-dark .adoption-pet-card__gallery,
+html[data-theme="dark"] .adoption-pet-card__gallery {
+  background:
+    radial-gradient(circle at top, rgba(255, 255, 255, 0.05), rgba(20, 24, 31, 0.94)) !important;
+}
+
+html.theme-dark .adoption-pet-card__image,
+html[data-theme="dark"] .adoption-pet-card__image {
+  background: #1a212b !important;
+}
+
+html.theme-dark .adoption-pet-card__badge,
+html[data-theme="dark"] .adoption-pet-card__badge {
+  color: rgba(241, 245, 249, 0.82) !important;
+  background: rgba(148, 163, 184, 0.08) !important;
+  border-color: rgba(241, 245, 249, 0.14) !important;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
+}
+
+html.theme-dark .adoption-pet-card__badge--type,
+html[data-theme="dark"] .adoption-pet-card__badge--type {
+  color: rgba(167, 243, 208, 0.92) !important;
+  background: rgba(16, 185, 129, 0.12) !important;
+  border-color: rgba(110, 231, 183, 0.18) !important;
+}
+
+html.theme-dark .adoption-pet-card__header,
+html[data-theme="dark"] .adoption-pet-card__header {
+  border-color: rgba(241, 245, 249, 0.12) !important;
+}
+
+html.theme-dark .adoption-pet-card__location,
+html[data-theme="dark"] .adoption-pet-card__location {
+  color: rgba(226, 232, 240, 0.56) !important;
+}
+
+html.theme-dark .adoption-pet-card__title,
+html[data-theme="dark"] .adoption-pet-card__title {
+  color: rgba(248, 250, 252, 0.96) !important;
+}
+
+html.theme-dark .adoption-pet-card__subtitle,
+html[data-theme="dark"] .adoption-pet-card__subtitle,
+html.theme-dark .adoption-pet-card__summary,
+html[data-theme="dark"] .adoption-pet-card__summary,
+html.theme-dark .adoption-pet-card__contact-label,
+html[data-theme="dark"] .adoption-pet-card__contact-label {
+  color: rgba(226, 232, 240, 0.68) !important;
+}
+
+html.theme-dark .adoption-pet-card__contact,
+html[data-theme="dark"] .adoption-pet-card__contact {
+  background: rgba(15, 19, 25, 0.84) !important;
+  border-color: rgba(241, 245, 249, 0.14) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+}
+
+html.theme-dark .adoption-pet-card__contact-value,
+html[data-theme="dark"] .adoption-pet-card__contact-value {
+  color: rgba(248, 250, 252, 0.9) !important;
+}
+
+html.theme-dark .shipment-timeline,
+html[data-theme="dark"] .shipment-timeline {
+  background: linear-gradient(180deg, rgba(18, 23, 30, 0.98) 0%, rgba(11, 15, 20, 0.96) 100%) !important;
+  border-color: rgba(241, 245, 249, 0.14) !important;
+}
+
+html.theme-dark .shipment-timeline__step-label--current,
+html[data-theme="dark"] .shipment-timeline__step-label--current {
+  color: rgba(110, 231, 183, 0.96) !important;
 }
 
 @keyframes nav-loader-ring-spin {

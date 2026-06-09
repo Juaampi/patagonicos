@@ -100,6 +100,7 @@ export type AdoptionPetImage = {
 export type AdoptionPet = {
   id: string
   name: string
+  animalType: 'DOG' | 'CAT'
   ageLabel: string
   city: string
   province: string

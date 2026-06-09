@@ -311,10 +311,17 @@ export type CheckoutOrderItemInput = {
 
 export async function createOrderFromCheckout(input: {
   fullName: string
+  lastName: string
+  dni: string
   email: string
   phone: string
+  phoneAreaCode: string
+  phoneNumber: string
   whatsappOptIn: boolean
   address: string
+  streetNumber: string
+  floor?: string
+  apartment?: string
   city: string
   province: string
   postalCode: string
@@ -346,13 +353,13 @@ export async function createOrderFromCheckout(input: {
   const customer = await prisma.customer.upsert({
     where: { email: input.email },
     update: {
-      fullName: input.fullName,
+      fullName: `${input.fullName} ${input.lastName}`.trim(),
       phone: input.phone,
       whatsappOptIn: input.whatsappOptIn,
     },
     create: {
       email: input.email,
-      fullName: input.fullName,
+      fullName: `${input.fullName} ${input.lastName}`.trim(),
       phone: input.phone,
       whatsappOptIn: input.whatsappOptIn,
     },
@@ -361,7 +368,17 @@ export async function createOrderFromCheckout(input: {
   const address = await prisma.address.create({
     data: {
       customerId: customer.id,
-      line1: input.address,
+      line1: `${input.address} ${input.streetNumber}`.trim(),
+      line2: [input.floor, input.apartment].filter(Boolean).join(' ').trim() || null,
+      recipientFirstName: input.fullName,
+      recipientLastName: input.lastName,
+      recipientDni: input.dni,
+      phoneAreaCode: input.phoneAreaCode,
+      phoneNumber: input.phoneNumber,
+      streetName: input.address,
+      streetNumber: input.streetNumber,
+      floor: input.floor || null,
+      apartment: input.apartment || null,
       city: input.city,
       province: input.province,
       postalCode: input.postalCode,
@@ -522,6 +539,8 @@ export async function getAdminFulfillmentSnapshot() {
           paymentMethod: true,
           shippingMethod: true,
           shippingStatus: true,
+          carrier: true,
+          trackingNumber: true,
           whatsappOptIn: true,
           subtotal: true,
           discountAmount: true,
@@ -606,6 +625,8 @@ export async function getOrderForTicket(orderId: string) {
         paymentMethod: true,
         shippingMethod: true,
         shippingStatus: true,
+        carrier: true,
+        trackingNumber: true,
         whatsappOptIn: true,
         subtotal: true,
         discountAmount: true,

@@ -5,9 +5,16 @@ import { createOrderFromCheckout } from '@/lib/server/fulfillment'
 
 const checkoutSchema = z.object({
   fullName: z.string().min(2),
+  lastName: z.string().min(2),
+  dni: z.string().min(7),
   email: z.string().email(),
   phone: z.string().min(6),
+  phoneAreaCode: z.string().min(2),
+  phoneNumber: z.string().min(6),
   address: z.string().min(4),
+  streetNumber: z.string().min(1),
+  floor: z.string().optional(),
+  apartment: z.string().optional(),
   city: z.string().min(2),
   province: z.string().min(2),
   postalCode: z.string().min(3),

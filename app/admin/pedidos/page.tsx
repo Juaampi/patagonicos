@@ -22,6 +22,7 @@ export default async function AdminOrdersPage() {
         customerName: order.customer.fullName ?? order.customer.email,
         customerPhone: order.customer.phone ?? undefined,
         city: order.address?.city ?? undefined,
+        trackingNumber: order.trackingNumber ?? undefined,
         pinUrl: buildGoogleMapsPinUrl(order.address?.latitude, order.address?.longitude) || undefined,
         printJobs: order.printJobs.map((job) => ({
           id: job.id,

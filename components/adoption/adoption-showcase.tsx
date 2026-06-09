@@ -21,7 +21,7 @@ export function AdoptionShowcase({ pets }: { pets: AdoptionPet[] }) {
             </p>
           </div>
           <Link href="/adoptame" className="button-secondary">
-            Ver todos
+            Ver mascotas en adopción
           </Link>
         </div>
 
