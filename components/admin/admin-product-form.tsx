@@ -517,6 +517,7 @@ export function AdminProductForm({
             <p className="text-xs uppercase tracking-[0.18em] text-black/50">Imágenes informativas</p>
             <p className="mt-2 text-sm leading-6 text-black/58">
               Cargá guía de talles, materiales, detalles o lifestyle. No dependen del color seleccionado.
+              Si no subís imagen principal ni imagen de variante, la primera informativa se usa como portada inicial del producto.
             </p>
           </div>
         </div>

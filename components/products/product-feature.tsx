@@ -22,11 +22,11 @@ function getSalesBadgeLabel(count?: number) {
     return null
   }
 
-  if (count >= 1000) return '+1000 compras'
-  if (count >= 500) return '+500 compras'
-  if (count >= 100) return `+${Math.floor(count / 100) * 100} compras`
-  if (count >= 10) return `+${Math.floor(count / 10) * 10} compras`
-  return `+${count} compras`
+  if (count >= 1000) return '+1000 vendidos'
+  if (count >= 500) return '+500 vendidos'
+  if (count >= 100) return `+${Math.floor(count / 100) * 100} vendidos`
+  if (count >= 10) return `+${Math.floor(count / 10) * 10} vendidos`
+  return `+${count} vendidos`
 }
 
 export function ProductFeature({ product }: { product: Product }) {

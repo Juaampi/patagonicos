@@ -376,10 +376,10 @@ export async function saveProductAction(
       }
     }
 
-    if (!existingProduct && !mainImageFile && uploadedImages.length === 0) {
+    if (!existingProduct && !mainImageFile && uploadedImages.length === 0 && uploadedInfoImages.length === 0) {
       return {
         status: 'error' as const,
-        message: 'Subí una imagen principal o al menos una imagen del producto.',
+        message: 'Subí una imagen principal, una imagen de variante o al menos una imagen informativa.',
         redirectTo: undefined,
       }
     }
@@ -456,6 +456,7 @@ export async function saveProductAction(
         }
       }),
     )
+    const fallbackMainImageUrl = mainImageUpload?.secure_url ?? imageUploads[0]?.url ?? infoImageUploads[0]?.url ?? null
 
     if (existingProduct && deleteImageIds.length > 0) {
       const imagesToDelete = existingProduct.images.filter((image) => deleteImageIds.includes(image.id))
@@ -506,7 +507,7 @@ export async function saveProductAction(
           name,
           slug,
           animalType: animalType === 'CAT' ? 'CAT' : 'DOG',
-          mainImageUrl: mainImageUpload?.secure_url ?? imageUploads[0]?.url ?? null,
+          mainImageUrl: fallbackMainImageUrl,
           videoUrl: videoUrlValue || null,
           shortDescription,
           description,

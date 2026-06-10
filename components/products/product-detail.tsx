@@ -643,15 +643,16 @@ export function ProductDetail({
               </PurchaseBenefitRow>
             ) : null}
             {resolvedSelectedSize && selectedSizeInfo ? (
-              selectedSizeInfo.inStock && variantStockNotice ? (
+              !selectedSizeInfo.inStock ? (
+                <p className="text-base font-medium text-black/86">Sin stock</p>
+              ) : variantStockNotice ? (
                 <p
                   className={`inline-flex rounded-full px-3 py-1.5 text-sm font-medium ${variantStockNotice.className}`}
                 >
                   {variantStockNotice.label}
                 </p>
-              ) : (
-                <p className="text-base font-medium text-black/86">Sin stock</p>
-              )
+              ) : null
+              
             ) : null}
             <button
               ref={mobileAddToCartRef}
