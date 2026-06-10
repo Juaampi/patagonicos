@@ -234,6 +234,10 @@ export function ProductDetail({
   const selectedVariant = getVariantForSelection(product, selectedColor, resolvedSelectedSize)
   const averageRating = getReviewAverage(product)
   const reviewCount = product.reviews.length
+  const visibleReviews = useMemo(
+    () => product.reviews.filter((review) => review.comment.trim().length > 0),
+    [product.reviews],
+  )
   const soldScale = getSoldScale(product.salesCount)
   const installmentPrice = getInstallmentPrice(product.price)
   const variantStockNotice = getVariantStockNotice(selectedSizeInfo?.stock)
@@ -1000,7 +1004,7 @@ export function ProductDetail({
                   <span>({reviewCount}) opiniones</span>
                 </div>
               </div>
-              {product.reviews.length > 1 ? (
+              {visibleReviews.length > 1 ? (
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
@@ -1021,8 +1025,9 @@ export function ProductDetail({
                 </div>
               ) : null}
             </div>
+            {visibleReviews.length > 0 ? (
             <div ref={reviewsScrollRef} className="mt-6 flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2">
-              {product.reviews.map((review) => (
+              {visibleReviews.map((review) => (
                 <article key={review.id} className="w-[88%] shrink-0 snap-start rounded-[24px] border border-black/8 bg-[#f7f7f4] p-5 md:w-[440px]">
                   <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                     <div className="min-w-0">
@@ -1058,6 +1063,7 @@ export function ProductDetail({
                 </article>
               ))}
             </div>
+            ) : null}
           </section>
         ) : null}
       </div>
