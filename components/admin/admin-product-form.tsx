@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { Plus, Trash2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { useMemo, useRef, useState, useTransition } from 'react'
+import { useActionState, useEffect, useMemo, useState } from 'react'
 import { saveProductAction } from '@/lib/server/catalog'
 import { OUT_OF_STOCK_PLACEHOLDER_SIZE } from '@/lib/variant-utils'
 import { AdminProductSubmit } from './admin-product-submit'
@@ -133,9 +133,7 @@ export function AdminProductForm({
   mode?: 'create' | 'edit'
 }) {
   const router = useRouter()
-  const formRef = useRef<HTMLFormElement>(null)
-  const [state, setState] = useState(initialState)
-  const [isPending, startTransition] = useTransition()
+  const [state, formAction, isPending] = useActionState(saveProductAction, initialState)
   const [variants, setVariants] = useState<VariantDraft[]>(
     editProduct?.variants.length
       ? Array.from(
@@ -236,29 +234,15 @@ export function AdminProductForm({
     )
   }
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-
-    if (!formRef.current) {
-      return
+  useEffect(() => {
+    if (state.status === 'success' && state.redirectTo) {
+      router.push(state.redirectTo)
+      router.refresh()
     }
-
-    setState(initialState)
-    const formData = new FormData(formRef.current)
-
-    startTransition(async () => {
-      const result = await saveProductAction(initialState, formData)
-      setState(result)
-
-      if (result.status === 'success' && result.redirectTo) {
-        router.push(result.redirectTo)
-        router.refresh()
-      }
-    })
-  }
+  }, [router, state.redirectTo, state.status])
 
   return (
-    <form ref={formRef} onSubmit={handleSubmit} className="card-surface p-7">
+    <form action={formAction} className="card-surface p-7">
       <p className="eyebrow">Productos</p>
       <h2 className="mt-4 font-display text-3xl tracking-[-0.05em]">
         {mode === 'edit' ? 'Editar producto y variantes' : 'Alta clara de producto'}

@@ -7,6 +7,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useCart } from '@/components/cart/cart-provider'
 import { CashOnDeliveryInfo } from '@/components/marketing/cash-on-delivery-info'
 import { BarilocheDeliveryCountdown } from '@/components/marketing/bariloche-delivery-countdown'
+import { ProductImageWatermark } from '@/components/products/product-image-watermark'
 import { getFeatureChips } from '@/lib/product-display'
 import type { StoreSettingsSnapshot } from '@/lib/store-settings'
 import {
@@ -452,15 +453,18 @@ export function ProductDetail({
                 <video src={activeGalleryItem.url} controls className="h-full w-full object-cover" />
               )
             ) : activeGalleryItem?.kind === 'image' ? (
-              <Image
-                src={activeGalleryItem.image.url}
-                alt={activeGalleryItem.image.alt}
-                width={1400}
-                height={1750}
-                priority
-                sizes="100vw"
-                className={`h-full w-full transition duration-300 ${getMobileImageFit(activeGalleryItem.image)}`}
-              />
+              <>
+                <Image
+                  src={activeGalleryItem.image.url}
+                  alt={activeGalleryItem.image.alt}
+                  width={1400}
+                  height={1750}
+                  priority
+                  sizes="100vw"
+                  className={`h-full w-full transition duration-300 ${getMobileImageFit(activeGalleryItem.image)}`}
+                />
+                <ProductImageWatermark compact className="bottom-3 left-3 right-auto" />
+              </>
             ) : null}
 
             {activeGalleryItem?.kind === 'image' ? (
@@ -706,6 +710,7 @@ export function ProductDetail({
                   sizes="(min-width: 1280px) 42vw, (min-width: 768px) 50vw, 100vw"
                   className={`h-full w-full transition duration-300 group-hover:scale-[1.015] ${getImageFit(activeGalleryItem.image)}`}
                 />
+                <ProductImageWatermark className="bottom-4 left-4 right-auto md:bottom-5 md:left-5" />
                 <span className="absolute bottom-4 right-4 inline-flex items-center gap-2 rounded-full bg-white/92 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-black shadow-[0_10px_28px_rgba(0,0,0,0.12)]">
                   <Search className="h-3.5 w-3.5" />
                   Click para ampliar
@@ -959,6 +964,7 @@ export function ProductDetail({
                 {infoImages.map((image) => (
                   <div key={image.id ?? image.url} className="relative aspect-[4/3] overflow-hidden rounded-[24px] bg-[#f3f3ef]">
                     <Image src={image.url} alt={image.alt} fill sizes="(min-width: 768px) 50vw, 100vw" className={getImageFit(image)} />
+                    <ProductImageWatermark compact />
                   </div>
                 ))}
                 {product.videoUrl ? (

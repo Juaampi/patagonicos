@@ -7,6 +7,7 @@ import { useMemo, useRef, useState } from 'react'
 import { getColorImages, getMainImage, getProductColors, isColorOutOfStock } from '@/lib/variant-utils'
 import type { Product, ProductImage } from '@/types/store'
 import { formatPrice } from '@/lib/utils'
+import { ProductImageWatermark } from './product-image-watermark'
 
 function getImageFit(image: ProductImage) {
   if (image.type === 'LIFESTYLE') {
@@ -113,6 +114,7 @@ export function ProductFeature({ product }: { product: Product }) {
                   />
                 ) : null}
               </div>
+              <ProductImageWatermark className="bottom-5 right-5 md:bottom-7 md:right-7 xl:bottom-8 xl:right-8" />
 
               {gallery.length > 1 ? (
                 <>

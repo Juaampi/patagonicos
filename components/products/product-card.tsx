@@ -7,6 +7,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { getGalleryForColor, getMainImage, getProductColors, isColorOutOfStock } from '@/lib/variant-utils'
 import type { Product, ProductImage } from '@/types/store'
 import { formatPrice } from '@/lib/utils'
+import { ProductImageWatermark } from './product-image-watermark'
 
 function getImageFit(image?: ProductImage | null) {
   if (image?.type === 'MAIN' || image?.type === 'INFO') {
@@ -108,6 +109,7 @@ export function ProductCard({ product }: { product: Product }) {
                 className={`h-full w-full transition duration-200 ${getImageFit(activeImage)}`}
               />
             ) : null}
+            <ProductImageWatermark compact />
           </div>
         </Link>
 
