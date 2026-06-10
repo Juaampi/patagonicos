@@ -430,7 +430,7 @@ export function ProductDetail({
           <p className="mt-3 text-sm font-medium leading-6 text-emerald-700">
             Mismo precio en 3 cuotas de {formatPrice(installmentPrice)}
           </p>
-          <p className="mt-4 max-w-[28rem] text-sm leading-7 text-black/62">{product.shortDescription}</p>
+          <p className="mt-4 max-w-[28rem] whitespace-pre-line text-sm leading-7 text-black/62">{product.shortDescription}</p>
         </div>
 
         <div className="space-y-3">
@@ -767,7 +767,7 @@ export function ProductDetail({
           <div className="mt-4 flex items-end justify-between gap-4">
             <div>
               <h1 className="font-display text-4xl tracking-[-0.05em] md:text-5xl">{product.name}</h1>
-              <p className="mt-4 max-w-xl text-base leading-8 text-black/62">{product.shortDescription}</p>
+              <p className="mt-4 max-w-xl whitespace-pre-line text-base leading-8 text-black/62">{product.shortDescription}</p>
             </div>
             <div className="text-right">
               <p className="text-2xl font-semibold">{formatPrice(product.price)}</p>
@@ -917,7 +917,7 @@ export function ProductDetail({
       <div className="mx-auto max-w-[1200px] space-y-6">
         <section className="card-surface p-7 md:p-9">
           <p className="eyebrow">Descripción</p>
-          <p className="mt-5 max-w-4xl text-sm leading-8 text-black/62 md:text-[15px]">
+          <p className="mt-5 max-w-4xl whitespace-pre-line text-sm leading-8 text-black/62 md:text-[15px]">
             {product.description}
           </p>
         </section>

@@ -54,8 +54,8 @@ export default async function AdminProductDetailPage({ params }: { params: Promi
 
             <div className="rounded-[24px] border border-black/8 p-5">
               <h2 className="text-lg font-semibold text-black/82">Descripcion</h2>
-              <p className="mt-4 text-sm leading-7 text-black/64">{product.shortDescription}</p>
-              <p className="mt-4 text-sm leading-7 text-black/58">{product.description}</p>
+              <p className="mt-4 whitespace-pre-line text-sm leading-7 text-black/64">{product.shortDescription}</p>
+              <p className="mt-4 whitespace-pre-line text-sm leading-7 text-black/58">{product.description}</p>
             </div>
           </div>
 
