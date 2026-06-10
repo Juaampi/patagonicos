@@ -288,6 +288,7 @@ export async function saveProductAction(
   _previousState: { status: 'idle' | 'success' | 'error'; message: string },
   formData: FormData,
 ) {
+  const startedAt = Date.now()
   try {
     const productId = String(formData.get('productId') ?? '').trim()
     const name = String(formData.get('name') ?? '').trim()
@@ -415,47 +416,65 @@ export async function saveProductAction(
     }
 
     const newImageCounts = new Map<string, number>()
-    const mainImageUpload = mainImageFile
-      ? await uploadProductImage(`data:${mainImageFile.type};base64,${Buffer.from(await mainImageFile.arrayBuffer()).toString('base64')}`)
-      : null
+    console.info('[saveProductAction] starting uploads', {
+      mode: existingProduct ? 'edit' : 'create',
+      productId: existingProduct?.id ?? null,
+      mainImage: Boolean(mainImageFile),
+      variantImageCount: uploadedImages.length,
+      infoImageCount: uploadedInfoImages.length,
+    })
+    const uploadStartedAt = Date.now()
+    const [mainImageUpload, imageUploads, infoImageUploads] = await Promise.all([
+      mainImageFile
+        ? (async () =>
+            uploadProductImage(
+              `data:${mainImageFile.type};base64,${Buffer.from(await mainImageFile.arrayBuffer()).toString('base64')}`,
+            ))()
+        : Promise.resolve(null),
+      Promise.all(
+        uploadedImages.map(async (entry) => {
+          const imageColorName = entry.colorName || variants[0].colorName
+          const existingCount = replaceImages ? 0 : (existingPositionByColor.get(imageColorName) ?? 0)
+          const newCount = newImageCounts.get(imageColorName) ?? 0
+          const tempPath = `data:${entry.file.type};base64,${Buffer.from(await entry.file.arrayBuffer()).toString('base64')}`
+          const uploaded = await uploadProductImage(tempPath)
+          newImageCounts.set(imageColorName, newCount + 1)
 
-    const imageUploads = await Promise.all(
-      uploadedImages.map(async (entry) => {
-        const imageColorName = entry.colorName || variants[0].colorName
-        const existingCount = replaceImages ? 0 : (existingPositionByColor.get(imageColorName) ?? 0)
-        const newCount = newImageCounts.get(imageColorName) ?? 0
-        const tempPath = `data:${entry.file.type};base64,${Buffer.from(await entry.file.arrayBuffer()).toString('base64')}`
-        const uploaded = await uploadProductImage(tempPath)
-        newImageCounts.set(imageColorName, newCount + 1)
+          return {
+            type: 'COLOR' as const,
+            colorName: imageColorName,
+            url: uploaded.secure_url,
+            cloudinaryId: uploaded.public_id,
+            alt: `${name} ${imageColorName}`,
+            position: existingCount + newCount,
+            sortOrder: existingCount + newCount,
+          }
+        }),
+      ),
+      Promise.all(
+        uploadedInfoImages.map(async (entry, index) => {
+          const tempPath = `data:${entry.file.type};base64,${Buffer.from(await entry.file.arrayBuffer()).toString('base64')}`
+          const uploaded = await uploadProductImage(tempPath)
 
-        return {
-          type: 'COLOR' as const,
-          colorName: imageColorName,
-          url: uploaded.secure_url,
-          cloudinaryId: uploaded.public_id,
-          alt: `${name} ${imageColorName}`,
-          position: existingCount + newCount,
-          sortOrder: existingCount + newCount,
-        }
-      }),
-    )
-
-    const infoImageUploads = await Promise.all(
-      uploadedInfoImages.map(async (entry, index) => {
-        const tempPath = `data:${entry.file.type};base64,${Buffer.from(await entry.file.arrayBuffer()).toString('base64')}`
-        const uploaded = await uploadProductImage(tempPath)
-
-        return {
-          type: entry.type,
-          colorName: null,
-          url: uploaded.secure_url,
-          cloudinaryId: uploaded.public_id,
-          alt: `${name} ${entry.type === 'LIFESTYLE' ? 'Lifestyle' : 'Info'} ${index + 1}`,
-          position: entry.sortOrder,
-          sortOrder: entry.sortOrder,
-        }
-      }),
-    )
+          return {
+            type: entry.type,
+            colorName: null,
+            url: uploaded.secure_url,
+            cloudinaryId: uploaded.public_id,
+            alt: `${name} ${entry.type === 'LIFESTYLE' ? 'Lifestyle' : 'Info'} ${index + 1}`,
+            position: entry.sortOrder,
+            sortOrder: entry.sortOrder,
+          }
+        }),
+      ),
+    ])
+    console.info('[saveProductAction] uploads completed', {
+      durationMs: Date.now() - uploadStartedAt,
+      totalDurationMs: Date.now() - startedAt,
+      mainUploaded: Boolean(mainImageUpload),
+      variantUploaded: imageUploads.length,
+      infoUploaded: infoImageUploads.length,
+    })
     const fallbackMainImageUrl = mainImageUpload?.secure_url ?? imageUploads[0]?.url ?? infoImageUploads[0]?.url ?? null
 
     if (existingProduct && deleteImageIds.length > 0) {
@@ -544,6 +563,12 @@ export async function saveProductAction(
       redirectTo: existingProduct ? '/admin/productos?saved=updated' : '/admin/productos?saved=created',
     }
   } catch (error) {
+    console.error('[saveProductAction] failed', {
+      durationMs: Date.now() - startedAt,
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+    })
+
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
       return {
         status: 'error' as const,
