@@ -1,9 +1,10 @@
 'use client'
 
 import Link from 'next/link'
-import { Plus, Trash2 } from 'lucide-react'
+import { LoaderCircle, Plus, Trash2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useActionState, useEffect, useMemo, useState } from 'react'
+import { uploadProductImageFromBrowser, type UploadedCloudinaryAsset } from '@/lib/client/cloudinary-upload'
 import { saveProductAction } from '@/lib/server/catalog'
 import { OUT_OF_STOCK_PLACEHOLDER_SIZE } from '@/lib/variant-utils'
 import { AdminProductSubmit } from './admin-product-submit'
@@ -44,6 +45,9 @@ type VariantDraft = {
   sizeStocks: string
   sku: string
   newImageName: string
+  uploadedImage: UploadedCloudinaryAsset | null
+  isUploading: boolean
+  uploadError: string
 }
 
 type InfoImageDraft = {
@@ -51,6 +55,16 @@ type InfoImageDraft = {
   fileName: string
   type: 'INFO' | 'LIFESTYLE'
   sortOrder: string
+  uploadedImage: UploadedCloudinaryAsset | null
+  isUploading: boolean
+  uploadError: string
+}
+
+type MainImageDraft = {
+  fileName: string
+  uploadedImage: UploadedCloudinaryAsset | null
+  isUploading: boolean
+  uploadError: string
 }
 
 const initialState = {
@@ -67,6 +81,9 @@ function createVariantDraft(): VariantDraft {
     sizeStocks: '',
     sku: '',
     newImageName: '',
+    uploadedImage: null,
+    isUploading: false,
+    uploadError: '',
   }
 }
 
@@ -173,9 +190,18 @@ export function AdminProductForm({
           ),
           sku: variant.sku,
           newImageName: '',
+          uploadedImage: null,
+          isUploading: false,
+          uploadError: '',
         }))
       : [createVariantDraft()],
   )
+  const [mainImage, setMainImage] = useState<MainImageDraft>({
+    fileName: '',
+    uploadedImage: null,
+    isUploading: false,
+    uploadError: '',
+  })
   const [removedImageIds, setRemovedImageIds] = useState<string[]>([])
   const [infoImages, setInfoImages] = useState<InfoImageDraft[]>([])
 
@@ -234,6 +260,115 @@ export function AdminProductForm({
     )
   }
 
+  const uploadMainImage = async (file: File) => {
+    setMainImage({
+      fileName: file.name,
+      uploadedImage: null,
+      isUploading: true,
+      uploadError: '',
+    })
+
+    try {
+      const uploadedImage = await uploadProductImageFromBrowser(file)
+      setMainImage({
+        fileName: file.name,
+        uploadedImage,
+        isUploading: false,
+        uploadError: '',
+      })
+    } catch (error) {
+      setMainImage({
+        fileName: file.name,
+        uploadedImage: null,
+        isUploading: false,
+        uploadError: error instanceof Error ? error.message : 'No se pudo subir la imagen principal.',
+      })
+    }
+  }
+
+  const uploadVariantImage = async (variantId: string, file: File) => {
+    setVariants((current) =>
+      current.map((variant) =>
+        variant.id === variantId
+          ? {
+              ...variant,
+              newImageName: file.name,
+              uploadedImage: null,
+              isUploading: true,
+              uploadError: '',
+            }
+          : variant,
+      ),
+    )
+
+    try {
+      const uploadedImage = await uploadProductImageFromBrowser(file)
+      setVariants((current) =>
+        current.map((variant) =>
+          variant.id === variantId
+            ? {
+                ...variant,
+                newImageName: file.name,
+                uploadedImage,
+                isUploading: false,
+                uploadError: '',
+              }
+            : variant,
+        ),
+      )
+    } catch (error) {
+      setVariants((current) =>
+        current.map((variant) =>
+          variant.id === variantId
+            ? {
+                ...variant,
+                newImageName: file.name,
+                uploadedImage: null,
+                isUploading: false,
+                uploadError: error instanceof Error ? error.message : 'No se pudo subir la imagen de la variante.',
+              }
+            : variant,
+        ),
+      )
+    }
+  }
+
+  const uploadInfoImage = async (draftId: string, file: File) => {
+    try {
+      const uploadedImage = await uploadProductImageFromBrowser(file)
+      setInfoImages((current) =>
+        current.map((image) =>
+          image.id === draftId
+            ? {
+                ...image,
+                uploadedImage,
+                isUploading: false,
+                uploadError: '',
+              }
+            : image,
+        ),
+      )
+    } catch (error) {
+      setInfoImages((current) =>
+        current.map((image) =>
+          image.id === draftId
+            ? {
+                ...image,
+                uploadedImage: null,
+                isUploading: false,
+                uploadError: error instanceof Error ? error.message : 'No se pudo subir la imagen informativa.',
+              }
+            : image,
+        ),
+      )
+    }
+  }
+
+  const hasUploadingAssets =
+    mainImage.isUploading ||
+    variants.some((variant) => variant.isUploading) ||
+    infoImages.some((image) => image.isUploading)
+
   useEffect(() => {
     if (state.status === 'success' && state.redirectTo) {
       router.push(state.redirectTo)
@@ -257,6 +392,8 @@ export function AdminProductForm({
       ) : null}
       {editProduct ? <input type="hidden" name="productId" value={editProduct.id} /> : null}
       <input type="hidden" name="variants" value={variantPayload} />
+      <input type="hidden" name="uploadedMainImageUrl" value={mainImage.uploadedImage?.url ?? ''} />
+      <input type="hidden" name="uploadedMainImagePublicId" value={mainImage.uploadedImage?.publicId ?? ''} />
       {removedImageIds.map((imageId) => (
         <input key={imageId} type="hidden" name="deleteImageIds" value={imageId} />
       ))}
@@ -270,6 +407,12 @@ export function AdminProductForm({
           }`}
         >
           {state.message}
+        </div>
+      ) : null}
+
+      {hasUploadingAssets ? (
+        <div className="mt-5 rounded-[18px] border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          Esperá a que terminen de subirse las imágenes antes de guardar el producto.
         </div>
       ) : null}
 
@@ -314,7 +457,30 @@ export function AdminProductForm({
         <p className="mt-2 text-sm leading-6 text-black/58">
           Esta es la imagen global del producto. Se usa en cards, home, destacados y como primera imagen del detalle.
         </p>
-        <input name="mainImage" type="file" accept="image/*" className="mt-4 block w-full text-sm" />
+        <input
+          type="file"
+          accept="image/*"
+          className="mt-4 block w-full text-sm"
+          onChange={(event) => {
+            const file = event.target.files?.[0]
+            if (!file) {
+              setMainImage({ fileName: '', uploadedImage: null, isUploading: false, uploadError: '' })
+              return
+            }
+
+            void uploadMainImage(file)
+          }}
+        />
+        {mainImage.fileName ? (
+          <div className="mt-3 rounded-[14px] border border-black/10 bg-white px-3 py-3 text-sm text-black/76">
+            <div className="flex items-center gap-2">
+              {mainImage.isUploading ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
+              <span>{mainImage.fileName}</span>
+            </div>
+            {mainImage.uploadError ? <p className="mt-2 text-xs text-red-600">{mainImage.uploadError}</p> : null}
+            {mainImage.uploadedImage ? <p className="mt-2 text-xs text-emerald-700">Imagen subida y lista para guardar.</p> : null}
+          </div>
+        ) : null}
         {editProduct?.mainImageUrl ? (
           <div className="mt-3 rounded-[14px] border border-black/10 bg-white px-3 py-3 text-sm text-black/68">
             <p className="font-medium text-black/82">Imagen principal actual</p>
@@ -454,24 +620,38 @@ export function AdminProductForm({
                     Subí la imagen principal que corresponde a esta variante. Se va a usar cuando el usuario elija este color.
                   </p>
 
-                  <input type="hidden" name="imageColorAssignments" value={variant.newImageName ? variant.colorName : ''} />
+                  <input type="hidden" name="imageColorAssignments" value={variant.uploadedImage ? variant.colorName : ''} />
+                  <input type="hidden" name="uploadedVariantImageUrls" value={variant.uploadedImage?.url ?? ''} />
+                  <input type="hidden" name="uploadedVariantImagePublicIds" value={variant.uploadedImage?.publicId ?? ''} />
                   <input
-                    name="images"
                     type="file"
                     accept="image/*"
                     className="mt-4 block w-full text-sm"
-                    onChange={(event) =>
-                      updateVariant(
-                        variant.id,
-                        'newImageName',
-                        event.target.files?.[0]?.name ?? '',
-                      )
-                    }
+                    onChange={(event) => {
+                      const file = event.target.files?.[0]
+                      if (!file) {
+                        setVariants((current) =>
+                          current.map((item) =>
+                            item.id === variant.id
+                              ? { ...item, newImageName: '', uploadedImage: null, isUploading: false, uploadError: '' }
+                              : item,
+                          ),
+                        )
+                        return
+                      }
+
+                      void uploadVariantImage(variant.id, file)
+                    }}
                   />
 
                   {variant.newImageName ? (
                     <div className="mt-3 rounded-[14px] border border-black/10 bg-white px-3 py-3 text-sm text-black/76">
-                      {variant.newImageName}
+                      <div className="flex items-center gap-2">
+                        {variant.isUploading ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
+                        <span>{variant.newImageName}</span>
+                      </div>
+                      {variant.uploadError ? <p className="mt-2 text-xs text-red-600">{variant.uploadError}</p> : null}
+                      {variant.uploadedImage ? <p className="mt-2 text-xs text-emerald-700">Imagen subida y lista para guardar.</p> : null}
                     </div>
                   ) : null}
 
@@ -523,21 +703,27 @@ export function AdminProductForm({
         </div>
 
         <input
-          name="infoImages"
           type="file"
           accept="image/*"
           multiple
           className="mt-4 block w-full text-sm"
           onChange={(event) => {
             const files = Array.from(event.target.files ?? [])
-            setInfoImages(
-              files.map((file, index) => ({
-                id: `${file.name}-${index}`,
-                fileName: file.name,
-                type: 'INFO',
-                sortOrder: String(index + 1),
-              })),
-            )
+            const drafts = files.map((file, index) => ({
+              id: `${crypto.randomUUID()}-${index}`,
+              fileName: file.name,
+              type: 'INFO' as const,
+              sortOrder: String(index + 1),
+              uploadedImage: null,
+              isUploading: true,
+              uploadError: '',
+            }))
+            setInfoImages(drafts)
+            drafts.forEach((draft, index) => {
+              const file = files[index]
+              if (!file) return
+              void uploadInfoImage(draft.id, file)
+            })
           }}
         />
 
@@ -547,11 +733,18 @@ export function AdminProductForm({
               <div key={image.id} className="rounded-[20px] border border-black/10 bg-white p-4">
                 <input type="hidden" name="infoImageTypes" value={image.type} />
                 <input type="hidden" name="infoImageSortOrders" value={image.sortOrder} />
+                <input type="hidden" name="uploadedInfoImageUrls" value={image.uploadedImage?.url ?? ''} />
+                <input type="hidden" name="uploadedInfoImagePublicIds" value={image.uploadedImage?.publicId ?? ''} />
                 <div className="grid gap-3 md:grid-cols-[1.1fr_0.9fr_0.6fr]">
                   <div>
                     <p className="text-[11px] uppercase tracking-[0.16em] text-black/45">Archivo</p>
                     <div className="mt-2 rounded-[14px] border border-black/10 bg-[#f7f7f4] px-3 py-3 text-sm text-black/76">
-                      {image.fileName}
+                      <div className="flex items-center gap-2">
+                        {image.isUploading ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
+                        <span>{image.fileName}</span>
+                      </div>
+                      {image.uploadError ? <p className="mt-2 text-xs text-red-600">{image.uploadError}</p> : null}
+                      {image.uploadedImage ? <p className="mt-2 text-xs text-emerald-700">Imagen subida y lista para guardar.</p> : null}
                     </div>
                   </div>
                   <div>
@@ -645,7 +838,7 @@ export function AdminProductForm({
       </div>
 
       <div className="mt-6 flex flex-wrap items-center gap-3">
-        <AdminProductSubmit mode={mode} pending={isPending} />
+        <AdminProductSubmit mode={mode} pending={isPending || hasUploadingAssets} />
         <Link
           href="/admin/productos"
           className="inline-flex items-center justify-center rounded-full border border-black/10 px-5 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-black/70 transition hover:bg-black hover:text-white"

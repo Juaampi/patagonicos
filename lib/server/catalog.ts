@@ -289,6 +289,7 @@ export async function saveProductAction(
   formData: FormData,
 ) {
   const startedAt = Date.now()
+  const uploadedPublicIdsForCleanup: string[] = []
   try {
     const productId = String(formData.get('productId') ?? '').trim()
     const name = String(formData.get('name') ?? '').trim()
@@ -314,6 +315,8 @@ export async function saveProductAction(
     const replaceImages = Boolean(formData.get('replaceImages'))
     const mainImageEntry = formData.get('mainImage')
     const mainImageFile = mainImageEntry instanceof File && mainImageEntry.size > 0 ? mainImageEntry : null
+    const uploadedMainImageUrl = String(formData.get('uploadedMainImageUrl') ?? '').trim()
+    const uploadedMainImagePublicId = String(formData.get('uploadedMainImagePublicId') ?? '').trim()
     const infoImageTypes = formData
       .getAll('infoImageTypes')
       .map((value) => String(value).trim())
@@ -329,9 +332,28 @@ export async function saveProductAction(
       file: entry instanceof File ? entry : null,
       colorName: rawImageColorAssignments[index] || legacyImageColors[index] || '',
     }))
+    const uploadedVariantImageUrls = formData
+      .getAll('uploadedVariantImageUrls')
+      .map((value) => String(value).trim())
+    const uploadedVariantImagePublicIds = formData
+      .getAll('uploadedVariantImagePublicIds')
+      .map((value) => String(value).trim())
+    const clientUploadedImages = uploadedVariantImageUrls
+      .map((url, index) => ({
+        url,
+        publicId: uploadedVariantImagePublicIds[index] || '',
+        colorName: rawImageColorAssignments[index] || legacyImageColors[index] || '',
+      }))
+      .filter((entry) => entry.url)
     const uploadedImages = imageEntries.filter(
       (entry): entry is { file: File; colorName: string } => entry.file instanceof File && entry.file.size > 0,
     )
+    const uploadedInfoImageUrls = formData
+      .getAll('uploadedInfoImageUrls')
+      .map((value) => String(value).trim())
+    const uploadedInfoImagePublicIds = formData
+      .getAll('uploadedInfoImagePublicIds')
+      .map((value) => String(value).trim())
     const uploadedInfoImages = rawInfoImages
       .map((entry, index) => ({
         file: entry instanceof File ? entry : null,
@@ -339,6 +361,22 @@ export async function saveProductAction(
         sortOrder: Number.isFinite(infoImageSortOrders[index]) ? infoImageSortOrders[index] : 0,
       }))
       .filter((entry): entry is { file: File; type: 'INFO' | 'LIFESTYLE'; sortOrder: number } => entry.file instanceof File && entry.file.size > 0)
+    const clientUploadedInfoImages = uploadedInfoImageUrls
+      .map((url, index) => ({
+        url,
+        publicId: uploadedInfoImagePublicIds[index] || '',
+        type: infoImageTypes[index] === 'LIFESTYLE' ? 'LIFESTYLE' as const : 'INFO' as const,
+        sortOrder: Number.isFinite(infoImageSortOrders[index]) ? infoImageSortOrders[index] : 0,
+      }))
+      .filter((entry) => entry.url)
+
+    if (uploadedMainImagePublicId) {
+      uploadedPublicIdsForCleanup.push(uploadedMainImagePublicId)
+    }
+    uploadedPublicIdsForCleanup.push(
+      ...clientUploadedImages.map((entry) => entry.publicId).filter(Boolean),
+      ...clientUploadedInfoImages.map((entry) => entry.publicId).filter(Boolean),
+    )
 
     const slug = slugify(rawSlug || name)
 
@@ -377,7 +415,15 @@ export async function saveProductAction(
       }
     }
 
-    if (!existingProduct && !mainImageFile && uploadedImages.length === 0 && uploadedInfoImages.length === 0) {
+    if (
+      !existingProduct &&
+      !mainImageFile &&
+      !uploadedMainImageUrl &&
+      uploadedImages.length === 0 &&
+      clientUploadedImages.length === 0 &&
+      uploadedInfoImages.length === 0 &&
+      clientUploadedInfoImages.length === 0
+    ) {
       return {
         status: 'error' as const,
         message: 'Subí una imagen principal, una imagen de variante o al menos una imagen informativa.',
@@ -425,14 +471,35 @@ export async function saveProductAction(
     })
     const uploadStartedAt = Date.now()
     const [mainImageUpload, imageUploads, infoImageUploads] = await Promise.all([
-      mainImageFile
+      uploadedMainImageUrl
+        ? Promise.resolve({
+            secure_url: uploadedMainImageUrl,
+            public_id: uploadedMainImagePublicId || null,
+          })
+        : mainImageFile
         ? (async () =>
             uploadProductImage(
               `data:${mainImageFile.type};base64,${Buffer.from(await mainImageFile.arrayBuffer()).toString('base64')}`,
             ))()
         : Promise.resolve(null),
-      Promise.all(
-        uploadedImages.map(async (entry) => {
+      Promise.all([
+        ...clientUploadedImages.map(async (entry) => {
+          const imageColorName = entry.colorName || variants[0].colorName
+          const existingCount = replaceImages ? 0 : (existingPositionByColor.get(imageColorName) ?? 0)
+          const newCount = newImageCounts.get(imageColorName) ?? 0
+          newImageCounts.set(imageColorName, newCount + 1)
+
+          return {
+            type: 'COLOR' as const,
+            colorName: imageColorName,
+            url: entry.url,
+            cloudinaryId: entry.publicId || null,
+            alt: `${name} ${imageColorName}`,
+            position: existingCount + newCount,
+            sortOrder: existingCount + newCount,
+          }
+        }),
+        ...uploadedImages.map(async (entry) => {
           const imageColorName = entry.colorName || variants[0].colorName
           const existingCount = replaceImages ? 0 : (existingPositionByColor.get(imageColorName) ?? 0)
           const newCount = newImageCounts.get(imageColorName) ?? 0
@@ -450,9 +517,18 @@ export async function saveProductAction(
             sortOrder: existingCount + newCount,
           }
         }),
-      ),
-      Promise.all(
-        uploadedInfoImages.map(async (entry, index) => {
+      ]),
+      Promise.all([
+        ...clientUploadedInfoImages.map(async (entry, index) => ({
+          type: entry.type,
+          colorName: null,
+          url: entry.url,
+          cloudinaryId: entry.publicId || null,
+          alt: `${name} ${entry.type === 'LIFESTYLE' ? 'Lifestyle' : 'Info'} ${index + 1}`,
+          position: entry.sortOrder,
+          sortOrder: entry.sortOrder,
+        })),
+        ...uploadedInfoImages.map(async (entry, index) => {
           const tempPath = `data:${entry.file.type};base64,${Buffer.from(await entry.file.arrayBuffer()).toString('base64')}`
           const uploaded = await uploadProductImage(tempPath)
 
@@ -466,7 +542,7 @@ export async function saveProductAction(
             sortOrder: entry.sortOrder,
           }
         }),
-      ),
+      ]),
     ])
     console.info('[saveProductAction] uploads completed', {
       durationMs: Date.now() - uploadStartedAt,
@@ -551,6 +627,8 @@ export async function saveProductAction(
       })
     }
 
+    uploadedPublicIdsForCleanup.length = 0
+
     revalidatePath('/admin')
     revalidatePath('/admin/dashboard')
     revalidatePath('/admin/productos')
@@ -563,6 +641,14 @@ export async function saveProductAction(
       redirectTo: existingProduct ? '/admin/productos?saved=updated' : '/admin/productos?saved=created',
     }
   } catch (error) {
+    if (uploadedPublicIdsForCleanup.length > 0) {
+      await Promise.allSettled(
+        uploadedPublicIdsForCleanup
+          .filter(Boolean)
+          .map((publicId) => deleteProductImage(publicId)),
+      )
+    }
+
     console.error('[saveProductAction] failed', {
       durationMs: Date.now() - startedAt,
       message: error instanceof Error ? error.message : 'Unknown error',
