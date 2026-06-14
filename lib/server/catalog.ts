@@ -32,6 +32,11 @@ const defaultCategories = [
     description: 'Buzos térmicos livianos para abrigo diario.',
   },
   {
+    name: 'Chalecos',
+    slug: 'chalecos',
+    description: 'Chalecos livianos para sumar abrigo sin limitar el movimiento.',
+  },
+  {
     name: 'Botas',
     slug: 'botas',
     description: 'Protección para patas en nieve, agua y terreno frío.',

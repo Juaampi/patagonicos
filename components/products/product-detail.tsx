@@ -251,6 +251,31 @@ export function ProductDetail({
     (mainImage ? ({ kind: 'image', id: mainImage.id ?? `main-${mainImage.url}`, image: mainImage } as ProductGalleryItem) : null)
   const activeGalleryIndex = activeGalleryItem ? gallery.findIndex((item) => item.id === activeGalleryItem.id) : -1
 
+  useEffect(() => {
+    let secondFrame: number | null = null
+
+    const scrollToTop = () => {
+      window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
+      document.documentElement.scrollTop = 0
+      document.body.scrollTop = 0
+    }
+
+    const firstFrame = window.requestAnimationFrame(() => {
+      scrollToTop()
+
+      secondFrame = window.requestAnimationFrame(() => {
+        scrollToTop()
+      })
+    })
+
+    return () => {
+      window.cancelAnimationFrame(firstFrame)
+      if (secondFrame) {
+        window.cancelAnimationFrame(secondFrame)
+      }
+    }
+  }, [product.slug])
+
   const onColorChange = (colorName: string) => {
     setSelectedColor(colorName)
     setSelectedSize(getAvailableSizes(product, colorName)[0]?.label ?? '')
