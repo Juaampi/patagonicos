@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { PaymentMethod } from '@prisma/client'
 import { z } from 'zod'
+import { env } from '@/lib/env'
+import { createPendingPreference } from '@/lib/mercadopago'
 import { createOrderFromCheckout } from '@/lib/server/fulfillment'
 
 const checkoutSchema = z.object({
@@ -46,6 +48,25 @@ export async function POST(request: Request) {
 
   const result = await createOrderFromCheckout(parsed.data)
 
+  let paymentUrl: string | null = null
+
+  if (result.order.paymentMethod === PaymentMethod.ONLINE && env.MERCADOPAGO_ACCESS_TOKEN) {
+    const preference = await createPendingPreference({
+      orderId: result.order.id,
+      orderNumber: result.order.orderNumber,
+      shortCode: result.order.shortCode,
+      email: result.order.customer.email,
+      items: result.order.items.map((item) => ({
+        id: item.productId,
+        title: `${item.productName} - ${item.colorName} - ${item.size}`,
+        quantity: item.quantity,
+        unit_price: item.unitPrice,
+      })),
+    })
+
+    paymentUrl = preference.init_point ?? preference.sandbox_init_point ?? null
+  }
+
   return NextResponse.json({
     ok: true,
     orderId: result.order.id,
@@ -54,9 +75,12 @@ export async function POST(request: Request) {
     status: result.order.status,
     paymentStatus: result.order.paymentStatus,
     shippingMethod: result.order.shippingMethod,
+    paymentUrl,
     message:
       result.order.paymentMethod === PaymentMethod.CASH_ON_DELIVERY
         ? 'Orden creada con pago contra entrega. El ticket interno ya quedó listo para impresión.'
-        : 'Orden creada. Quedó pendiente de pago online para continuar con fulfillment.',
+        : paymentUrl
+          ? 'Orden creada. Te vamos a redirigir a Mercado Pago para completar el pago.'
+          : 'Orden creada. Mercado Pago todavía no está configurado en este entorno, así que dejamos la confirmación interna activa.',
   })
 }

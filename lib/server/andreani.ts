@@ -1,11 +1,8 @@
 import { ShippingMethod, ShippingStatus } from '@prisma/client'
-import { promises as fs } from 'node:fs'
-import path from 'node:path'
 import ExcelJS from 'exceljs'
 import { prisma } from '@/lib/prisma'
 
 const ANDREANI_TRACKING_URL = 'https://www.andreani.com/envio/W'
-const ANDREANI_TEMPLATE_PATH = path.join(process.cwd(), 'templates-andreani.xlsx')
 const BUZO_WEIGHT_GRAMS = 300
 const DISPATCHED_SHIPPING_STATUSES: ShippingStatus[] = [
   ShippingStatus.DESPACHADO,
@@ -13,6 +10,28 @@ const DISPATCHED_SHIPPING_STATUSES: ShippingStatus[] = [
   ShippingStatus.EN_SUCURSAL,
   ShippingStatus.ENTREGADO,
 ]
+
+const ANDREANI_COLUMNS = [
+  { key: 'package', width: 9.14, header: 'Paquete Guardado' },
+  { key: 'weight', width: 9.57, header: 'Peso (grs)\nEj:' },
+  { key: 'height', width: 8.85, header: 'Alto (cm)\nEj:' },
+  { key: 'width', width: 10.85, header: 'Ancho (cm)\nEj:' },
+  { key: 'depth', width: 16.42, header: 'Profundidad (cm)\nEj:' },
+  { key: 'declaredValue', width: 24.71, header: 'Valor declarado ($ C/IVA) *\nEj:' },
+  { key: 'internalNumber', width: 15.42, header: 'Numero Interno\nEj:' },
+  { key: 'firstName', width: 9.71, header: 'Nombre *\nEj:' },
+  { key: 'lastName', width: 9.57, header: 'Apellido *\nEj:' },
+  { key: 'dni', width: 5.57, header: 'DNI *\nEj:' },
+  { key: 'email', width: 7.28, header: 'Email *\nEj:' },
+  { key: 'phoneAreaCode', width: 15, header: 'Celular código *\nEj:' },
+  { key: 'phoneNumber', width: 16.14, header: 'Celular número *\nEj:' },
+  { key: 'streetName', width: 6.42, header: 'Calle *\nEj:' },
+  { key: 'streetNumber', width: 9.71, header: 'Número *\nEj:' },
+  { key: 'floor', width: 4.57, header: 'Piso\nEj:' },
+  { key: 'apartment', width: 14.14, header: 'Departamento\nEj:' },
+  { key: 'provinceCityPostalCode', width: 41.42, header: 'Provincia / Localidad / CP *\nEj: BUENOS AIRES / 11 DE SEPTIEMBRE / 1657' },
+  { key: 'notes', width: 14.14, header: 'Observaciones\nEj:' },
+] as const
 
 type PendingOrderRecord = Awaited<ReturnType<typeof getAndreaniOrdersRaw>>[number]
 
@@ -162,18 +181,62 @@ export async function buildAndreaniExportWorkbook() {
     return !isDispatched && getAndreaniMissingFields(order).length === 0
   })
 
-  const templateBuffer = await fs.readFile(ANDREANI_TEMPLATE_PATH)
   const workbook = new ExcelJS.Workbook()
-  await workbook.xlsx.load(templateBuffer as unknown as Parameters<typeof workbook.xlsx.load>[0])
+  const worksheet = workbook.addWorksheet('A domicilio')
 
-  const worksheet = workbook.getWorksheet('A domicilio') ?? workbook.worksheets[0]
-  const existingRows = Math.max(0, worksheet.rowCount - 2)
-  if (existingRows > 0) {
-    worksheet.spliceRows(3, existingRows)
+  worksheet.columns = ANDREANI_COLUMNS.map((column) => ({
+    key: column.key,
+    width: column.width,
+  }))
+
+  worksheet.mergeCells('A1:G1')
+  worksheet.mergeCells('H1:M1')
+  worksheet.mergeCells('N1:S1')
+
+  const sectionStyle = {
+    font: { bold: true, color: { argb: 'FFFFFFFF' } },
+    alignment: { horizontal: 'center' as const, vertical: 'middle' as const },
+    fill: {
+      type: 'pattern' as const,
+      pattern: 'solid' as const,
+      fgColor: { argb: 'FF1F2937' },
+    },
   }
 
+  worksheet.getCell('A1').value = 'Características'
+  worksheet.getCell('H1').value = 'Destinatario'
+  worksheet.getCell('N1').value = 'Domicilio destino'
+  worksheet.getRow(1).height = 22
+
+  ;['A1', 'H1', 'N1'].forEach((cellRef) => {
+    Object.assign(worksheet.getCell(cellRef), sectionStyle)
+  })
+
+  const headerRow = worksheet.getRow(2)
+  ANDREANI_COLUMNS.forEach((column, index) => {
+    const cell = headerRow.getCell(index + 1)
+    cell.value = column.header
+    cell.font = { bold: true, color: { argb: 'FF111827' }, size: 10 }
+    cell.alignment = {
+      horizontal: 'center',
+      vertical: 'middle',
+      wrapText: true,
+    }
+    cell.fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FFE5E7EB' },
+    }
+    cell.border = {
+      top: { style: 'thin', color: { argb: 'FFD1D5DB' } },
+      left: { style: 'thin', color: { argb: 'FFD1D5DB' } },
+      bottom: { style: 'thin', color: { argb: 'FFD1D5DB' } },
+      right: { style: 'thin', color: { argb: 'FFD1D5DB' } },
+    }
+  })
+  headerRow.height = 42
+
   exportableOrders.forEach((order, index) => {
-    const rowIndex = index + 3
     const derivedName = splitFullName(order.customer.fullName)
     const derivedStreet = parseStreetAddress(order.address?.line1)
     const firstName = order.address?.recipientFirstName?.trim() || derivedName.firstName
@@ -181,27 +244,50 @@ export async function buildAndreaniExportWorkbook() {
     const streetName = order.address?.streetName?.trim() || derivedStreet.streetName
     const streetNumber = order.address?.streetNumber?.trim() || derivedStreet.streetNumber
 
-    worksheet.getCell(`A${rowIndex}`).value = ''
-    worksheet.getCell(`B${rowIndex}`).value = getOrderWeight(order)
-    worksheet.getCell(`C${rowIndex}`).value = ''
-    worksheet.getCell(`D${rowIndex}`).value = ''
-    worksheet.getCell(`E${rowIndex}`).value = ''
-    worksheet.getCell(`F${rowIndex}`).value = order.total
-    worksheet.getCell(`G${rowIndex}`).value = order.shortCode ?? order.orderNumber
-    worksheet.getCell(`H${rowIndex}`).value = firstName
-    worksheet.getCell(`I${rowIndex}`).value = lastName
-    worksheet.getCell(`J${rowIndex}`).value = order.address?.recipientDni ?? ''
-    worksheet.getCell(`K${rowIndex}`).value = order.customer.email
-    worksheet.getCell(`L${rowIndex}`).value = order.address?.phoneAreaCode ?? ''
-    worksheet.getCell(`M${rowIndex}`).value = order.address?.phoneNumber ?? ''
-    worksheet.getCell(`N${rowIndex}`).value = streetName
-    worksheet.getCell(`O${rowIndex}`).value = streetNumber
-    worksheet.getCell(`P${rowIndex}`).value = order.address?.floor ?? ''
-    worksheet.getCell(`Q${rowIndex}`).value = order.address?.apartment ?? ''
-    worksheet.getCell(`R${rowIndex}`).value =
-      `${order.address?.province ?? ''} / ${order.address?.city ?? ''} / ${order.address?.postalCode ?? ''}`.trim()
-    worksheet.getCell(`S${rowIndex}`).value = order.notes ?? ''
+    const row = worksheet.addRow({
+      package: '',
+      weight: getOrderWeight(order),
+      height: '',
+      width: '',
+      depth: '',
+      declaredValue: order.total,
+      internalNumber: order.shortCode ?? order.orderNumber,
+      firstName,
+      lastName,
+      dni: order.address?.recipientDni ?? '',
+      email: order.customer.email,
+      phoneAreaCode: order.address?.phoneAreaCode ?? '',
+      phoneNumber: order.address?.phoneNumber ?? '',
+      streetName,
+      streetNumber,
+      floor: order.address?.floor ?? '',
+      apartment: order.address?.apartment ?? '',
+      provinceCityPostalCode: `${order.address?.province ?? ''} / ${order.address?.city ?? ''} / ${order.address?.postalCode ?? ''}`.trim(),
+      notes: order.notes ?? '',
+    })
+
+    row.eachCell((cell) => {
+      cell.alignment = { vertical: 'middle', wrapText: true }
+      cell.border = {
+        top: { style: 'thin', color: { argb: 'FFE5E7EB' } },
+        left: { style: 'thin', color: { argb: 'FFE5E7EB' } },
+        bottom: { style: 'thin', color: { argb: 'FFE5E7EB' } },
+        right: { style: 'thin', color: { argb: 'FFE5E7EB' } },
+      }
+    })
+
+    if (index % 2 === 0) {
+      row.eachCell((cell) => {
+        cell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'FFF9FAFB' },
+        }
+      })
+    }
   })
+
+  worksheet.views = [{ state: 'frozen', ySplit: 2 }]
 
   return Buffer.from(await workbook.xlsx.writeBuffer())
 }

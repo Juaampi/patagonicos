@@ -1,6 +1,6 @@
 'use client'
 
-import { LoaderCircle, MapPin, Phone } from 'lucide-react'
+import { ArrowRight, CheckCheck, LoaderCircle, MapPin, Phone } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useCart } from '@/components/cart/cart-provider'
@@ -96,11 +96,13 @@ export function CheckoutForm({ items, settings }: CheckoutFormProps) {
     orderNumber?: string
     shortCode?: string
     orderId?: string
+    paymentUrl?: string
   }>({
     status: 'idle',
     message: '',
   })
   const [submitProgress, setSubmitProgress] = useState(0)
+  const [redirectCountdown, setRedirectCountdown] = useState(5)
 
   const shippingPreview = useMemo(() => {
     return getCheckoutPreview(subtotal, form.city, form.province, settings)
@@ -169,6 +171,32 @@ export function CheckoutForm({ items, settings }: CheckoutFormProps) {
 
     return () => window.clearInterval(interval)
   }, [state.status])
+
+  useEffect(() => {
+    if (state.status !== 'success' || !state.orderId || state.paymentUrl) {
+      return
+    }
+
+    const interval = window.setInterval(() => {
+      setRedirectCountdown((current) => {
+        if (current <= 1) {
+          window.clearInterval(interval)
+          return 0
+        }
+
+        return current - 1
+      })
+    }, 1000)
+
+    const timeout = window.setTimeout(() => {
+      router.push(`/perfil?email=${encodeURIComponent(form.email)}&saved=created&order=${encodeURIComponent(state.orderId ?? '')}`)
+    }, 5000)
+
+    return () => {
+      window.clearInterval(interval)
+      window.clearTimeout(timeout)
+    }
+  }, [form.email, router, state.orderId, state.paymentUrl, state.status])
 
   function updateField<K extends keyof typeof form>(key: K, value: (typeof form)[K]) {
     setForm((current) => ({ ...current, [key]: value }))
@@ -340,21 +368,119 @@ export function CheckoutForm({ items, settings }: CheckoutFormProps) {
     }
 
     setSubmitProgress(100)
+    setRedirectCountdown(5)
     setState({
       status: 'success',
       message: data.message,
       orderNumber: data.orderNumber,
       shortCode: data.shortCode,
       orderId: data.orderId,
+      paymentUrl: data.paymentUrl,
     })
+
+    if (data.paymentUrl) {
+      window.location.assign(data.paymentUrl)
+      return
+    }
+
     clearCart()
-    window.setTimeout(() => {
-      router.push(`/perfil?email=${encodeURIComponent(form.email)}&saved=created&order=${encodeURIComponent(data.orderId)}`)
-    }, 700)
   }
 
   return (
     <div className="relative">
+      {state.status === 'success' && !state.paymentUrl ? (
+        <div className="fixed inset-0 z-[160] overflow-y-auto">
+          <div className="absolute inset-0 bg-[linear-gradient(180deg,#16a34a_0%,#22c55e_48%,rgba(34,197,94,0.18)_100%)]" />
+          <div className="absolute inset-x-0 top-0 h-[56vh] bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.3),transparent_55%)]" />
+          <div className="relative mx-auto flex min-h-screen max-w-6xl items-center justify-center px-4 py-10 md:px-8">
+            <div className="w-full overflow-hidden rounded-[36px] border border-white/30 bg-white shadow-[0_40px_120px_rgba(4,120,87,0.35)]">
+              <div className="bg-[linear-gradient(135deg,#15803d_0%,#22c55e_55%,#86efac_100%)] px-6 py-10 text-white md:px-10 md:py-14">
+                <div className="mx-auto max-w-3xl text-center">
+                  <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full border border-white/35 bg-white/14 shadow-[0_16px_40px_rgba(255,255,255,0.18)] md:h-24 md:w-24">
+                    <CheckCheck className="h-10 w-10 md:h-12 md:w-12" />
+                  </div>
+                  <p className="mt-6 text-[11px] font-semibold uppercase tracking-[0.3em] text-white/82">Pago confirmado</p>
+                  <h2 className="mt-4 font-display text-4xl tracking-[-0.06em] md:text-6xl">Gracias por tu compra</h2>
+                  <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-white/88 md:text-base md:leading-8">
+                    Tu pago ya fue acreditado y el pedido quedó guardado en tu cuenta para que puedas seguir cada etapa del proceso.
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid gap-8 px-6 py-8 md:px-10 md:py-10 lg:grid-cols-[minmax(0,1.2fr)_320px] lg:items-center">
+                <div>
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-emerald-700">Redirección automática</p>
+                  <h3 className="mt-3 font-display text-3xl tracking-[-0.05em] text-black md:text-4xl">
+                    Te vamos a llevar a tu panel de control para ver el estado de tu pedido en {redirectCountdown}.
+                  </h3>
+                  <p className="mt-4 text-sm leading-7 text-black/62 md:text-base md:leading-8">
+                    Ahí vas a poder revisar la compra, confirmar que el pago quedó acreditado y seguir el avance del envío.
+                  </p>
+
+                  <div className="mt-6 flex flex-wrap items-center gap-3">
+                    {[5, 4, 3, 2, 1].map((value) => {
+                      const active = redirectCountdown === value
+                      const done = redirectCountdown < value
+
+                      return (
+                        <div
+                          key={value}
+                          className={`flex h-12 w-12 items-center justify-center rounded-2xl border text-base font-semibold transition md:h-14 md:w-14 md:text-lg ${
+                            active
+                              ? 'scale-110 border-emerald-500 bg-emerald-500 text-white shadow-[0_18px_40px_rgba(34,197,94,0.28)]'
+                              : done
+                                ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                                : 'border-black/10 bg-[#f6f8f3] text-black/48'
+                          }`}
+                        >
+                          {value}
+                        </div>
+                      )
+                    })}
+                  </div>
+
+                  <div className="mt-6 h-3 overflow-hidden rounded-full bg-[#edf6ee]">
+                    <div
+                      className="h-full rounded-full bg-[linear-gradient(90deg,#16a34a_0%,#22c55e_50%,#86efac_100%)] transition-[width] duration-1000"
+                      style={{ width: `${((5 - redirectCountdown) / 5) * 100}%` }}
+                    />
+                  </div>
+                </div>
+
+                <div className="rounded-[30px] border border-emerald-100 bg-[#f6fff7] p-6 shadow-[0_16px_50px_rgba(17,24,39,0.06)]">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-700">Resumen de compra</p>
+                  <div className="mt-4 space-y-4">
+                    <div>
+                      <p className="text-xs uppercase tracking-[0.14em] text-black/44">Estado</p>
+                      <p className="mt-1 text-lg font-semibold text-black">Pago acreditado</p>
+                    </div>
+                    {state.shortCode ? (
+                      <div>
+                        <p className="text-xs uppercase tracking-[0.14em] text-black/44">Código</p>
+                        <p className="mt-1 text-lg font-semibold text-black">{state.shortCode}</p>
+                      </div>
+                    ) : null}
+                    {state.orderNumber ? (
+                      <div>
+                        <p className="text-xs uppercase tracking-[0.14em] text-black/44">Pedido</p>
+                        <p className="mt-1 text-lg font-semibold text-black">{state.orderNumber}</p>
+                      </div>
+                    ) : null}
+                    <div className="rounded-[22px] border border-emerald-200 bg-emerald-50 px-4 py-4 text-sm leading-6 text-emerald-900">
+                      {state.message}
+                    </div>
+                    <div className="inline-flex items-center gap-2 text-sm font-medium text-emerald-800">
+                      <ArrowRight className="h-4 w-4" />
+                      Redirigiendo a tu panel ahora
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
       {state.status === 'saving' ? (
         <div className="pointer-events-none absolute inset-x-0 top-0 z-20 flex justify-center px-4">
           <div className="mt-4 inline-flex items-center gap-3 rounded-full border border-black/8 bg-white/88 px-4 py-3 shadow-[0_12px_40px_rgba(0,0,0,0.06)] backdrop-blur-xl">
@@ -374,7 +500,7 @@ export function CheckoutForm({ items, settings }: CheckoutFormProps) {
         onSubmit={handleSubmit}
         autoComplete="off"
         className={`grid gap-8 transition duration-300 xl:grid-cols-[minmax(0,1fr)_380px] ${
-          state.status === 'saving' ? 'scale-[0.995] opacity-75 blur-[1px]' : 'opacity-100'
+          state.status === 'saving' || state.status === 'success' ? 'scale-[0.995] opacity-75 blur-[1px]' : 'opacity-100'
         }`}
       >
         <div className="space-y-6">
