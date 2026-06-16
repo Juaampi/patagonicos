@@ -15,7 +15,7 @@ const envSchema = z.object({
   SITE_URL: emptyToUndefined(z.string().url().default('http://localhost:3000')),
   JWT_SECRET: emptyToUndefined(z.string().default('change-me')),
   MAGIC_LINK_SECRET: emptyToUndefined(z.string().default('change-me-too')),
-  ADMIN_EMAIL: emptyToUndefined(z.string().email().default('admin@patitasandinas.com')),
+  ADMIN_EMAIL: emptyToUndefined(z.string().email().default('juanp.garcia1993@gmail.com')),
   CLOUDINARY_CLOUD_NAME: emptyToUndefined(z.string().optional()),
   CLOUDINARY_API_KEY: emptyToUndefined(z.string().optional()),
   CLOUDINARY_API_SECRET: emptyToUndefined(z.string().optional()),

@@ -13,6 +13,7 @@ import { revalidatePath } from 'next/cache'
 import { cache } from 'react'
 import { normalizeProvinceName } from '@/lib/argentina-data'
 import { env } from '@/lib/env'
+import { sendOrderCreatedNotifications, sendOrderPaidNotification } from '@/lib/order-email-notifications'
 import { prisma } from '@/lib/prisma'
 import { getCheckoutPreview } from '@/lib/store-settings'
 import { formatPrice } from '@/lib/utils'
@@ -235,6 +236,7 @@ export async function syncApprovedPayment(orderId: string, paymentReference?: st
   })
 
   await queuePrintJobForOrder(order.id)
+  await sendOrderPaidNotification(order.id)
   return order
 }
 
@@ -443,6 +445,9 @@ export async function createOrderFromCheckout(input: {
   revalidatePath('/admin/pedidos')
   revalidatePath('/admin/repartos')
   revalidatePath('/perfil')
+
+  await sendOrderCreatedNotifications(order.id)
+
   return { order, shipping }
 }
 

@@ -3,6 +3,7 @@
 import { DeliveryStatus, OrderStatus, PrintJobStatus, ShippingStatus } from '@prisma/client'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
+import { sendOrderStatusChangedNotification } from '@/lib/order-email-notifications'
 import { prisma } from '@/lib/prisma'
 import { getOrderWhatsAppDeliveryInfo, updateDeliveryState } from '@/lib/server/delivery'
 import { queuePrintJobForOrder, syncApprovedPayment } from '@/lib/server/fulfillment'
@@ -119,6 +120,7 @@ export async function updateOrderStatusAction(formData: FormData) {
     await queuePrintJobForOrder(order.id)
   }
 
+  await sendOrderStatusChangedNotification(order.id)
   revalidateAdminPaths(order.id)
 }
 
@@ -169,6 +171,7 @@ export async function markOrderShippedWithTrackingAction(formData: FormData) {
     },
   })
 
+  await sendOrderStatusChangedNotification(orderId)
   revalidatePath('/perfil')
   revalidatePath('/seguimiento')
   revalidateAdminPaths(orderId)
@@ -219,6 +222,7 @@ export async function markDeliveryInRouteAction(orderId: string) {
   }
 
   await updateDeliveryState(orderId, DeliveryStatus.IN_ROUTE)
+  await sendOrderStatusChangedNotification(orderId)
   revalidateAdminPaths(orderId)
   return getOrderWhatsAppDeliveryInfo(orderId)
 }
@@ -229,6 +233,7 @@ export async function markDeliveryDeliveredAction(orderId: string) {
   }
 
   await updateDeliveryState(orderId, DeliveryStatus.DELIVERED)
+  await sendOrderStatusChangedNotification(orderId)
   revalidateAdminPaths(orderId)
   return { success: true }
 }
@@ -239,6 +244,7 @@ export async function markDeliveryRescheduledAction(orderId: string) {
   }
 
   await updateDeliveryState(orderId, DeliveryStatus.RESCHEDULED)
+  await sendOrderStatusChangedNotification(orderId)
   revalidateAdminPaths(orderId)
   return { success: true }
 }
@@ -249,6 +255,7 @@ export async function markDeliveryFailedAction(orderId: string) {
   }
 
   await updateDeliveryState(orderId, DeliveryStatus.FAILED_DELIVERY)
+  await sendOrderStatusChangedNotification(orderId)
   revalidateAdminPaths(orderId)
   return { success: true }
 }
