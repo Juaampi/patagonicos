@@ -1,4 +1,4 @@
-import { updateCustomerWhatsappOptInAction } from '@/lib/server/fulfillment-actions'
+import { confirmExchangeShipmentAction, createExchangeRequestAction, updateCustomerWhatsappOptInAction } from '@/lib/server/fulfillment-actions'
 import { getOrderStateLabel, getProfileSavedMessage, getShippingMethodLabel } from '@/lib/server/fulfillment'
 import { ProfileSavedAlert } from '@/components/profile/profile-saved-alert'
 import { getAndreaniTrackingUrl } from '@/lib/server/andreani'
@@ -9,6 +9,7 @@ import { CheckCheck, CreditCard, Package, PackageCheck, Truck } from 'lucide-rea
 type ProfilePanelProps = {
   email?: string
   saved?: string
+  currentTimeIso: string
   profile:
     | {
         id: string
@@ -25,17 +26,35 @@ type ProfilePanelProps = {
           shippingMethod: string
           total: number
           createdAt: string
+          deliveredAt?: string | null
           whatsappOptIn: boolean
           trackingNumber?: string | null
           address?: { city?: string | null; province?: string | null; line1?: string | null } | null
-          items: Array<{ name: string; quantity: number; color: string; size: string }>
+          items: Array<{
+            id: string
+            name: string
+            quantity: number
+            color: string
+            size: string
+            exchangeOptions: string[]
+            exchangeRequests: Array<{
+              id: string
+              currentSize: string
+              requestedSize: string
+              status: string
+              createdAt: string
+              customerShipmentConfirmedAt?: string | null
+              replacementOrderId?: string | null
+            }>
+          }>
         }>
       }
     | null
 }
 
-export function ProfilePanel({ email, saved, profile }: ProfilePanelProps) {
+export function ProfilePanel({ email, saved, currentTimeIso, profile }: ProfilePanelProps) {
   const savedMessage = getProfileSavedMessage(saved)
+  const currentTimestamp = new Date(currentTimeIso).getTime()
 
   const getStatusBadgeClass = (status: string) => {
     if (['SHIPPED', 'OUT_FOR_DELIVERY', 'READY_FOR_NATIONAL_SHIPPING', 'READY_FOR_LOCAL_DELIVERY', 'EN_PREPARACION', 'DESPACHADO', 'EN_TRANSITO'].includes(status)) {
@@ -115,6 +134,35 @@ export function ProfilePanel({ email, saved, profile }: ProfilePanelProps) {
     ]
   }
 
+  const canRequestExchange = (order: NonNullable<ProfilePanelProps['profile']>['orders'][number]) => {
+    const delivered = order.status === 'DELIVERED' || order.status === 'ENTREGADO'
+    if (!delivered) {
+      return false
+    }
+
+    const deliveredAt = order.deliveredAt ? new Date(order.deliveredAt) : new Date(order.createdAt)
+    return currentTimestamp - deliveredAt.getTime() <= 48 * 60 * 60 * 1000
+  }
+
+  const getExchangeStatusLabel = (status: string) => {
+    const labels: Record<string, string> = {
+      REQUESTED: 'En cambio',
+      CUSTOMER_SHIPMENT_CONFIRMED: 'Cliente confirmó envío',
+      REPLACEMENT_CREATED: 'Pedido de recambio creado',
+      REJECTED: 'Rechazado',
+      COMPLETED: 'Completado',
+    }
+
+    return labels[status] ?? status
+  }
+
+  const hasActiveExchange = (order: NonNullable<ProfilePanelProps['profile']>['orders'][number]) =>
+    order.items.some((item) =>
+      item.exchangeRequests.some((request) =>
+        ['REQUESTED', 'CUSTOMER_SHIPMENT_CONFIRMED', 'REPLACEMENT_CREATED'].includes(request.status),
+      ),
+    )
+
   return (
     <section className="shell pb-12 pt-32">
       <ProfileSavedAlert saved={saved} savedMessage={savedMessage} />
@@ -182,6 +230,11 @@ export function ProfilePanel({ email, saved, profile }: ProfilePanelProps) {
                       <span className={`rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] ${getStatusBadgeClass(order.status)}`}>
                         {getOrderStateLabel(order.status)}
                       </span>
+                      {hasActiveExchange(order) ? (
+                        <span className="rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-sky-800">
+                          En cambio
+                        </span>
+                      ) : null}
                     </div>
                     <p className="mt-2 text-sm text-black/55">
                       {new Date(order.createdAt).toLocaleDateString('es-AR')} · {getShippingMethodLabel(order.shippingMethod)}
@@ -254,7 +307,48 @@ export function ProfilePanel({ email, saved, profile }: ProfilePanelProps) {
                     <p className="text-xs uppercase tracking-[0.18em] text-black/50">Productos</p>
                     <div className="mt-3 space-y-2 text-sm text-black/72">
                       {order.items.map((item) => (
-                        <p key={`${item.name}-${item.size}`}>{item.name} · {item.color} · {item.size} · x{item.quantity}</p>
+                        <div key={item.id} className="rounded-[18px] border border-black/8 bg-white px-4 py-4">
+                          <p>{item.name} · {item.color} · {item.size} · x{item.quantity}</p>
+
+                          {item.exchangeRequests[0] ? (
+                            <div className="mt-3 rounded-[16px] border border-emerald-200 bg-emerald-50 px-3 py-3 text-xs leading-6 text-emerald-900">
+                              Solicitud de cambio: {item.exchangeRequests[0].currentSize} por {item.exchangeRequests[0].requestedSize} · {getExchangeStatusLabel(item.exchangeRequests[0].status)}
+                              {item.exchangeRequests[0].replacementOrderId ? (
+                                <span className="mt-1 block text-emerald-800">Recambio generado y listo para gestionar.</span>
+                              ) : null}
+                            </div>
+                          ) : null}
+
+                          {item.exchangeRequests[0]?.status === 'REQUESTED' ? (
+                            <form action={confirmExchangeShipmentAction} className="mt-3">
+                              <input type="hidden" name="exchangeRequestId" value={item.exchangeRequests[0].id} />
+                              <input type="hidden" name="email" value={profile.email} />
+                              <button className="rounded-[16px] border border-black/10 bg-white px-4 py-3 text-sm font-medium text-black/76 transition hover:bg-black hover:text-white">
+                                Confirmé que envié mi prenda
+                              </button>
+                            </form>
+                          ) : canRequestExchange(order) && item.exchangeOptions.length > 0 ? (
+                            <form action={createExchangeRequestAction} className="mt-3 space-y-3">
+                              <input type="hidden" name="orderId" value={order.id} />
+                              <input type="hidden" name="orderItemId" value={item.id} />
+                              <input type="hidden" name="email" value={profile.email} />
+                              <label className="block rounded-[16px] border border-black/10 bg-[#f7f7f4] px-3 py-3 text-xs uppercase tracking-[0.14em] text-black/46">
+                                Cambiar prenda
+                                <select name="requestedSize" defaultValue="" className="mt-2 block w-full bg-transparent text-sm normal-case tracking-normal text-black outline-none">
+                                  <option value="" disabled>Elegí un talle mayor o menor</option>
+                                  {item.exchangeOptions.map((size) => (
+                                    <option key={`${item.id}-${size}`} value={size}>
+                                      {size}
+                                    </option>
+                                  ))}
+                                </select>
+                              </label>
+                              <button className="rounded-[16px] border border-black/10 bg-white px-4 py-3 text-sm font-medium text-black/76 transition hover:bg-black hover:text-white">
+                                Solicitar cambio por sistema
+                              </button>
+                            </form>
+                          ) : null}
+                        </div>
                       ))}
                     </div>
                   </div>
@@ -273,6 +367,15 @@ export function ProfilePanel({ email, saved, profile }: ProfilePanelProps) {
                     <p className="mt-3 text-sm text-black/72">
                       {order.whatsappOptIn ? 'WhatsApp activado para este pedido.' : 'WhatsApp no activado para este pedido.'}
                     </p>
+                    <p className="mt-3 text-sm leading-6 text-black/58">
+                      Realizamos cambios dentro de las 48 hs hábiles de haber recibido el producto, únicamente por la misma prenda en un talle mayor o menor.
+                    </p>
+                    <p className="mt-2 text-sm leading-6 text-black/58">
+                      Si querés otra prenda distinta, escribinos por WhatsApp así lo vemos de forma personalizada.
+                    </p>
+                    <Link href="/contacto" className="mt-3 inline-flex rounded-full border border-black/10 bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-black/74 transition hover:bg-black hover:text-white">
+                      Escribir por WhatsApp
+                    </Link>
                     {!order.whatsappOptIn && profile.phone ? (
                       <form action={updateCustomerWhatsappOptInAction} className="mt-3">
                         <input type="hidden" name="customerId" value={profile.id} />

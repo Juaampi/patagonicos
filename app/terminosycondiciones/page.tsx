@@ -26,7 +26,10 @@ export default function TerminosYCondicionesPage() {
           <article className="rounded-[26px] border border-black/8 bg-[#f7f7f4] p-6">
             <h2 className="font-display text-2xl tracking-[-0.04em]">Medidas y cambios</h2>
             <p className="mt-3 text-sm leading-7 text-black/62">
-              No realizamos cambios de prendas por talle, preferencia o criterio personal del comprador. Recomendamos revisar cuidadosamente la guía de medidas antes de completar la compra.
+              Realizamos cambios dentro de las 48 hs hábiles de haber recibido el producto. El cambio por sistema aplica únicamente para la misma prenda, en un talle mayor o menor, sujeto a disponibilidad.
+            </p>
+            <p className="mt-3 text-sm leading-7 text-black/62">
+              Si el cliente desea cambiar por una prenda distinta, deberá comunicarse por WhatsApp antes de avanzar, para que podamos revisar el caso de forma personalizada.
             </p>
           </article>
 

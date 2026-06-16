@@ -6,54 +6,6 @@ import { deleteProductImage, uploadProductImage } from '@/lib/cloudinary'
 import { prisma } from '@/lib/prisma'
 import type { AdoptionPet } from '@/types/store'
 
-const samplePets = [
-  {
-    name: 'Luna',
-    animalType: 'DOG',
-    ageLabel: '2 años',
-    city: 'San Carlos de Bariloche',
-    province: 'Río Negro',
-    contactPhone: '294 458 1122',
-    status: AdoptionStatus.EN_ADOPCION,
-    summary: 'Súper compañera, tranquila en casa y muy cariñosa con personas.',
-    images: [
-      'https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=1400&q=80',
-      'https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&w=1400&q=80',
-      'https://images.unsplash.com/photo-1525253086316-d0c936c814f8?auto=format&fit=crop&w=1400&q=80',
-    ],
-  },
-  {
-    name: 'Toby',
-    animalType: 'DOG',
-    ageLabel: '1 año',
-    city: 'Dina Huapi',
-    province: 'Río Negro',
-    contactPhone: '294 465 2098',
-    status: AdoptionStatus.EN_TRANSITO,
-    summary: 'Juguetón, sociable y con mucha energía. Ideal para familia activa.',
-    images: [
-      'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=1400&q=80',
-      'https://images.unsplash.com/photo-1518717758536-85ae29035b6d?auto=format&fit=crop&w=1400&q=80',
-      'https://images.unsplash.com/photo-1444212477490-ca407925329e?auto=format&fit=crop&w=1400&q=80',
-    ],
-  },
-  {
-    name: 'Mora',
-    animalType: 'CAT',
-    ageLabel: '4 años',
-    city: 'Villa La Angostura',
-    province: 'Neuquén',
-    contactPhone: '294 433 7610',
-    status: AdoptionStatus.EN_ADOPCION,
-    summary: 'Muy dulce, obediente y lista para una familia definitiva.',
-    images: [
-      'https://images.unsplash.com/photo-1450778869180-41d0601e046e?auto=format&fit=crop&w=1400&q=80',
-      'https://images.unsplash.com/photo-1519052537078-e6302a4968d4?auto=format&fit=crop&w=1400&q=80',
-      'https://images.unsplash.com/photo-1518715308788-3005759c95e8?auto=format&fit=crop&w=1400&q=80',
-    ],
-  },
-] as const
-
 function mapAdoptionPet(
   pet: Prisma.AdoptionPetGetPayload<{
     include: {
@@ -84,72 +36,8 @@ function mapAdoptionPet(
   }
 }
 
-async function uploadAdoptionImage(source: string) {
-  try {
-    const uploaded = await uploadProductImage(source, 'patitas-andinas/adoptions')
-    return {
-      url: uploaded.secure_url,
-      cloudinaryId: uploaded.public_id,
-    }
-  } catch {
-    return {
-      url: source,
-      cloudinaryId: null,
-    }
-  }
-}
-
 export async function ensureAdoptionPetsSeeded() {
-  const total = await prisma.adoptionPet.count()
-
-  if (total > 0) {
-    await Promise.all(
-      samplePets.map((pet) =>
-        prisma.adoptionPet.updateMany({
-          where: {
-            name: pet.name,
-            contactPhone: null,
-          },
-          data: {
-            contactPhone: pet.contactPhone,
-            animalType: pet.animalType,
-          },
-        }),
-      ),
-    )
-    return
-  }
-
-  for (const pet of samplePets) {
-    const uploadedImages = await Promise.all(
-      pet.images.map(async (imageUrl, index) => {
-        const uploaded = await uploadAdoptionImage(imageUrl)
-
-        return {
-          url: uploaded.url,
-          cloudinaryId: uploaded.cloudinaryId,
-          alt: `${pet.name} ${index + 1}`,
-          sortOrder: index,
-        }
-      }),
-    )
-
-    await prisma.adoptionPet.create({
-      data: {
-        name: pet.name,
-        animalType: pet.animalType,
-        ageLabel: pet.ageLabel,
-        city: pet.city,
-        province: pet.province,
-        contactPhone: pet.contactPhone,
-        status: pet.status,
-        summary: pet.summary,
-        images: {
-          create: uploadedImages,
-        },
-      },
-    })
-  }
+  return
 }
 
 export async function getAdoptionPets() {

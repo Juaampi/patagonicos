@@ -32,25 +32,6 @@ export default async function RootLayout({
 }>) {
   return (
     <html lang="es" suppressHydrationWarning className={`${inter.variable} ${grotesk.variable}`}>
-      <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function () {
-                try {
-                  var storedTheme = window.localStorage.getItem('pa2-theme');
-                  var theme = storedTheme === 'dark' || storedTheme === 'light'
-                    ? storedTheme
-                    : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-                  document.documentElement.classList.toggle('theme-dark', theme === 'dark');
-                  document.documentElement.dataset.theme = theme;
-                  document.body && document.body.classList.toggle('theme-dark-body', theme === 'dark');
-                } catch (error) {}
-              })();
-            `,
-          }}
-        />
-      </head>
       <body suppressHydrationWarning className="min-h-screen bg-background font-sans text-foreground">
         <CartProvider>
           <ThemeSync />

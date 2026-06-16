@@ -16,6 +16,7 @@ export default async function ProfilePage({
     <ProfilePanel
       email={email}
       saved={params?.saved}
+      currentTimeIso={new Date().toISOString()}
       profile={
         profile
           ? {
@@ -33,6 +34,7 @@ export default async function ProfilePage({
                 shippingMethod: order.shippingMethod,
                 total: order.total,
                 createdAt: order.createdAt.toISOString(),
+                deliveredAt: order.deliveredAt?.toISOString() ?? null,
                 whatsappOptIn: order.whatsappOptIn,
                 trackingNumber: order.trackingNumber,
                 address: order.address
@@ -43,10 +45,27 @@ export default async function ProfilePage({
                     }
                   : null,
                 items: order.items.map((item) => ({
+                  id: item.id,
                   name: item.productName,
                   quantity: item.quantity,
                   color: item.colorName,
                   size: item.size,
+                  exchangeOptions: Array.from(
+                    new Set(
+                      item.product.variants
+                        .filter((variant) => variant.colorName === item.colorName && variant.size !== item.size)
+                        .map((variant) => variant.size),
+                    ),
+                  ),
+                  exchangeRequests: item.exchangeRequests.map((request) => ({
+                    id: request.id,
+                    currentSize: request.currentSize,
+                    requestedSize: request.requestedSize,
+                    status: request.status,
+                    createdAt: request.createdAt.toISOString(),
+                    customerShipmentConfirmedAt: request.customerShipmentConfirmedAt?.toISOString() ?? null,
+                    replacementOrderId: request.replacementOrderId ?? null,
+                  })),
                 })),
               })),
             }

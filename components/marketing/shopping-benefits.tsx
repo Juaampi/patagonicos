@@ -124,18 +124,26 @@ export function ShoppingBenefits({
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
               <p className="text-sm font-medium text-black/84">
-                No realizamos cambios de prendas, por favor revisar bien las medidas.
+                Realizamos cambios dentro de las 48 hs hábiles de haber recibido el producto.
               </p>
               <p className="mt-2 text-sm leading-6 text-black/58">
-                Si tenés dudas con tu mascota, escribinos antes de comprar y te ayudamos a elegir.
+                Entendemos que no todas las mascotas tienen el mismo porte ni calzan igual. El cambio por sistema aplica únicamente para la misma prenda, en un talle mayor o menor.
               </p>
             </div>
-            <Link
-              href="/contacto"
-              className="inline-flex shrink-0 rounded-full border border-black/10 px-5 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-black/78 transition hover:bg-black hover:text-white"
-            >
-              Ir a WhatsApp
-            </Link>
+            <div className="flex flex-wrap gap-3">
+              <Link
+                href="/cambios"
+                className="inline-flex shrink-0 rounded-full bg-black px-5 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-white transition hover:bg-emerald-700"
+              >
+                Ver cómo funciona
+              </Link>
+              <Link
+                href="/contacto"
+                className="inline-flex shrink-0 rounded-full border border-black/10 px-5 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-black/78 transition hover:bg-black hover:text-white"
+              >
+                Ir a WhatsApp
+              </Link>
+            </div>
           </div>
         </div>
       </div>

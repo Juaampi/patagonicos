@@ -61,8 +61,8 @@ export function FloatingActions() {
         aria-label="WhatsApp"
         className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-black/10 bg-white text-black shadow-[0_12px_35px_rgba(0,0,0,0.12)] transition hover:-translate-y-0.5 hover:border-black hover:bg-black hover:text-white"
       >
-        <span className="flex h-[22px] w-[22px] items-center justify-center">
-          <WhatsAppMonoIcon className="h-[22px] w-[22px]" />
+        <span className="flex h-6 w-6 items-center justify-center">
+          <WhatsAppMonoIcon className="block h-5 w-5" />
         </span>
       </Link>
 
@@ -75,7 +75,7 @@ export function FloatingActions() {
       >
         <ShoppingBag className="h-5 w-5" />
         {isHydrated && itemCount > 0 ? (
-          <span className="absolute -right-1 -top-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-black px-1 text-[10px] font-bold text-white">
+          <span className="absolute -right-1.5 -top-1.5 inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-black px-1.5 text-[11px] font-bold text-white shadow-[0_6px_14px_rgba(0,0,0,0.18)]">
             {itemCount}
           </span>
         ) : null}

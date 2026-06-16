@@ -466,7 +466,18 @@ export async function getCustomerProfileByEmail(email: string) {
       orders: {
         include: {
           address: true,
-          items: true,
+          items: {
+            include: {
+              product: {
+                include: {
+                  variants: true,
+                },
+              },
+              exchangeRequests: {
+                orderBy: { createdAt: 'desc' },
+              },
+            },
+          },
         },
         orderBy: { createdAt: 'desc' },
       },
@@ -490,6 +501,8 @@ export function getProfileSavedMessage(saved?: string) {
       return 'Compra confirmada. Tu pedido ya está disponible en tu cuenta.'
     case 'whatsapp':
       return 'Actualizamos tus notificaciones de WhatsApp.'
+    case 'exchange-requested':
+      return 'Registramos tu solicitud de cambio. La revisamos y te contactamos con los próximos pasos.'
     default:
       return undefined
   }
@@ -610,8 +623,36 @@ export async function getOrderForTicket(orderId: string) {
       include: {
         customer: true,
         address: true,
-        items: true,
+        items: {
+          include: {
+            product: {
+              include: {
+                variants: true,
+              },
+            },
+            exchangeRequests: {
+              include: {
+                replacementOrder: true,
+              },
+              orderBy: { createdAt: 'desc' },
+            },
+          },
+        },
         printJobs: true,
+        exchangeRequests: {
+          include: {
+            orderItem: true,
+            replacementOrder: true,
+          },
+          orderBy: { createdAt: 'desc' },
+        },
+        replacementExchangeRequests: {
+          include: {
+            order: true,
+            orderItem: true,
+          },
+          orderBy: { createdAt: 'desc' },
+        },
       },
     })
   } catch (error) {

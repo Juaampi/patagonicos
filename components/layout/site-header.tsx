@@ -13,7 +13,8 @@ import { cn } from '@/lib/utils'
 const navItems = [
   { href: '/', label: 'Inicio' },
   { href: '/productos', label: 'Productos' },
-  { href: '/adoptame', label: 'Mascotas en adopción' },
+  { href: '/cambios', label: 'Cambios' },
+  { href: '/adoptame', label: 'Proximamente', sublabel: 'Mascotas en adopcion', disabled: true },
   { href: '/envios', label: 'Envíos' },
 ]
 
@@ -186,6 +187,19 @@ export function SiteHeader({ settings }: { settings: StoreSettingsSnapshot }) {
               {navItems.map((item) => {
                 const isActive = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href)
 
+                if (item.disabled) {
+                  return (
+                    <span
+                      key={item.href}
+                      aria-disabled="true"
+                      className="inline-flex cursor-not-allowed flex-col items-center rounded-full border border-dashed border-black/12 px-4 py-2.5 text-black/36"
+                    >
+                      <span className="text-[12px] font-semibold uppercase tracking-[0.12em]">{item.label}</span>
+                      {item.sublabel ? <span className="mt-0.5 text-[9px] uppercase tracking-[0.14em] text-black/28">{item.sublabel}</span> : null}
+                    </span>
+                  )
+                }
+
                 return (
                   <Link
                     key={item.href}
@@ -220,7 +234,7 @@ export function SiteHeader({ settings }: { settings: StoreSettingsSnapshot }) {
             >
               <ShoppingBag className="h-4 w-4 md:h-4.5 md:w-4.5" />
               {isHydrated ? (
-                <span className="absolute -right-0.5 -top-0.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-black px-1 text-[8px] font-bold text-white md:h-5 md:min-w-5 md:text-[10px]">
+                <span className="absolute -right-1 -top-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-black px-1 text-[9px] font-bold text-white shadow-[0_6px_14px_rgba(0,0,0,0.18)] md:h-6 md:min-w-6 md:px-1.5 md:text-[11px]">
                   {itemCount}
                 </span>
               ) : null}
@@ -235,6 +249,19 @@ export function SiteHeader({ settings }: { settings: StoreSettingsSnapshot }) {
                 <div className="grid gap-1.5">
                   {navItems.map((item) => {
                     const isActive = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href)
+
+                    if (item.disabled) {
+                      return (
+                        <span
+                          key={item.href}
+                          aria-disabled="true"
+                          className="block w-full cursor-not-allowed rounded-[18px] border border-dashed border-black/10 px-4 py-3 text-left text-black/38"
+                        >
+                          <span className="block text-[12px] font-semibold uppercase tracking-[0.12em]">{item.label}</span>
+                          {item.sublabel ? <span className="mt-1 block text-[10px] uppercase tracking-[0.14em] text-black/28">{item.sublabel}</span> : null}
+                        </span>
+                      )
+                    }
 
                     return (
                       <button

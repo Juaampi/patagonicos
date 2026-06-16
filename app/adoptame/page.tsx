@@ -27,6 +27,23 @@ export default async function AdoptamePage({
   const pets = await getPublicAdoptionPets()
   const params = await searchParams
 
+  if (pets.length === 0) {
+    return (
+      <section className="shell pb-12 pt-8 md:pt-12">
+        <div className="card-surface p-7 md:p-9">
+          <p className="eyebrow">Adoptame</p>
+          <h1 className="mt-4 font-display text-5xl tracking-[-0.05em]">Sitio web en construcción</h1>
+          <p className="mt-4 max-w-3xl text-base leading-8 text-black/62">
+            Estamos creando esta parte para poder mostrar las mascotas que hoy no tienen hogar y necesitan una familia.
+          </p>
+          <p className="mt-4 max-w-3xl text-base leading-8 text-black/62">
+            Apenas carguemos la primera mascota disponible para adopción, esta sección se va a publicar con sus fotos, datos y contacto.
+          </p>
+        </div>
+      </section>
+    )
+  }
+
   const selectedProvince = getSingleSearchParam(params.provincia)?.trim() ?? ''
   const selectedCity = getSingleSearchParam(params.ciudad)?.trim() ?? ''
   const selectedTypeRaw = getSingleSearchParam(params.tipo)?.trim().toUpperCase() ?? ''

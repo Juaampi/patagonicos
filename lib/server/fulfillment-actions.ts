@@ -1,12 +1,17 @@
 'use server'
 
-import { DeliveryStatus, OrderStatus, PrintJobStatus, ShippingStatus } from '@prisma/client'
+import { DeliveryStatus, ExchangeRequestStatus, OrderStatus, PaymentStatus, PrintJobStatus, ShippingStatus } from '@prisma/client'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
-import { sendOrderStatusChangedNotification } from '@/lib/order-email-notifications'
+import {
+  sendExchangeRequestCreatedNotifications,
+  sendExchangeShipmentConfirmedNotifications,
+  sendOrderStatusChangedNotification,
+  sendReplacementOrderCreatedNotifications,
+} from '@/lib/order-email-notifications'
 import { prisma } from '@/lib/prisma'
 import { getOrderWhatsAppDeliveryInfo, updateDeliveryState } from '@/lib/server/delivery'
-import { queuePrintJobForOrder, syncApprovedPayment } from '@/lib/server/fulfillment'
+import { generateOrderNumber, generateShortCode, queuePrintJobForOrder, syncApprovedPayment } from '@/lib/server/fulfillment'
 
 function revalidateAdminPaths(orderId?: string) {
   revalidatePath('/admin')
@@ -206,6 +211,246 @@ export async function updateCustomerWhatsappOptInAction(formData: FormData) {
   revalidatePath('/perfil')
   revalidateAdminPaths(orderId || undefined)
   redirect(`/perfil?email=${encodeURIComponent(email)}&saved=whatsapp`)
+}
+
+export async function createExchangeRequestAction(formData: FormData) {
+  const orderId = String(formData.get('orderId') ?? '').trim()
+  const orderItemId = String(formData.get('orderItemId') ?? '').trim()
+  const requestedSize = String(formData.get('requestedSize') ?? '').trim()
+  const email = String(formData.get('email') ?? '').trim().toLowerCase()
+
+  if (!orderId || !orderItemId || !requestedSize || !email) {
+    throw new Error('Datos incompletos para solicitar el cambio.')
+  }
+
+  const order = await prisma.order.findFirst({
+    where: {
+      id: orderId,
+      customer: {
+        email,
+      },
+    },
+    include: {
+      customer: true,
+      items: {
+        include: {
+          product: {
+            include: {
+              variants: true,
+            },
+          },
+          exchangeRequests: {
+            where: {
+              status: {
+                in: [ExchangeRequestStatus.REQUESTED, ExchangeRequestStatus.CUSTOMER_SHIPMENT_CONFIRMED, ExchangeRequestStatus.REPLACEMENT_CREATED],
+              },
+            },
+          },
+        },
+      },
+    },
+  })
+
+  if (!order) {
+    throw new Error('No encontramos el pedido para solicitar el cambio.')
+  }
+
+  const delivered = order.status === OrderStatus.DELIVERED || order.status === OrderStatus.ENTREGADO
+  if (!delivered) {
+    throw new Error('El cambio solo puede pedirse cuando el pedido ya figura como entregado.')
+  }
+
+  const deliveredAt = order.deliveredAt ?? order.updatedAt
+  if (Date.now() - deliveredAt.getTime() > 48 * 60 * 60 * 1000) {
+    throw new Error('La ventana para pedir cambio venció. Solo se acepta dentro de las 48 hs de recibido el producto.')
+  }
+
+  const orderItem = order.items.find((item) => item.id === orderItemId)
+
+  if (!orderItem) {
+    throw new Error('No encontramos la prenda que querés cambiar.')
+  }
+
+  if (orderItem.size === requestedSize) {
+    throw new Error('Elegí un talle distinto para solicitar el cambio.')
+  }
+
+  if (orderItem.exchangeRequests.length > 0) {
+    throw new Error('Esta prenda ya tiene una solicitud de cambio abierta.')
+  }
+
+  const variantExists = orderItem.product.variants.some(
+    (variant) => variant.colorName === orderItem.colorName && variant.size === requestedSize,
+  )
+
+  if (!variantExists) {
+    throw new Error('Ese talle no está disponible para la misma prenda y color.')
+  }
+
+  const exchangeRequest = await prisma.exchangeRequest.create({
+    data: {
+      orderId: order.id,
+      orderItemId: orderItem.id,
+      currentSize: orderItem.size,
+      requestedSize,
+      status: ExchangeRequestStatus.REQUESTED,
+    },
+  })
+
+  await sendExchangeRequestCreatedNotifications(exchangeRequest.id)
+  revalidatePath('/perfil')
+  revalidateAdminPaths(orderId)
+  redirect(`/perfil?email=${encodeURIComponent(email)}&saved=exchange-requested`)
+}
+
+export async function confirmExchangeShipmentAction(formData: FormData) {
+  const exchangeRequestId = String(formData.get('exchangeRequestId') ?? '').trim()
+  const email = String(formData.get('email') ?? '').trim().toLowerCase()
+
+  if (!exchangeRequestId || !email) {
+    throw new Error('No pudimos confirmar el envío de la prenda.')
+  }
+
+  const exchangeRequest = await prisma.exchangeRequest.findFirst({
+    where: {
+      id: exchangeRequestId,
+      order: {
+        customer: {
+          email,
+        },
+      },
+    },
+    include: {
+      order: true,
+    },
+  })
+
+  if (!exchangeRequest) {
+    throw new Error('No encontramos la solicitud de cambio.')
+  }
+
+  if (exchangeRequest.status !== ExchangeRequestStatus.REQUESTED) {
+    throw new Error('Esta solicitud ya fue confirmada o procesada.')
+  }
+
+  await prisma.exchangeRequest.update({
+    where: { id: exchangeRequest.id },
+    data: {
+      status: ExchangeRequestStatus.CUSTOMER_SHIPMENT_CONFIRMED,
+      customerShipmentConfirmedAt: new Date(),
+    },
+  })
+
+  await sendExchangeShipmentConfirmedNotifications(exchangeRequest.id)
+  revalidatePath('/perfil')
+  revalidateAdminPaths(exchangeRequest.orderId)
+  redirect(`/perfil?email=${encodeURIComponent(email)}&saved=exchange-requested`)
+}
+
+export async function createReplacementOrderFromExchangeAction(formData: FormData) {
+  const exchangeRequestId = String(formData.get('exchangeRequestId') ?? '').trim()
+
+  if (!exchangeRequestId) {
+    throw new Error('Solicitud de cambio inválida.')
+  }
+
+  const exchangeRequest = await prisma.exchangeRequest.findUnique({
+    where: { id: exchangeRequestId },
+    include: {
+      order: {
+        include: {
+          customer: true,
+          address: true,
+        },
+      },
+      orderItem: {
+        include: {
+          product: {
+            include: {
+              variants: true,
+            },
+          },
+        },
+      },
+      replacementOrder: true,
+    },
+  })
+
+  if (!exchangeRequest) {
+    throw new Error('No encontramos la solicitud de cambio.')
+  }
+
+  if (exchangeRequest.status !== ExchangeRequestStatus.CUSTOMER_SHIPMENT_CONFIRMED) {
+    throw new Error('Todavía falta que el cliente confirme el envío de la prenda a cambiar.')
+  }
+
+  if (exchangeRequest.replacementOrderId) {
+    throw new Error('Esta solicitud ya generó un pedido de recambio.')
+  }
+
+  const variantExists = exchangeRequest.orderItem.product.variants.some(
+    (variant) =>
+      variant.colorName === exchangeRequest.orderItem.colorName &&
+      variant.size === exchangeRequest.requestedSize,
+  )
+
+  if (!variantExists) {
+    throw new Error('El talle solicitado ya no está disponible para generar el recambio.')
+  }
+
+  const replacementOrder = await prisma.order.create({
+    data: {
+      orderNumber: generateOrderNumber(),
+      shortCode: `${generateShortCode()}-C`,
+      customerId: exchangeRequest.order.customerId,
+      addressId: exchangeRequest.order.addressId,
+      status:
+        exchangeRequest.order.shippingMethod === 'LOCAL_DELIVERY'
+          ? OrderStatus.READY_FOR_LOCAL_DELIVERY
+          : OrderStatus.READY_FOR_NATIONAL_SHIPPING,
+      paymentStatus: PaymentStatus.PAID,
+      paymentMethod: exchangeRequest.order.paymentMethod,
+      shippingMethod: exchangeRequest.order.shippingMethod,
+      shippingStatus: ShippingStatus.EN_PREPARACION,
+      whatsappOptIn: exchangeRequest.order.whatsappOptIn,
+      subtotal: 0,
+      discountAmount: 0,
+      shippingAmount: 0,
+      total: 0,
+      notes: `Pedido de cambio generado desde ${exchangeRequest.order.shortCode ?? exchangeRequest.order.orderNumber}. Talle ${exchangeRequest.currentSize} por ${exchangeRequest.requestedSize}.`,
+      mercadopagoRef: exchangeRequest.order.mercadopagoRef,
+      carrier: exchangeRequest.order.carrier,
+      fulfillmentType: exchangeRequest.order.fulfillmentType,
+      deliveryStatus: exchangeRequest.order.deliveryStatus,
+      deliveryDate: exchangeRequest.order.deliveryDate,
+      amountToCollect: 0,
+      items: {
+        create: {
+          productId: exchangeRequest.orderItem.productId,
+          productName: exchangeRequest.orderItem.productName,
+          colorName: exchangeRequest.orderItem.colorName,
+          size: exchangeRequest.requestedSize,
+          quantity: exchangeRequest.orderItem.quantity,
+          unitPrice: 0,
+          totalPrice: 0,
+        },
+      },
+    },
+  })
+
+  await prisma.exchangeRequest.update({
+    where: { id: exchangeRequest.id },
+    data: {
+      status: ExchangeRequestStatus.REPLACEMENT_CREATED,
+      replacementOrderId: replacementOrder.id,
+    },
+  })
+
+  await queuePrintJobForOrder(replacementOrder.id)
+  await sendReplacementOrderCreatedNotifications(exchangeRequest.id)
+  revalidatePath('/perfil')
+  revalidateAdminPaths(exchangeRequest.orderId)
+  revalidateAdminPaths(replacementOrder.id)
 }
 
 export async function sendDeliveryWhatsAppAction(orderId: string) {

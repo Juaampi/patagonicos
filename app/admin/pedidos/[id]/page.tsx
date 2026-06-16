@@ -3,8 +3,25 @@ import { notFound } from 'next/navigation'
 import { AdminShell } from '@/components/admin/admin-shell'
 import { getAndreaniTrackingUrl } from '@/lib/server/andreani'
 import { buildGoogleMapsPinUrl, getOrderForTicket, getOrderStateLabel, getShippingMethodLabel } from '@/lib/server/fulfillment'
-import { markOrderPaidAction, markOrderShippedWithTrackingAction, updateOrderStatusAction } from '@/lib/server/fulfillment-actions'
+import {
+  createReplacementOrderFromExchangeAction,
+  markOrderPaidAction,
+  markOrderShippedWithTrackingAction,
+  updateOrderStatusAction,
+} from '@/lib/server/fulfillment-actions'
 import { formatPrice } from '@/lib/utils'
+
+function getExchangeStatusLabel(status: string) {
+  const labels: Record<string, string> = {
+    REQUESTED: 'En cambio',
+    CUSTOMER_SHIPMENT_CONFIRMED: 'Cliente confirmó envío',
+    REPLACEMENT_CREATED: 'Pedido de recambio creado',
+    REJECTED: 'Rechazado',
+    COMPLETED: 'Completado',
+  }
+
+  return labels[status] ?? status
+}
 
 export default async function AdminOrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -16,6 +33,7 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
 
   const pinUrl = buildGoogleMapsPinUrl(order.address?.latitude, order.address?.longitude)
   const andreaniTrackerUrl = getAndreaniTrackingUrl()
+  const replacementContext = order.replacementExchangeRequests?.[0]
 
   return (
     <AdminShell>
@@ -25,6 +43,18 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
             <p className="eyebrow">Pedido</p>
             <h1 className="mt-4 font-display text-4xl tracking-[-0.05em]">{order.shortCode ?? order.orderNumber}</h1>
             <p className="mt-3 text-sm text-black/58">{order.orderNumber}</p>
+            {replacementContext ? (
+              <div className="mt-4 inline-flex flex-wrap items-center gap-2 rounded-[18px] border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-900">
+                <span className="font-semibold">Pedido de recambio</span>
+                <span className="text-sky-800">Original:</span>
+                <Link href={`/admin/pedidos/${replacementContext.orderId}`} className="font-semibold underline underline-offset-2">
+                  {replacementContext.order.shortCode ?? replacementContext.order.orderNumber}
+                </Link>
+                <span className="text-sky-800">
+                  · {replacementContext.orderItem.productName} · {replacementContext.currentSize} por {replacementContext.requestedSize}
+                </span>
+              </div>
+            ) : null}
           </div>
           <div className="flex flex-wrap gap-2">
             <Link
@@ -80,11 +110,51 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
               <div className="mt-4 space-y-3">
                 {order.items.map((item) => (
                   <div key={item.id} className="flex items-start justify-between gap-4 rounded-[18px] border border-black/8 px-4 py-4">
-                    <div>
+                    <div className="min-w-0 flex-1">
                       <p className="font-medium text-black/84">{item.productName}</p>
                       <p className="mt-1 text-xs uppercase tracking-[0.14em] text-black/46">
                         {item.colorName} · {item.size} · x{item.quantity}
                       </p>
+                      {item.exchangeRequests[0] ? (
+                        <div className="mt-3 rounded-[16px] border border-sky-200 bg-sky-50 px-3 py-3 text-xs leading-6 text-sky-900">
+                          <p>
+                            Cambio solicitado: {item.exchangeRequests[0].currentSize} por {item.exchangeRequests[0].requestedSize} ·{' '}
+                            {getExchangeStatusLabel(item.exchangeRequests[0].status)}
+                          </p>
+                          {item.exchangeRequests[0].status === 'REQUESTED' ? (
+                            <p className="mt-1 text-sky-800">
+                              Estamos esperando que el cliente confirme que ya despachó la prenda original.
+                            </p>
+                          ) : null}
+                          {item.exchangeRequests[0].customerShipmentConfirmedAt ? (
+                            <p className="mt-1 text-sky-800">
+                              Cliente confirmó el envío el{' '}
+                              {new Date(item.exchangeRequests[0].customerShipmentConfirmedAt).toLocaleString('es-AR')}
+                              .
+                            </p>
+                          ) : null}
+                          {item.exchangeRequests[0].replacementOrderId ? (
+                            <p className="mt-1 text-sky-800">
+                              Recambio generado:{' '}
+                              <Link
+                                href={`/admin/pedidos/${item.exchangeRequests[0].replacementOrderId}`}
+                                className="font-semibold underline underline-offset-2"
+                              >
+                                ver pedido nuevo
+                              </Link>
+                              .
+                            </p>
+                          ) : null}
+                          {item.exchangeRequests[0].status === 'CUSTOMER_SHIPMENT_CONFIRMED' ? (
+                            <form action={createReplacementOrderFromExchangeAction} className="mt-3">
+                              <input type="hidden" name="exchangeRequestId" value={item.exchangeRequests[0].id} />
+                              <button className="rounded-full border border-sky-300 bg-white px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-sky-900 transition hover:bg-sky-900 hover:text-white">
+                                Confirmar cambio y generar pedido nuevo
+                              </button>
+                            </form>
+                          ) : null}
+                        </div>
+                      ) : null}
                     </div>
                     <p className="font-semibold text-black/84">{formatPrice(item.totalPrice)}</p>
                   </div>

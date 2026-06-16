@@ -105,6 +105,14 @@ enum DeliveryRouteStatus {
   COMPLETED
 }
 
+enum ExchangeRequestStatus {
+  REQUESTED
+  CUSTOMER_SHIPMENT_CONFIRMED
+  REPLACEMENT_CREATED
+  REJECTED
+  COMPLETED
+}
+
 enum AdoptionStatus {
   EN_ADOPCION
   ADOPTADO
@@ -267,6 +275,8 @@ model Order {
   inRouteAt       DateTime?
   deliveredAt     DateTime?
   items           OrderItem[]
+  exchangeRequests ExchangeRequest[]
+  replacementExchangeRequests ExchangeRequest[] @relation("ExchangeReplacementOrder")
   reviews         ProductReview[]
   printJobs       PrintJob[]
   deliveryStops   DeliveryStop[]
@@ -288,8 +298,27 @@ model OrderItem {
   quantity    Int
   unitPrice   Int
   totalPrice  Int
+  exchangeRequests ExchangeRequest[]
 
   @@map("pa2_order_items")
+}
+
+model ExchangeRequest {
+  id            String                @id @default(cuid())
+  orderId       String
+  order         Order                 @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderItemId   String
+  orderItem     OrderItem             @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+  currentSize   String
+  requestedSize String
+  status        ExchangeRequestStatus @default(REQUESTED)
+  customerShipmentConfirmedAt DateTime?
+  replacementOrderId String?
+  replacementOrder Order?             @relation("ExchangeReplacementOrder", fields: [replacementOrderId], references: [id], onDelete: SetNull)
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
+
+  @@map("pa2_exchange_requests")
 }
 
 model AdminUser {
