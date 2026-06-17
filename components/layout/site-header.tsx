@@ -2,13 +2,15 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { Menu, Moon, ShoppingBag, Sun, UserRound, X } from 'lucide-react'
+import { Instagram, Menu, Moon, ShoppingBag, Sun, UserRound, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useCart } from '@/components/cart/cart-provider'
 import { BarilocheDeliveryCountdown } from '@/components/marketing/bariloche-delivery-countdown'
 import { Logo } from '@/components/brand/logo'
 import type { StoreSettingsSnapshot } from '@/lib/store-settings'
 import { cn } from '@/lib/utils'
+
+const instagramUrl = 'https://www.instagram.com/patagonicos.ok/'
 
 const navItems = [
   { href: '/', label: 'Inicio' },
@@ -214,6 +216,16 @@ export function SiteHeader({ settings }: { settings: StoreSettingsSnapshot }) {
                 )
               })}
             </nav>
+            <Link
+              href={instagramUrl}
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Instagram Patagónicos"
+              className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white/78 px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-black/76 shadow-[0_10px_28px_rgba(0,0,0,0.06)] transition hover:bg-black hover:text-white"
+            >
+              <Instagram className="h-4 w-4" />
+              patagonicos.ok
+            </Link>
             {renderThemeToggle()}
           </div>
 
@@ -279,6 +291,18 @@ export function SiteHeader({ settings }: { settings: StoreSettingsSnapshot }) {
                   })}
                 </div>
               </div>
+              <Link
+                href={instagramUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center justify-between rounded-[22px] border border-black/8 bg-[#fafaf7] px-4 py-4 text-[12px] font-semibold uppercase tracking-[0.12em] text-black/82 transition hover:bg-white"
+              >
+                <span className="inline-flex items-center gap-2">
+                  <Instagram className="h-4.5 w-4.5" />
+                  Instagram
+                </span>
+                <span className="text-[10px] tracking-[0.14em] text-black/52">patagonicos.ok</span>
+              </Link>
               <div className="flex justify-center">
                 {renderThemeToggle(true)}
               </div>

@@ -73,19 +73,19 @@ export default async function HomePage() {
       />
 
       <section className="shell mt-20">
-        <div className="overflow-hidden rounded-[36px] border border-[#cfe5d9] bg-[linear-gradient(135deg,#f5fbf7_0%,#edf7f1_52%,#e2f3ea_100%)] p-7 md:p-10">
+        <div className="changes-highlight overflow-hidden rounded-[36px] border border-[#cfe5d9] bg-[linear-gradient(135deg,#f5fbf7_0%,#edf7f1_52%,#e2f3ea_100%)] p-7 md:p-10">
           <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr] xl:items-center">
             <div>
               <p className="eyebrow">Cambios de talle</p>
-              <h2 className="mt-4 max-w-4xl font-display text-4xl tracking-[-0.05em] md:text-5xl">
+              <h2 className="changes-highlight__title mt-4 max-w-4xl font-display text-4xl tracking-[-0.05em] md:text-5xl">
                 Si no le quedó perfecto, armamos un flujo claro para cambiar la prenda sin vueltas.
               </h2>
-              <p className="mt-5 max-w-3xl text-base leading-8 text-black/62">
+              <p className="changes-highlight__copy mt-5 max-w-3xl text-base leading-8 text-black/62">
                 Entendemos que no todas las mascotas tienen el mismo porte, aun dentro del mismo peso o raza. Por eso explicamos paso a paso cómo funciona el cambio por talle, qué condiciones tiene y cómo se sigue desde el panel.
               </p>
             </div>
-            <div className="rounded-[28px] border border-black/8 bg-white/88 p-6 backdrop-blur-sm">
-              <p className="text-sm leading-7 text-black/64">
+            <div className="changes-highlight__panel rounded-[28px] border border-black/8 bg-white/88 p-6 backdrop-blur-sm">
+              <p className="changes-highlight__panel-copy text-sm leading-7 text-black/64">
                 El sistema te permite pedir el cambio para la misma prenda en un talle mayor o menor, confirmar cuando despachaste la original y seguir todo desde tu cuenta.
               </p>
               <div className="mt-5 flex flex-wrap gap-3">

@@ -24,7 +24,7 @@ export function HeroSlider() {
                 Temporada otoño-invierno
               </p>
               <h1 className="mt-5 max-w-[11ch] font-display text-[clamp(2.45rem,8vw,5.1rem)] font-black leading-[0.92] tracking-[-0.075em] text-white">
-                Protegé a tu mascota del frío.
+                Abrigados para cada aventura.
               </h1>
               <p className="mt-5 max-w-[34rem] text-[14px] leading-6 text-white/84 md:mt-6 md:text-[17px] md:leading-8">
                 En Patagónicos donamos el 5% de cada compra a refugios de animales en toda
