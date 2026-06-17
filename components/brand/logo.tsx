@@ -37,7 +37,16 @@ export function Logo({
         />
       </div>
 
-      {!isHeader ? (
+      {isHeader ? (
+        <span
+          className={cn(
+            'block whitespace-nowrap uppercase leading-none text-[7px] font-medium tracking-[0.18em] md:text-[9px] md:tracking-[0.2em]',
+            inverted ? 'text-white/74' : 'text-black/62',
+          )}
+        >
+          Abrigados para cada aventura
+        </span>
+      ) : (
         <span
           className={cn(
             'block whitespace-nowrap uppercase leading-none text-[9px] font-medium tracking-[0.2em] md:text-[11px] md:tracking-[0.22em]',
@@ -46,7 +55,7 @@ export function Logo({
         >
           Indumentaria para mascotas
         </span>
-      ) : null}
+      )}
     </Link>
   )
 }

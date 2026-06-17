@@ -3,7 +3,7 @@ import { PaymentMethod } from '@prisma/client'
 import { z } from 'zod'
 import { env } from '@/lib/env'
 import { createPendingPreference } from '@/lib/mercadopago'
-import { createOrderFromCheckout } from '@/lib/server/fulfillment'
+import { createOrderFromCheckout, syncApprovedPayment } from '@/lib/server/fulfillment'
 
 const checkoutSchema = z.object({
   fullName: z.string().min(2),
@@ -47,6 +47,7 @@ export async function POST(request: Request) {
   }
 
   const result = await createOrderFromCheckout(parsed.data)
+  let confirmedOrder = result.order
 
   let paymentUrl: string | null = null
 
@@ -65,22 +66,28 @@ export async function POST(request: Request) {
     })
 
     paymentUrl = preference.init_point ?? preference.sandbox_init_point ?? null
+  } else if (result.order.paymentMethod === PaymentMethod.ONLINE) {
+    const approvedOrder = await syncApprovedPayment(result.order.id, 'mercadopago-not-configured')
+    confirmedOrder = {
+      ...confirmedOrder,
+      ...approvedOrder,
+    }
   }
 
   return NextResponse.json({
     ok: true,
-    orderId: result.order.id,
-    orderNumber: result.order.orderNumber,
-    shortCode: result.order.shortCode,
-    status: result.order.status,
-    paymentStatus: result.order.paymentStatus,
-    shippingMethod: result.order.shippingMethod,
+    orderId: confirmedOrder.id,
+    orderNumber: confirmedOrder.orderNumber,
+    shortCode: confirmedOrder.shortCode,
+    status: confirmedOrder.status,
+    paymentStatus: confirmedOrder.paymentStatus,
+    shippingMethod: confirmedOrder.shippingMethod,
     paymentUrl,
     message:
-      result.order.paymentMethod === PaymentMethod.CASH_ON_DELIVERY
+      confirmedOrder.paymentMethod === PaymentMethod.CASH_ON_DELIVERY
         ? 'Orden creada con pago contra entrega. El ticket interno ya quedó listo para impresión.'
         : paymentUrl
           ? 'Orden creada. Te vamos a redirigir a Mercado Pago para completar el pago.'
-          : 'Orden creada. Mercado Pago todavía no está configurado en este entorno, así que dejamos la confirmación interna activa.',
+          : 'Orden confirmada. Como Mercado Pago todavía no está configurado en este entorno, acreditamos el pago internamente.',
   })
 }
