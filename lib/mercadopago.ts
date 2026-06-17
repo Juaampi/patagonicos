@@ -11,6 +11,38 @@ function getClient() {
   })
 }
 
+export function getMercadoPagoWebhookUrl() {
+  return new URL('/api/mercadopago/webhook', env.SITE_URL).toString()
+}
+
+export async function getMercadoPagoPaymentById(paymentId: string) {
+  if (!env.MERCADOPAGO_ACCESS_TOKEN) {
+    throw new Error('Mercado Pago access token not configured')
+  }
+
+  const response = await fetch(`https://api.mercadopago.com/v1/payments/${encodeURIComponent(paymentId)}`, {
+    method: 'GET',
+    headers: {
+      Accept: 'application/json',
+      Authorization: `Bearer ${env.MERCADOPAGO_ACCESS_TOKEN}`,
+    },
+    cache: 'no-store',
+  })
+
+  if (!response.ok) {
+    throw new Error(`Mercado Pago payment lookup failed with status ${response.status}.`)
+  }
+
+  return (await response.json()) as {
+    id: number | string
+    status?: string
+    external_reference?: string | null
+    metadata?: {
+      orderId?: string | null
+    } | null
+  }
+}
+
 export async function createPendingPreference(input: {
   orderId: string
   orderNumber: string
@@ -48,6 +80,7 @@ export async function createPendingPreference(input: {
         failure: failureUrl.toString(),
         pending: pendingUrl.toString(),
       },
+      notification_url: getMercadoPagoWebhookUrl(),
       metadata: {
         orderId: input.orderId,
       },
