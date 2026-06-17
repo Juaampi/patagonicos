@@ -38,6 +38,10 @@ function toPlainText(value: string) {
   return value.replace(/\s+/g, ' ').trim()
 }
 
+function formatFeedPrice(value: number) {
+  return `${value.toFixed(2)} ARS`
+}
+
 export async function GET() {
   const products = await getCatalogProducts()
   const rows: string[] = [FEED_HEADERS.join(',')]
@@ -54,6 +58,9 @@ export async function GET() {
 
       const imageLink = galleryImages[0] ?? defaultImage?.url ?? product.mainImageUrl ?? ''
       const additionalImageLink = galleryImages.slice(1, 10).join(',')
+      const hasDiscount = Boolean(product.compareAtPrice && product.compareAtPrice > product.price)
+      const price = hasDiscount ? product.compareAtPrice! : product.price
+      const salePrice = hasDiscount ? product.price : null
 
       const row = [
         variant.sku,
@@ -61,10 +68,8 @@ export async function GET() {
         toPlainText(product.shortDescription || product.description),
         variant.stock > 0 ? 'in stock' : 'out of stock',
         'new',
-        `${(product.price / 100).toFixed(2)} ARS`,
-        product.compareAtPrice && product.compareAtPrice > product.price
-          ? `${(product.price / 100).toFixed(2)} ARS`
-          : '',
+        formatFeedPrice(price),
+        salePrice ? formatFeedPrice(salePrice) : '',
         productUrl,
         imageLink,
         additionalImageLink,
