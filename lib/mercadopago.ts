@@ -73,7 +73,6 @@ export async function createPendingPreference(input: {
   return preference.create({
     body: {
       items: input.items,
-      payer: { email: input.email },
       external_reference: input.orderId,
       back_urls: {
         success: successUrl.toString(),
