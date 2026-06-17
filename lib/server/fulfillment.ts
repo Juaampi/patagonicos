@@ -705,6 +705,8 @@ export async function getOrderForTicket(orderId: string) {
       inRouteAt: null,
       deliveredAt: null,
       deliveryStops: [],
+      exchangeRequests: [],
+      replacementExchangeRequests: [],
     }
   }
 }

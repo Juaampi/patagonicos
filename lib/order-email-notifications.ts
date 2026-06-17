@@ -5,6 +5,15 @@ import { formatPrice } from '@/lib/utils'
 
 type OrderEmailRecord = NonNullable<Awaited<ReturnType<typeof getOrderEmailRecord>>>
 type ExchangeEmailRecord = NonNullable<Awaited<ReturnType<typeof getExchangeEmailRecord>>>
+type ProfileOrderLike = {
+  id: string
+  customer: {
+    email: string
+  }
+}
+type TrackingOrderLike = ProfileOrderLike & {
+  trackingNumber?: string | null
+}
 
 function getOrderStateLabel(status: string) {
   const labels: Record<string, string> = {
@@ -158,11 +167,11 @@ async function getExchangeEmailRecord(exchangeRequestId: string) {
   })
 }
 
-function buildProfileUrl(order: OrderEmailRecord) {
+function buildProfileUrl(order: ProfileOrderLike) {
   return `${env.SITE_URL}/perfil?email=${encodeURIComponent(order.customer.email)}&saved=created&order=${encodeURIComponent(order.id)}`
 }
 
-function buildTrackingUrl(order: OrderEmailRecord) {
+function buildTrackingUrl(order: TrackingOrderLike) {
   if (order.trackingNumber?.trim()) {
     return `${env.SITE_URL}/seguimiento?code=${encodeURIComponent(order.trackingNumber.trim())}`
   }

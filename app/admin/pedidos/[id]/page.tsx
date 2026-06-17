@@ -108,36 +108,39 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
             <div className="rounded-[24px] border border-black/8 p-5">
               <h2 className="text-lg font-semibold text-black/82">Productos</h2>
               <div className="mt-4 space-y-3">
-                {order.items.map((item) => (
-                  <div key={item.id} className="flex items-start justify-between gap-4 rounded-[18px] border border-black/8 px-4 py-4">
-                    <div className="min-w-0 flex-1">
-                      <p className="font-medium text-black/84">{item.productName}</p>
-                      <p className="mt-1 text-xs uppercase tracking-[0.14em] text-black/46">
-                        {item.colorName} · {item.size} · x{item.quantity}
-                      </p>
-                      {item.exchangeRequests[0] ? (
+                {order.items.map((item) => {
+                  const exchangeRequest = 'exchangeRequests' in item ? item.exchangeRequests[0] : null
+
+                  return (
+                    <div key={item.id} className="flex items-start justify-between gap-4 rounded-[18px] border border-black/8 px-4 py-4">
+                      <div className="min-w-0 flex-1">
+                        <p className="font-medium text-black/84">{item.productName}</p>
+                        <p className="mt-1 text-xs uppercase tracking-[0.14em] text-black/46">
+                          {item.colorName} · {item.size} · x{item.quantity}
+                        </p>
+                        {exchangeRequest ? (
                         <div className="mt-3 rounded-[16px] border border-sky-200 bg-sky-50 px-3 py-3 text-xs leading-6 text-sky-900">
                           <p>
-                            Cambio solicitado: {item.exchangeRequests[0].currentSize} por {item.exchangeRequests[0].requestedSize} ·{' '}
-                            {getExchangeStatusLabel(item.exchangeRequests[0].status)}
+                            Cambio solicitado: {exchangeRequest.currentSize} por {exchangeRequest.requestedSize} ·{' '}
+                            {getExchangeStatusLabel(exchangeRequest.status)}
                           </p>
-                          {item.exchangeRequests[0].status === 'REQUESTED' ? (
+                          {exchangeRequest.status === 'REQUESTED' ? (
                             <p className="mt-1 text-sky-800">
                               Estamos esperando que el cliente confirme que ya despachó la prenda original.
                             </p>
                           ) : null}
-                          {item.exchangeRequests[0].customerShipmentConfirmedAt ? (
+                          {exchangeRequest.customerShipmentConfirmedAt ? (
                             <p className="mt-1 text-sky-800">
                               Cliente confirmó el envío el{' '}
-                              {new Date(item.exchangeRequests[0].customerShipmentConfirmedAt).toLocaleString('es-AR')}
+                              {new Date(exchangeRequest.customerShipmentConfirmedAt).toLocaleString('es-AR')}
                               .
                             </p>
                           ) : null}
-                          {item.exchangeRequests[0].replacementOrderId ? (
+                          {exchangeRequest.replacementOrderId ? (
                             <p className="mt-1 text-sky-800">
                               Recambio generado:{' '}
                               <Link
-                                href={`/admin/pedidos/${item.exchangeRequests[0].replacementOrderId}`}
+                                href={`/admin/pedidos/${exchangeRequest.replacementOrderId}`}
                                 className="font-semibold underline underline-offset-2"
                               >
                                 ver pedido nuevo
@@ -145,9 +148,9 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
                               .
                             </p>
                           ) : null}
-                          {item.exchangeRequests[0].status === 'CUSTOMER_SHIPMENT_CONFIRMED' ? (
+                          {exchangeRequest.status === 'CUSTOMER_SHIPMENT_CONFIRMED' ? (
                             <form action={createReplacementOrderFromExchangeAction} className="mt-3">
-                              <input type="hidden" name="exchangeRequestId" value={item.exchangeRequests[0].id} />
+                              <input type="hidden" name="exchangeRequestId" value={exchangeRequest.id} />
                               <button className="rounded-full border border-sky-300 bg-white px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-sky-900 transition hover:bg-sky-900 hover:text-white">
                                 Confirmar cambio y generar pedido nuevo
                               </button>
@@ -155,10 +158,11 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
                           ) : null}
                         </div>
                       ) : null}
+                      </div>
+                      <p className="font-semibold text-black/84">{formatPrice(item.totalPrice)}</p>
                     </div>
-                    <p className="font-semibold text-black/84">{formatPrice(item.totalPrice)}</p>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             </div>
           </div>
