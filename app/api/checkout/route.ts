@@ -65,7 +65,7 @@ export async function POST(request: Request) {
       })),
     })
 
-    paymentUrl = preference.init_point ?? preference.sandbox_init_point ?? null
+    paymentUrl = preference.sandbox_init_point ?? preference.init_point ?? null
   } else if (result.order.paymentMethod === PaymentMethod.ONLINE) {
     const approvedOrder = await syncApprovedPayment(result.order.id, 'mercadopago-not-configured')
     confirmedOrder = {
