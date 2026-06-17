@@ -50,6 +50,7 @@ export default async function AdminProductsPage({
           mainImageUrl: product.mainImageUrl ?? undefined,
           price: product.price,
           status: product.status,
+          freeShippingUpsell: product.freeShippingUpsell,
           category: { name: product.category.name },
           variants: product.variants.map((variant) => ({
             stock: variant.stock,

@@ -156,6 +156,7 @@ function mapDbProduct(
     featureTags: product.featureTags,
     materials: product.materials,
     careInstructions: product.careInstructions,
+    freeShippingUpsell: product.freeShippingUpsell,
     colors: Array.from(colorMap.values()),
     sizes: Array.from(sizeMap.values()),
     variants: product.variants.map((variant) => ({
@@ -245,6 +246,39 @@ export async function getFeaturedCatalogProducts() {
 export async function getStarCatalogProduct() {
   const items = await getCatalogProducts()
   return items[0]
+}
+
+export async function getFreeShippingUpsellProduct() {
+  try {
+    await prisma.$connect()
+
+    const product = await prisma.product.findFirst({
+      where: {
+        status: ProductStatus.ACTIVE,
+        freeShippingUpsell: true,
+      },
+      include: {
+        category: true,
+        images: {
+          orderBy: [{ sortOrder: 'asc' }, { position: 'asc' }],
+        },
+        variants: {
+          orderBy: [{ colorName: 'asc' }, { size: 'asc' }],
+        },
+        reviews: true,
+        orderItems: {
+          include: {
+            order: true,
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    })
+
+    return product ? mapDbProduct(product) : null
+  } catch {
+    return null
+  }
 }
 
 export async function getAdminSnapshot() {
@@ -580,6 +614,7 @@ export async function saveProductAction(
           categoryId,
           status: statusValue === 'INACTIVE' ? ProductStatus.INACTIVE : ProductStatus.ACTIVE,
           featured: Boolean(formData.get('featured')),
+          freeShippingUpsell: Boolean(formData.get('freeShippingUpsell')),
           productStar: Boolean(formData.get('productStar')),
           useTags,
           featureTags,
@@ -617,6 +652,7 @@ export async function saveProductAction(
           categoryId,
           status: statusValue === 'INACTIVE' ? ProductStatus.INACTIVE : ProductStatus.ACTIVE,
           featured: Boolean(formData.get('featured')),
+          freeShippingUpsell: Boolean(formData.get('freeShippingUpsell')),
           productStar: Boolean(formData.get('productStar')),
           useTags,
           featureTags,

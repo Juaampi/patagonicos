@@ -40,6 +40,7 @@ export default async function EditAdminProductPage({
         materials: editProduct.materials,
         careInstructions: editProduct.careInstructions,
         featured: editProduct.featured,
+        freeShippingUpsell: editProduct.freeShippingUpsell,
         productStar: editProduct.productStar,
         variants: editProduct.variants.map((variant) => ({
           colorName: variant.colorName,

@@ -144,6 +144,7 @@ model Product {
   baseSalesCount    Int              @default(0)
   compareAtPrice    Int?
   featured          Boolean          @default(false)
+  freeShippingUpsell Boolean         @default(false)
   productStar       Boolean          @default(false)
   useTags           String[]
   featureTags       String[]

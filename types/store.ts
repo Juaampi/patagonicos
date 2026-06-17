@@ -56,6 +56,7 @@ export type Product = {
   featureTags: string[]
   materials: string[]
   careInstructions: string[]
+  freeShippingUpsell?: boolean
   colors: ProductColor[]
   sizes: ProductSize[]
   variants: ProductVariant[]

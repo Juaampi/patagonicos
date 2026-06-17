@@ -11,6 +11,7 @@ type AdminProduct = {
   mainImageUrl?: string
   price: number
   status: ProductStatus
+  freeShippingUpsell?: boolean
   category: { name: string }
   variants: Array<{ stock: number; size: string; colorName: string; colorHex: string; sku: string }>
   images: Array<{ url: string; alt: string; colorName: string; type: 'MAIN' | 'COLOR' | 'INFO' | 'LIFESTYLE'; sortOrder: number }>
@@ -47,6 +48,11 @@ export function AdminProductTable({ products }: { products: AdminProduct[] }) {
                       <div className="min-w-0">
                         <p className="truncate font-medium text-black/84">{product.name}</p>
                         <p className="mt-1 truncate text-xs text-black/45">{product.slug}</p>
+                        {product.freeShippingUpsell ? (
+                          <span className="mt-2 inline-flex rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-emerald-800">
+                            Empuje envío gratis
+                          </span>
+                        ) : null}
                       </div>
                     </div>
                   </td>

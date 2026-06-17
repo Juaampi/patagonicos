@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { Instagram, Menu, Moon, ShoppingBag, Sun, UserRound, X } from 'lucide-react'
+import { Menu, Moon, ShoppingBag, Sun, UserRound, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useCart } from '@/components/cart/cart-provider'
 import { BarilocheDeliveryCountdown } from '@/components/marketing/bariloche-delivery-countdown'
@@ -11,6 +11,16 @@ import type { StoreSettingsSnapshot } from '@/lib/store-settings'
 import { cn } from '@/lib/utils'
 
 const instagramUrl = 'https://www.instagram.com/patagonicos.ok/'
+
+function InstagramGlyph({ className = 'h-4 w-4' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className={className} aria-hidden="true">
+      <rect x="3.5" y="3.5" width="17" height="17" rx="4.5" />
+      <circle cx="12" cy="12" r="4" />
+      <circle cx="17.3" cy="6.7" r="0.9" fill="currentColor" stroke="none" />
+    </svg>
+  )
+}
 
 const navItems = [
   { href: '/', label: 'Inicio' },
@@ -223,7 +233,7 @@ export function SiteHeader({ settings }: { settings: StoreSettingsSnapshot }) {
               aria-label="Instagram Patagónicos"
               className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white/78 px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-black/76 shadow-[0_10px_28px_rgba(0,0,0,0.06)] transition hover:bg-black hover:text-white"
             >
-              <Instagram className="h-4 w-4" />
+              <InstagramGlyph className="h-4 w-4" />
               patagonicos.ok
             </Link>
             {renderThemeToggle()}
@@ -298,7 +308,7 @@ export function SiteHeader({ settings }: { settings: StoreSettingsSnapshot }) {
                 className="flex items-center justify-between rounded-[22px] border border-black/8 bg-[#fafaf7] px-4 py-4 text-[12px] font-semibold uppercase tracking-[0.12em] text-black/82 transition hover:bg-white"
               >
                 <span className="inline-flex items-center gap-2">
-                  <Instagram className="h-4.5 w-4.5" />
+                  <InstagramGlyph className="h-4.5 w-4.5" />
                   Instagram
                 </span>
                 <span className="text-[10px] tracking-[0.14em] text-black/52">patagonicos.ok</span>
