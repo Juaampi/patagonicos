@@ -1,6 +1,20 @@
 import { MercadoPagoConfig, Preference } from 'mercadopago'
 import { env } from './env'
 
+type MercadoPagoPreferenceItem = {
+  id: string
+  title: string
+  quantity: number
+  currency_id?: 'ARS'
+  unit_price: number
+}
+
+type MercadoPagoPreferenceResponse = {
+  id?: string
+  init_point?: string | null
+  sandbox_init_point?: string | null
+}
+
 function getClient() {
   if (!env.MERCADOPAGO_ACCESS_TOKEN) {
     throw new Error('Mercado Pago access token not configured')
@@ -13,6 +27,33 @@ function getClient() {
 
 export function getMercadoPagoWebhookUrl() {
   return new URL('/api/mercadopago/webhook', env.SITE_URL).toString()
+}
+
+export function getMercadoPagoAccessTokenSummary() {
+  const token = env.MERCADOPAGO_ACCESS_TOKEN ?? ''
+
+  return {
+    configured: Boolean(token),
+    prefix: token.slice(0, 12),
+    suffix: token.slice(-6),
+    isTestToken: token.startsWith('TEST-'),
+    isProdLikeToken: token.startsWith('APP_USR-'),
+  }
+}
+
+export function logMercadoPagoPreference(
+  label: string,
+  preference: MercadoPagoPreferenceResponse,
+  extra?: Record<string, unknown>,
+) {
+  console.info(`[mercadopago] ${label}`, {
+    ...extra,
+    preferenceId: preference.id ?? null,
+    initPoint: preference.init_point ?? null,
+    sandboxInitPoint: preference.sandbox_init_point ?? null,
+    siteUrl: env.SITE_URL,
+    accessToken: getMercadoPagoAccessTokenSummary(),
+  })
 }
 
 export async function getMercadoPagoPaymentById(paymentId: string) {
@@ -48,7 +89,7 @@ export async function createPendingPreference(input: {
   orderNumber: string
   shortCode?: string | null
   email: string
-  items: Array<{ id: string; title: string; quantity: number; unit_price: number }>
+  items: MercadoPagoPreferenceItem[]
 }) {
   const preference = new Preference(getClient())
   const successUrl = new URL('/checkout/resultado', env.SITE_URL)
@@ -70,9 +111,12 @@ export async function createPendingPreference(input: {
   failureUrl.searchParams.set('order', input.orderId)
   failureUrl.searchParams.set('email', input.email)
 
-  return preference.create({
+  const response = await preference.create({
     body: {
-      items: input.items,
+      items: input.items.map((item) => ({
+        ...item,
+        currency_id: item.currency_id ?? 'ARS',
+      })),
       external_reference: input.orderId,
       back_urls: {
         success: successUrl.toString(),
@@ -85,4 +129,40 @@ export async function createPendingPreference(input: {
       },
     },
   })
+
+  logMercadoPagoPreference('standard preference created', response, {
+    orderId: input.orderId,
+    orderNumber: input.orderNumber,
+    hasBackUrls: true,
+    hasNotificationUrl: true,
+    itemCount: input.items.length,
+  })
+
+  return response
+}
+
+export async function createMinimalTestPreference() {
+  const preference = new Preference(getClient())
+  const response = await preference.create({
+    body: {
+      items: [
+        {
+          id: 'mp-test-item',
+          title: 'Prueba Patagonicos',
+          quantity: 1,
+          currency_id: 'ARS',
+          unit_price: 100,
+        },
+      ],
+    },
+  })
+
+  logMercadoPagoPreference('minimal test preference created', response, {
+    hasBackUrls: false,
+    hasNotificationUrl: false,
+    hasPayer: false,
+    itemCount: 1,
+  })
+
+  return response
 }

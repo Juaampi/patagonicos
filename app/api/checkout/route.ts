@@ -61,11 +61,22 @@ export async function POST(request: Request) {
         id: item.productId,
         title: `${item.productName} - ${item.colorName} - ${item.size}`,
         quantity: item.quantity,
+        currency_id: 'ARS',
         unit_price: item.unitPrice,
       })),
     })
 
-    paymentUrl = preference.sandbox_init_point ?? preference.init_point ?? null
+    paymentUrl = preference.sandbox_init_point ?? null
+
+    console.info('[checkout] mercado pago preference selected', {
+      orderId: result.order.id,
+      orderNumber: result.order.orderNumber,
+      preferenceId: preference.id ?? null,
+      initPoint: preference.init_point ?? null,
+      sandboxInitPoint: preference.sandbox_init_point ?? null,
+      selectedPaymentUrl: paymentUrl,
+      usingSandboxOnly: true,
+    })
   } else if (result.order.paymentMethod === PaymentMethod.ONLINE) {
     const approvedOrder = await syncApprovedPayment(result.order.id, 'mercadopago-not-configured')
     confirmedOrder = {

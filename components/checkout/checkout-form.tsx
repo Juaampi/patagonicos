@@ -379,6 +379,11 @@ export function CheckoutForm({ items, settings }: CheckoutFormProps) {
     })
 
     if (data.paymentUrl) {
+      console.info('[checkout] redirecting to Mercado Pago', {
+        orderId: data.orderId ?? null,
+        orderNumber: data.orderNumber ?? null,
+        paymentUrl: data.paymentUrl,
+      })
       window.location.assign(data.paymentUrl)
       return
     }
