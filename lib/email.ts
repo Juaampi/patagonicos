@@ -16,13 +16,23 @@ export async function sendEmail({
 }) {
   if (env.EMAIL_PROVIDER === 'resend' && env.RESEND_API_KEY) {
     const resend = new Resend(env.RESEND_API_KEY)
-    return resend.emails.send({
+    const result = await resend.emails.send({
       from: from ?? `Patagonicos Ventas <${env.FROM_EMAIL}>`,
       to,
       subject,
       html,
       ...(replyTo ? { replyTo } : {}),
     })
+
+    if (result.error) {
+      throw new Error(
+        typeof result.error === 'object' && result.error && 'message' in result.error
+          ? String(result.error.message)
+          : 'Resend email send failed.',
+      )
+    }
+
+    return result
   }
 
   console.info('[email:console]', { to, subject, from: from ?? `Patagonicos Ventas <${env.FROM_EMAIL}>`, replyTo })

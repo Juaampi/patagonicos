@@ -24,6 +24,9 @@ export function CheckoutReturnScreen({
 }: CheckoutReturnScreenProps) {
   const router = useRouter()
   const [countdown, setCountdown] = useState(5)
+  const [confirmationStatus, setConfirmationStatus] = useState<'idle' | 'confirming' | 'confirmed' | 'failed'>(
+    paymentId ? 'confirming' : 'idle',
+  )
 
   useEffect(() => {
     if (status !== 'success' || !paymentId) {
@@ -36,16 +39,51 @@ export function CheckoutReturnScreen({
       url.searchParams.set('order', orderId)
     }
 
-    void fetch(url.toString(), {
-      method: 'GET',
-      cache: 'no-store',
-    }).catch(() => {
-      // If confirmation from the return screen fails, the webhook can still reconcile the order.
-    })
+    let cancelled = false
+
+    async function confirmPayment() {
+      setConfirmationStatus('confirming')
+
+      for (let attempt = 0; attempt < 2; attempt += 1) {
+        try {
+          const response = await fetch(url.toString(), {
+            method: 'GET',
+            cache: 'no-store',
+            keepalive: true,
+          })
+          const data = (await response.json()) as { ok?: boolean }
+
+          if (!cancelled && response.ok && data.ok) {
+            setConfirmationStatus('confirmed')
+            return
+          }
+        } catch {
+          // Retry once before giving up. The webhook can still reconcile later.
+        }
+
+        if (attempt === 0) {
+          await new Promise((resolve) => window.setTimeout(resolve, 1200))
+        }
+      }
+
+      if (!cancelled) {
+        setConfirmationStatus('failed')
+      }
+    }
+
+    void confirmPayment()
+
+    return () => {
+      cancelled = true
+    }
   }, [orderId, paymentId, status])
 
   useEffect(() => {
     if (status !== 'success' || !email || !orderId) {
+      return
+    }
+
+    if (paymentId && confirmationStatus === 'confirming') {
       return
     }
 
@@ -68,7 +106,7 @@ export function CheckoutReturnScreen({
       window.clearInterval(interval)
       window.clearTimeout(timeout)
     }
-  }, [email, orderId, router, status])
+  }, [confirmationStatus, email, orderId, paymentId, router, status])
 
   if (status === 'success') {
     return (
@@ -87,6 +125,16 @@ export function CheckoutReturnScreen({
                 <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-white/88 md:text-base md:leading-8">
                   Recibimos la confirmación de Mercado Pago y ya dejamos listo el acceso para seguir el estado de tu pedido.
                 </p>
+                {paymentId && confirmationStatus === 'confirming' ? (
+                  <p className="mx-auto mt-4 max-w-2xl text-xs font-semibold uppercase tracking-[0.18em] text-white/72">
+                    Confirmando pago en el sistema…
+                  </p>
+                ) : null}
+                {paymentId && confirmationStatus === 'failed' ? (
+                  <p className="mx-auto mt-4 max-w-2xl text-xs font-semibold uppercase tracking-[0.18em] text-white/72">
+                    El pago fue aprobado. Si la cuenta tarda en actualizar, refrescá en unos segundos.
+                  </p>
+                ) : null}
               </div>
             </div>
 
