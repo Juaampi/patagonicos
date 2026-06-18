@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import {
+  createCheckoutDebugPreference,
   createMinimalTestPreference,
   getMercadoPagoAccessTokenSummary,
   getMercadoPagoPreferenceById,
@@ -11,9 +12,15 @@ export const dynamic = 'force-dynamic'
 
 export async function GET() {
   try {
+    const buyerEmail = 'test_user_checkout@example.com'
     const preference = await createMinimalTestPreference()
     const preferenceId = preference.id ?? null
     const fetchedPreference = preferenceId ? await getMercadoPagoPreferenceById(preferenceId) : null
+    const checkoutPreference = await createCheckoutDebugPreference({ email: buyerEmail })
+    const checkoutPreferenceId = checkoutPreference.id ?? null
+    const fetchedCheckoutPreference = checkoutPreferenceId
+      ? await getMercadoPagoPreferenceById(checkoutPreferenceId)
+      : null
 
     return NextResponse.json(
       {
@@ -36,6 +43,26 @@ export async function GET() {
               back_urls: fetchedPreference.back_urls ?? null,
               payer: fetchedPreference.payer ?? null,
               items: fetchedPreference.items ?? null,
+            }
+          : null,
+        checkoutLikePreference: checkoutPreference
+          ? {
+              id: checkoutPreference.id ?? null,
+              init_point: checkoutPreference.init_point ?? null,
+              sandbox_init_point: checkoutPreference.sandbox_init_point ?? null,
+              payer_email: buyerEmail,
+            }
+          : null,
+        fetchedCheckoutLikePreference: fetchedCheckoutPreference
+          ? {
+              id: fetchedCheckoutPreference.id ?? null,
+              external_reference: fetchedCheckoutPreference.external_reference ?? null,
+              init_point: fetchedCheckoutPreference.init_point ?? null,
+              sandbox_init_point: fetchedCheckoutPreference.sandbox_init_point ?? null,
+              notification_url: fetchedCheckoutPreference.notification_url ?? null,
+              back_urls: fetchedCheckoutPreference.back_urls ?? null,
+              payer: fetchedCheckoutPreference.payer ?? null,
+              items: fetchedCheckoutPreference.items ?? null,
             }
           : null,
       },

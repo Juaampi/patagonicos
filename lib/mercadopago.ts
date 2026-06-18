@@ -214,3 +214,57 @@ export async function createMinimalTestPreference() {
 
   return response
 }
+
+export async function createCheckoutDebugPreference(input?: { email?: string }) {
+  const preference = new Preference(getClient())
+  const successUrl = new URL('/checkout/resultado', env.SITE_URL)
+  successUrl.searchParams.set('status', 'success')
+  successUrl.searchParams.set('order', 'debug-order')
+  successUrl.searchParams.set('email', input?.email ?? 'buyer.test@example.com')
+
+  const pendingUrl = new URL('/checkout/resultado', env.SITE_URL)
+  pendingUrl.searchParams.set('status', 'pending')
+  pendingUrl.searchParams.set('order', 'debug-order')
+  pendingUrl.searchParams.set('email', input?.email ?? 'buyer.test@example.com')
+
+  const failureUrl = new URL('/checkout/resultado', env.SITE_URL)
+  failureUrl.searchParams.set('status', 'failure')
+  failureUrl.searchParams.set('order', 'debug-order')
+  failureUrl.searchParams.set('email', input?.email ?? 'buyer.test@example.com')
+
+  const response = await preference.create({
+    body: {
+      items: [
+        {
+          id: 'mp-debug-checkout-item',
+          title: 'Debug Checkout Patagonicos',
+          quantity: 1,
+          currency_id: 'ARS',
+          unit_price: 100,
+        },
+      ],
+      external_reference: 'debug-order',
+      payer: {
+        email: input?.email ?? 'buyer.test@example.com',
+      },
+      back_urls: {
+        success: successUrl.toString(),
+        failure: failureUrl.toString(),
+        pending: pendingUrl.toString(),
+      },
+      notification_url: getMercadoPagoWebhookUrl(),
+      metadata: {
+        orderId: 'debug-order',
+      },
+    },
+  })
+
+  logMercadoPagoPreference('debug checkout preference created', response, {
+    payerEmail: input?.email ?? 'buyer.test@example.com',
+    hasBackUrls: true,
+    hasNotificationUrl: true,
+    itemCount: 1,
+  })
+
+  return response
+}
