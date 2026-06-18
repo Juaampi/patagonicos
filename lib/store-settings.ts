@@ -36,14 +36,16 @@ export function getCheckoutPreview(
 ) {
   const isBarilocheCustomer = isBarilocheLocation(city, province)
   const isEligibleForBariloche = settings.barilocheEnabled && isBarilocheCustomer
-  const qualifiesForFreeShipping = isEligibleForBariloche && subtotal >= settings.localDeliveryFreeThreshold
+  const qualifiesForFreeShipping = subtotal >= settings.localDeliveryFreeThreshold
   const discountPercent = isBarilocheCustomer ? settings.barilocheDiscountPercent : 0
   const discountAmount = Math.round((subtotal * discountPercent) / 100)
   const shippingAmount = isEligibleForBariloche
     ? qualifiesForFreeShipping
       ? 0
       : settings.localDeliveryCost
-    : settings.nationalShippingCost
+    : qualifiesForFreeShipping
+      ? 0
+      : settings.nationalShippingCost
 
   return {
     isBariloche: isEligibleForBariloche,
