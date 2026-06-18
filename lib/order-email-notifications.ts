@@ -537,11 +537,18 @@ export async function sendOrderPaidNotification(orderId: string) {
     return
   }
 
-  await sendSafeEmail({
-    to: order.customer.email,
-    subject: `Pago confirmado: ${order.shortCode ?? order.orderNumber}`,
-    html: buildCustomerStatusHtml(order),
-  })
+  await Promise.all([
+    sendSafeEmail({
+      to: order.customer.email,
+      subject: `Pago confirmado: ${order.shortCode ?? order.orderNumber}`,
+      html: buildCustomerStatusHtml(order),
+    }),
+    sendSafeEmail({
+      to: env.ADMIN_EMAIL,
+      subject: `[ADMIN] Pago confirmado - ${order.shortCode ?? order.orderNumber} - ${order.customer.fullName ?? order.customer.email}`,
+      html: buildAdminOrderCreatedHtml(order),
+    }),
+  ])
 }
 
 export async function sendOrderStatusChangedNotification(orderId: string) {
