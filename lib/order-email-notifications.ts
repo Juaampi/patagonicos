@@ -56,15 +56,61 @@ function getShippingMethodLabel(method: string) {
   return labels[method] ?? method
 }
 
+function getEmailStatusTone(status: string) {
+  if (status === 'PAID' || status === 'READY_FOR_LOCAL_DELIVERY' || status === 'READY_FOR_NATIONAL_SHIPPING') {
+    return {
+      background: '#dcfce7',
+      text: '#166534',
+      border: '#bbf7d0',
+    }
+  }
+
+  if (status === 'PENDING' || status === 'PENDING_PAYMENT' || status === 'EN_PREPARACION') {
+    return {
+      background: '#fef3c7',
+      text: '#92400e',
+      border: '#fde68a',
+    }
+  }
+
+  return {
+    background: '#e5e7eb',
+    text: '#111827',
+    border: '#d1d5db',
+  }
+}
+
+function buildEmailStatusBadge(label: string, status: string) {
+  const tone = getEmailStatusTone(status)
+
+  return `
+    <span style="display:inline-block;padding:8px 12px;border-radius:999px;background:${tone.background};color:${tone.text};border:1px solid ${tone.border};font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;">
+      ${label}
+    </span>
+  `
+}
+
+function buildInfoCard(label: string, value: string, secondary?: string) {
+  return `
+    <td style="width:33.33%;padding:0 6px 12px;vertical-align:top;">
+      <div style="height:100%;border:1px solid #e5e7eb;border-radius:20px;background:#f8fafc;padding:16px 16px 14px;">
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:#6b7280;">${label}</div>
+        <div style="margin-top:8px;font-size:18px;line-height:1.25;font-weight:700;color:#111827;">${value}</div>
+        ${secondary ? `<div style="margin-top:6px;font-size:13px;line-height:1.5;color:#4b5563;">${secondary}</div>` : ''}
+      </div>
+    </td>
+  `
+}
+
 function buildItemsMarkup(order: OrderEmailRecord) {
   return order.items
     .map((item) => {
       return `<tr>
-        <td style="padding:10px 0;border-bottom:1px solid #e5e7eb;">
-          <div style="font-weight:600;color:#111827;">${item.productName}</div>
-          <div style="font-size:12px;color:#6b7280;">${item.colorName} · ${item.size} · x${item.quantity}</div>
+        <td style="padding:14px 0;border-bottom:1px solid #e5e7eb;">
+          <div style="font-size:15px;font-weight:700;color:#111827;">${item.productName}</div>
+          <div style="margin-top:6px;font-size:12px;color:#6b7280;">${item.colorName} · ${item.size} · x${item.quantity}</div>
         </td>
-        <td style="padding:10px 0;border-bottom:1px solid #e5e7eb;text-align:right;font-weight:600;color:#111827;">${formatPrice(item.totalPrice)}</td>
+        <td style="padding:14px 0;border-bottom:1px solid #e5e7eb;text-align:right;font-size:15px;font-weight:700;color:#111827;">${formatPrice(item.totalPrice)}</td>
       </tr>`
     })
     .join('')
@@ -99,20 +145,24 @@ function buildOrderSummaryMarkup(order: OrderEmailRecord) {
 }
 
 function buildEmailShell(title: string, eyebrow: string, body: string) {
-  const logoUrl = `${env.SITE_URL}/brand-logo-tight.png`
+  const logoUrl = `${env.SITE_URL}/brand-mini-logo-tight.png`
 
   return `<!DOCTYPE html>
   <html lang="es">
-    <body style="margin:0;background:#f3f5f2;padding:24px;font-family:Arial,sans-serif;color:#111827;">
-      <div style="max-width:720px;margin:0 auto;background:#ffffff;border:1px solid #e5e7eb;border-radius:28px;overflow:hidden;">
-        <div style="padding:32px;background:linear-gradient(135deg,#111827 0%,#1f2937 100%);color:#ffffff;">
-          <div style="display:inline-flex;align-items:center;justify-content:center;padding:12px 16px;border-radius:18px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);">
-            <img src="${logoUrl}" alt="Patagonicos" width="186" height="38" style="display:block;max-width:186px;height:auto;" />
+    <body style="margin:0;background:#eff3ec;padding:24px;font-family:Arial,sans-serif;color:#111827;">
+      <div style="max-width:760px;margin:0 auto;background:#ffffff;border:1px solid #dfe7dc;border-radius:32px;overflow:hidden;">
+        <div style="padding:32px;background:linear-gradient(135deg,#0f172a 0%,#1f2937 55%,#3f5a40 100%);color:#ffffff;">
+          <div style="display:inline-flex;align-items:center;gap:12px;padding:12px 16px;border-radius:18px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);">
+            <img src="${logoUrl}" alt="Patagónicos" width="44" height="44" style="display:block;width:44px;height:44px;border-radius:12px;background:#ffffff;" />
+            <div>
+              <div style="font-size:16px;font-weight:700;letter-spacing:0.01em;color:#ffffff;">Patagónicos</div>
+              <div style="margin-top:2px;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.72);">Outdoor para mascotas</div>
+            </div>
           </div>
-          <div style="font-size:11px;font-weight:700;letter-spacing:0.28em;text-transform:uppercase;color:rgba(255,255,255,0.72);">${eyebrow}</div>
-          <h1 style="margin:16px 0 0;font-size:34px;line-height:1.05;">${title}</h1>
+          <div style="margin-top:22px;font-size:11px;font-weight:700;letter-spacing:0.28em;text-transform:uppercase;color:rgba(255,255,255,0.72);">${eyebrow}</div>
+          <h1 style="margin:16px 0 0;font-size:34px;line-height:1.05;letter-spacing:-0.04em;">${title}</h1>
         </div>
-        <div style="padding:28px 32px;">
+        <div style="padding:32px;">
           ${body}
         </div>
       </div>
@@ -221,21 +271,72 @@ function buildAdminOrderCreatedHtml(order: OrderEmailRecord) {
 }
 
 function buildCustomerStatusHtml(order: OrderEmailRecord) {
-  const trackingBlock = order.trackingNumber
-    ? `<p style="margin:0 0 14px;font-size:15px;line-height:1.7;">Tracking: <strong>${order.trackingNumber}</strong>.</p>`
+  const paymentBadge = buildEmailStatusBadge(getOrderStateLabel(order.paymentStatus), order.paymentStatus)
+  const orderBadge = buildEmailStatusBadge(getOrderStateLabel(order.status), order.status)
+  const trackingBlock = order.trackingNumber?.trim()
+    ? `
+      <div style="margin-top:16px;border:1px solid #dbeafe;background:#eff6ff;border-radius:20px;padding:16px 18px;">
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:#1d4ed8;">Tracking</div>
+        <div style="margin-top:8px;font-size:18px;font-weight:700;color:#111827;">${order.trackingNumber}</div>
+      </div>
+    `
     : ''
+  const addressLine = order.address
+    ? [order.address.line1, order.address.city, order.address.province, order.address.postalCode].filter(Boolean).join(' · ')
+    : 'Lo vas a poder seguir desde tu cuenta.'
+  const displayCode = order.shortCode ?? order.orderNumber
 
   return buildEmailShell(
-    `Actualización de tu pedido ${order.shortCode ?? order.orderNumber}`,
-    'Estado actualizado',
+    `Pago confirmado para ${displayCode}`,
+    'Pago acreditado',
     `
-      <p style="margin:0 0 14px;font-size:15px;line-height:1.7;">Hola ${order.customer.fullName ?? ''}, te avisamos que cambió el estado de tu pedido.</p>
-      <p style="margin:0 0 14px;font-size:15px;line-height:1.7;">Estado del pedido: <strong>${getOrderStateLabel(order.status)}</strong>.</p>
-      <p style="margin:0 0 14px;font-size:15px;line-height:1.7;">Estado del envío: <strong>${getOrderStateLabel(order.shippingStatus)}</strong>.</p>
-      <p style="margin:0 0 14px;font-size:15px;line-height:1.7;">Estado del pago: <strong>${getOrderStateLabel(order.paymentStatus)}</strong>.</p>
-      ${trackingBlock}
+      <p style="margin:0;font-size:15px;line-height:1.8;color:#334155;">
+        Hola ${order.customer.fullName ?? ''}, ya acreditamos tu pago y tu pedido quedó listo dentro de tu cuenta para seguir cada etapa del proceso.
+      </p>
+
+      <div style="margin-top:22px;border:1px solid #e5e7eb;border-radius:28px;background:linear-gradient(180deg,#fbfbf8 0%,#f5f7f2 100%);padding:24px;">
+        <table role="presentation" style="width:100%;border-collapse:collapse;">
+          <tr>
+            <td style="padding:0;vertical-align:top;">
+              <div style="font-size:11px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#6b7280;">Pedido ${displayCode}</div>
+              <div style="margin-top:12px;font-size:32px;line-height:1.05;font-weight:700;letter-spacing:-0.05em;color:#111827;">${getOrderStateLabel(order.status)}</div>
+              <div style="margin-top:12px;">${orderBadge}&nbsp;${paymentBadge}</div>
+              <div style="margin-top:12px;font-size:14px;line-height:1.7;color:#4b5563;">
+                ${new Date(order.createdAt).toLocaleDateString('es-AR')} · ${getShippingMethodLabel(order.shippingMethod)}
+              </div>
+            </td>
+            <td style="padding:0;text-align:right;vertical-align:top;">
+              <div style="font-size:11px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:#6b7280;">Total</div>
+              <div style="margin-top:10px;font-size:30px;line-height:1;font-weight:700;color:#111827;">${formatPrice(order.total)}</div>
+              <div style="margin-top:10px;font-size:13px;line-height:1.6;color:#4b5563;">${order.orderNumber}</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <table role="presentation" style="width:100%;border-collapse:collapse;margin-top:18px;">
+        <tr>
+          ${buildInfoCard('Pago', getOrderStateLabel(order.paymentStatus), 'Mercado Pago ya confirmó la acreditación.')}
+          ${buildInfoCard('Envío', getOrderStateLabel(order.shippingStatus), getShippingMethodLabel(order.shippingMethod))}
+          ${buildInfoCard('Entrega', order.address?.city ?? 'Cuenta del pedido', order.address?.province ?? 'Seguimiento disponible en tu panel')}
+        </tr>
+      </table>
+
+      <div style="margin-top:6px;border:1px solid #e5e7eb;border-radius:24px;background:#ffffff;padding:22px 24px;">
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#6b7280;">Productos del pedido</div>
+        ${buildOrderSummaryMarkup(order)}
+      </div>
+
+      <div style="margin-top:18px;border:1px solid #e5e7eb;border-radius:24px;background:#ffffff;padding:20px 24px;">
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#6b7280;">Seguimiento y datos</div>
+        <p style="margin:12px 0 0;font-size:15px;line-height:1.8;color:#334155;">
+          ${addressLine}
+        </p>
+        ${trackingBlock}
+      </div>
+
       <div style="margin-top:24px;">
-        <a href="${buildTrackingUrl(order)}" style="display:inline-block;padding:14px 22px;border-radius:999px;background:#111827;color:#ffffff;text-decoration:none;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;font-size:12px;">Ver seguimiento</a>
+        <a href="${buildTrackingUrl(order)}" style="display:inline-block;padding:14px 22px;border-radius:999px;background:#111827;color:#ffffff;text-decoration:none;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;font-size:12px;">Ver mi pedido</a>
       </div>
     `,
   )

@@ -634,7 +634,7 @@ export function CheckoutForm({ items, settings }: CheckoutFormProps) {
                       ref={phoneAreaCodeRef}
                       value={form.phoneAreaCode}
                       onChange={(event) => updateField('phoneAreaCode', event.target.value.replace(/\D/g, '').slice(0, 5))}
-                      placeholder="223"
+                      placeholder="11"
                       className="mt-2 h-8 w-full bg-transparent text-sm outline-none"
                     />
                   </div>
@@ -645,7 +645,7 @@ export function CheckoutForm({ items, settings }: CheckoutFormProps) {
                         ref={phoneNumberRef}
                         value={form.phoneNumber}
                         onChange={(event) => updateField('phoneNumber', event.target.value.replace(/\D/g, '').slice(0, 10))}
-                        placeholder="6355537"
+                        placeholder="12345678"
                         className="h-8 w-full bg-transparent text-sm outline-none"
                       />
                     </div>

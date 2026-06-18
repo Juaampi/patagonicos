@@ -90,29 +90,41 @@ export async function POST(request: NextRequest) {
   try {
     const rawBody = await request.text()
     const body = rawBody ? (JSON.parse(rawBody) as MercadoPagoWebhookBody) : {}
-    const dataId =
-      request.nextUrl.searchParams.get('data.id') ??
-      request.nextUrl.searchParams.get('data_id') ??
-      String(body.data?.id ?? '').trim()
-
-    if (!isValidMercadoPagoSignature(request, dataId)) {
-      return NextResponse.json({ ok: false, message: 'Invalid Mercado Pago signature.' }, { status: 401 })
-    }
-
     const topic =
       String(body.type ?? '').trim() ||
       String(request.nextUrl.searchParams.get('topic') ?? '').trim() ||
       String(request.nextUrl.searchParams.get('type') ?? '').trim()
+    const dataId =
+      request.nextUrl.searchParams.get('data.id') ??
+      request.nextUrl.searchParams.get('data_id') ??
+      request.nextUrl.searchParams.get('id') ??
+      String(body.data?.id ?? '').trim()
+    const hasSignature = Boolean(request.headers.get('x-signature'))
+    const hasRequestId = Boolean(request.headers.get('x-request-id'))
+    const isSignedWebhookFormat =
+      hasSignature || hasRequestId || Boolean(request.nextUrl.searchParams.get('data.id')) || Boolean(request.nextUrl.searchParams.get('data_id'))
 
     console.info('[mercadopago-webhook] received', {
       dataId: dataId || null,
       topic: topic || 'unknown',
-      hasSignature: Boolean(request.headers.get('x-signature')),
-      hasRequestId: Boolean(request.headers.get('x-request-id')),
+      hasSignature,
+      hasRequestId,
+      isSignedWebhookFormat,
     })
 
     if (topic !== 'payment' || !dataId) {
       return NextResponse.json({ ok: true, ignored: true, topic: topic || 'unknown' })
+    }
+
+    if (isSignedWebhookFormat && !isValidMercadoPagoSignature(request, dataId)) {
+      console.warn('[mercadopago-webhook] invalid signature', {
+        dataId,
+        topic,
+        hasSignature,
+        hasRequestId,
+      })
+
+      return NextResponse.json({ ok: false, message: 'Invalid Mercado Pago signature.' }, { status: 401 })
     }
 
     const payment = await getMercadoPagoPaymentById(dataId)
