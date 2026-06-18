@@ -10,6 +10,7 @@ type CheckoutReturnScreenProps = {
   orderId?: string
   orderNumber?: string
   shortCode?: string
+  paymentId?: string
   status: 'success' | 'pending' | 'failure'
 }
 
@@ -18,10 +19,30 @@ export function CheckoutReturnScreen({
   orderId,
   orderNumber,
   shortCode,
+  paymentId,
   status,
 }: CheckoutReturnScreenProps) {
   const router = useRouter()
   const [countdown, setCountdown] = useState(5)
+
+  useEffect(() => {
+    if (status !== 'success' || !paymentId) {
+      return
+    }
+
+    const url = new URL('/api/checkout/confirm', window.location.origin)
+    url.searchParams.set('payment_id', paymentId)
+    if (orderId) {
+      url.searchParams.set('order', orderId)
+    }
+
+    void fetch(url.toString(), {
+      method: 'GET',
+      cache: 'no-store',
+    }).catch(() => {
+      // If confirmation from the return screen fails, the webhook can still reconcile the order.
+    })
+  }, [orderId, paymentId, status])
 
   useEffect(() => {
     if (status !== 'success' || !email || !orderId) {
