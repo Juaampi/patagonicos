@@ -15,6 +15,25 @@ type MercadoPagoPreferenceResponse = {
   sandbox_init_point?: string | null
 }
 
+type MercadoPagoPreferenceDebugRecord = {
+  label: string
+  createdAt: string
+  input: Record<string, unknown>
+  response: {
+    id: string | null
+    init_point: string | null
+    sandbox_init_point: string | null
+  }
+  env: {
+    siteUrl: string
+    accessToken: ReturnType<typeof getMercadoPagoAccessTokenSummary>
+  }
+}
+
+declare global {
+  var __mpPreferenceDebug: MercadoPagoPreferenceDebugRecord | undefined
+}
+
 type MercadoPagoPreferenceLookupResponse = {
   id?: string
   init_point?: string | null
@@ -77,6 +96,14 @@ export function logMercadoPagoPreference(
     siteUrl: env.SITE_URL,
     accessToken: getMercadoPagoAccessTokenSummary(),
   })
+}
+
+function setLatestPreferenceDebug(record: MercadoPagoPreferenceDebugRecord) {
+  globalThis.__mpPreferenceDebug = record
+}
+
+export function getLatestPreferenceDebug() {
+  return globalThis.__mpPreferenceDebug ?? null
 }
 
 export async function getMercadoPagoPaymentById(paymentId: string) {
@@ -155,23 +182,25 @@ export async function createPendingPreference(input: {
   failureUrl.searchParams.set('order', input.orderId)
   failureUrl.searchParams.set('email', input.email)
 
-  const response = await preference.create({
-    body: {
-      items: input.items.map((item) => ({
-        ...item,
-        currency_id: item.currency_id ?? 'ARS',
-      })),
-      external_reference: input.orderId,
-      back_urls: {
-        success: successUrl.toString(),
-        failure: failureUrl.toString(),
-        pending: pendingUrl.toString(),
-      },
-      notification_url: getMercadoPagoWebhookUrl(),
-      metadata: {
-        orderId: input.orderId,
-      },
+  const requestBody = {
+    items: input.items.map((item) => ({
+      ...item,
+      currency_id: item.currency_id ?? 'ARS',
+    })),
+    external_reference: input.orderId,
+    back_urls: {
+      success: successUrl.toString(),
+      failure: failureUrl.toString(),
+      pending: pendingUrl.toString(),
     },
+    notification_url: getMercadoPagoWebhookUrl(),
+    metadata: {
+      orderId: input.orderId,
+    },
+  }
+
+  const response = await preference.create({
+    body: requestBody,
   })
 
   logMercadoPagoPreference('standard preference created', response, {
@@ -181,6 +210,21 @@ export async function createPendingPreference(input: {
     hasBackUrls: true,
     hasNotificationUrl: true,
     itemCount: input.items.length,
+  })
+
+  setLatestPreferenceDebug({
+    label: 'standard preference created',
+    createdAt: new Date().toISOString(),
+    input: requestBody,
+    response: {
+      id: response.id ?? null,
+      init_point: response.init_point ?? null,
+      sandbox_init_point: response.sandbox_init_point ?? null,
+    },
+    env: {
+      siteUrl: env.SITE_URL,
+      accessToken: getMercadoPagoAccessTokenSummary(),
+    },
   })
 
   return response
@@ -209,6 +253,31 @@ export async function createMinimalTestPreference() {
     itemCount: 1,
   })
 
+  setLatestPreferenceDebug({
+    label: 'minimal test preference created',
+    createdAt: new Date().toISOString(),
+    input: {
+      items: [
+        {
+          id: 'mp-test-item',
+          title: 'Prueba Patagonicos',
+          quantity: 1,
+          currency_id: 'ARS',
+          unit_price: 100,
+        },
+      ],
+    },
+    response: {
+      id: response.id ?? null,
+      init_point: response.init_point ?? null,
+      sandbox_init_point: response.sandbox_init_point ?? null,
+    },
+    env: {
+      siteUrl: env.SITE_URL,
+      accessToken: getMercadoPagoAccessTokenSummary(),
+    },
+  })
+
   return response
 }
 
@@ -229,31 +298,33 @@ export async function createCheckoutDebugPreference(input?: { email?: string }) 
   failureUrl.searchParams.set('order', 'debug-order')
   failureUrl.searchParams.set('email', input?.email ?? 'buyer.test@example.com')
 
-  const response = await preference.create({
-    body: {
-      items: [
-        {
-          id: 'mp-debug-checkout-item',
-          title: 'Debug Checkout Patagonicos',
-          quantity: 1,
-          currency_id: 'ARS',
-          unit_price: 100,
-        },
-      ],
-      external_reference: 'debug-order',
-      payer: {
-        email: input?.email ?? 'buyer.test@example.com',
+  const requestBody = {
+    items: [
+      {
+        id: 'mp-debug-checkout-item',
+        title: 'Debug Checkout Patagonicos',
+        quantity: 1,
+        currency_id: 'ARS',
+        unit_price: 100,
       },
-      back_urls: {
-        success: successUrl.toString(),
-        failure: failureUrl.toString(),
-        pending: pendingUrl.toString(),
-      },
-      notification_url: getMercadoPagoWebhookUrl(),
-      metadata: {
-        orderId: 'debug-order',
-      },
+    ],
+    external_reference: 'debug-order',
+    payer: {
+      email: input?.email ?? 'buyer.test@example.com',
     },
+    back_urls: {
+      success: successUrl.toString(),
+      failure: failureUrl.toString(),
+      pending: pendingUrl.toString(),
+    },
+    notification_url: getMercadoPagoWebhookUrl(),
+    metadata: {
+      orderId: 'debug-order',
+    },
+  }
+
+  const response = await preference.create({
+    body: requestBody,
   })
 
   logMercadoPagoPreference('debug checkout preference created', response, {
@@ -261,6 +332,21 @@ export async function createCheckoutDebugPreference(input?: { email?: string }) 
     hasBackUrls: true,
     hasNotificationUrl: true,
     itemCount: 1,
+  })
+
+  setLatestPreferenceDebug({
+    label: 'debug checkout preference created',
+    createdAt: new Date().toISOString(),
+    input: requestBody,
+    response: {
+      id: response.id ?? null,
+      init_point: response.init_point ?? null,
+      sandbox_init_point: response.sandbox_init_point ?? null,
+    },
+    env: {
+      siteUrl: env.SITE_URL,
+      accessToken: getMercadoPagoAccessTokenSummary(),
+    },
   })
 
   return response
