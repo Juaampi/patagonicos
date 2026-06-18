@@ -348,47 +348,55 @@ export function CheckoutForm({ items, settings }: CheckoutFormProps) {
       })),
     }
 
-    const response = await fetch('/api/checkout', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
-    })
+    try {
+      const response = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      })
 
-    const data = await response.json()
+      const data = await response.json()
 
-    if (!response.ok) {
+      if (!response.ok) {
+        setSubmitProgress(0)
+        setState({
+          status: 'error',
+          message: data?.message || 'No pudimos crear la orden.',
+        })
+        return
+      }
+
+      setSubmitProgress(100)
+      setRedirectCountdown(5)
+      setState({
+        status: 'success',
+        message: data.message,
+        orderNumber: data.orderNumber,
+        shortCode: data.shortCode,
+        orderId: data.orderId,
+        paymentUrl: data.paymentUrl,
+      })
+
+      if (data.paymentUrl) {
+        console.info('[checkout] redirecting to Mercado Pago', {
+          orderId: data.orderId ?? null,
+          orderNumber: data.orderNumber ?? null,
+          paymentUrl: data.paymentUrl,
+        })
+        window.location.assign(data.paymentUrl)
+        return
+      }
+
+      clearCart()
+    } catch {
       setSubmitProgress(0)
       setState({
         status: 'error',
-        message: data?.message || 'No pudimos crear la orden.',
+        message: 'No pudimos conectar con Mercado Pago. Intentá nuevamente.',
       })
-      return
     }
-
-    setSubmitProgress(100)
-    setRedirectCountdown(5)
-    setState({
-      status: 'success',
-      message: data.message,
-      orderNumber: data.orderNumber,
-      shortCode: data.shortCode,
-      orderId: data.orderId,
-      paymentUrl: data.paymentUrl,
-    })
-
-    if (data.paymentUrl) {
-      console.info('[checkout] redirecting to Mercado Pago', {
-        orderId: data.orderId ?? null,
-        orderNumber: data.orderNumber ?? null,
-        paymentUrl: data.paymentUrl,
-      })
-      window.location.assign(data.paymentUrl)
-      return
-    }
-
-    clearCart()
   }
 
   return (
@@ -487,15 +495,64 @@ export function CheckoutForm({ items, settings }: CheckoutFormProps) {
       ) : null}
 
       {state.status === 'saving' ? (
-        <div className="pointer-events-none absolute inset-x-0 top-0 z-20 flex justify-center px-4">
-          <div className="mt-4 inline-flex items-center gap-3 rounded-full border border-black/8 bg-white/88 px-4 py-3 shadow-[0_12px_40px_rgba(0,0,0,0.06)] backdrop-blur-xl">
-            <div className="relative h-8 w-8 overflow-hidden rounded-full border border-black/8 bg-[#f7f7f4]">
-              <div className="absolute inset-y-0 left-0 w-1/2 animate-[pulse_1.4s_ease-in-out_infinite] bg-black/6" />
-              <LoaderCircle className="relative z-10 m-auto mt-[7px] h-4 w-4 animate-spin text-black/70" />
+        <div className="fixed inset-0 z-[150] flex items-end justify-center bg-[rgba(11,15,12,0.42)] px-4 py-4 backdrop-blur-md md:items-center md:px-6 md:py-6">
+          <div
+            role="status"
+            aria-live="polite"
+            className="w-full max-w-2xl overflow-hidden rounded-[30px] border border-white/40 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(247,247,244,0.96)_100%)] shadow-[0_28px_90px_rgba(0,0,0,0.22)]"
+          >
+            <div className="bg-[linear-gradient(135deg,#111827_0%,#1f2937_40%,#16a34a_100%)] px-5 py-6 text-white md:px-7 md:py-8">
+              <div className="flex items-start gap-4 md:items-center">
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[20px] border border-white/18 bg-white/10 shadow-[0_18px_40px_rgba(0,0,0,0.16)] md:h-16 md:w-16">
+                  <LoaderCircle className="h-7 w-7 animate-spin md:h-8 md:w-8" />
+                </div>
+                <div>
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/70">Procesando compra</p>
+                  <h2 className="mt-2 font-display text-3xl tracking-[-0.05em] text-white md:text-4xl">
+                    Estamos abriendo el checkout de Mercado Pago
+                  </h2>
+                  <p className="mt-3 max-w-xl text-sm leading-7 text-white/82 md:text-base">
+                    Tu orden ya se está preparando. En unos segundos te redirigimos para completar el pago de forma segura.
+                  </p>
+                </div>
+              </div>
             </div>
-            <div>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-black/42">Procesando compra</p>
-              <p className="mt-1 text-sm text-black/66">Guardando tu pedido y preparando tu cuenta.</p>
+
+            <div className="px-5 py-5 md:px-7 md:py-6">
+              <div className="grid gap-4 md:grid-cols-3">
+                <div className="rounded-[22px] border border-emerald-200 bg-emerald-50/90 px-4 py-4">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-emerald-700">Paso 1</p>
+                  <p className="mt-2 text-sm font-semibold text-black">Guardando pedido</p>
+                  <p className="mt-1 text-sm leading-6 text-black/60">Registramos tus datos y reservamos esta compra.</p>
+                </div>
+                <div className="rounded-[22px] border border-black/8 bg-white px-4 py-4">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-black/42">Paso 2</p>
+                  <p className="mt-2 text-sm font-semibold text-black">Preparando pago</p>
+                  <p className="mt-1 text-sm leading-6 text-black/60">Conectamos la orden con Mercado Pago.</p>
+                </div>
+                <div className="rounded-[22px] border border-black/8 bg-white px-4 py-4">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-black/42">Paso 3</p>
+                  <p className="mt-2 text-sm font-semibold text-black">Redirección automática</p>
+                  <p className="mt-1 text-sm leading-6 text-black/60">Se abrirá el checkout sin que tengas que hacer nada.</p>
+                </div>
+              </div>
+
+              <div className="mt-5">
+                <div className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.18em] text-black/44">
+                  <span>Conectando</span>
+                  <span>{Math.max(8, Math.min(99, submitProgress))}%</span>
+                </div>
+                <div className="mt-3 h-3 overflow-hidden rounded-full bg-black/8">
+                  <div
+                    className="h-full rounded-full bg-[linear-gradient(90deg,#111827_0%,#16a34a_58%,#86efac_100%)] transition-[width] duration-300"
+                    style={{ width: `${Math.max(8, Math.min(99, submitProgress))}%` }}
+                  />
+                </div>
+              </div>
+
+              <p className="mt-5 text-sm leading-6 text-black/58">
+                No cierres esta ventana ni vuelvas atrás. Si tu conexión es lenta, la redirección puede tardar unos segundos más.
+              </p>
             </div>
           </div>
         </div>
