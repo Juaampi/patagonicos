@@ -336,7 +336,7 @@ model StoreSettings {
   id                         String   @id @default("default")
   localDeliveryFreeThreshold Int      @default(80000)
   localDeliveryCost          Int      @default(4500)
-  nationalShippingCost       Int      @default(8900)
+  nationalShippingCost       Int      @default(13000)
   barilocheCutoffHour        Int      @default(14)
   barilocheCutoffMinute      Int      @default(30)
   barilocheEnabled           Boolean  @default(false)

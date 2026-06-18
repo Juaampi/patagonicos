@@ -5,8 +5,7 @@ import { ShoppingBag } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useCart } from '@/components/cart/cart-provider'
-
-const WHATSAPP_FALLBACK_HREF = '/contacto'
+import { getSiteWhatsAppHref } from '@/lib/site-contact'
 
 function WhatsAppMonoIcon({ className = 'h-5 w-5' }: { className?: string }) {
   return (
@@ -57,7 +56,9 @@ export function FloatingActions() {
   return (
     <div className="fixed bottom-5 right-4 z-40 flex flex-col gap-3 md:bottom-6 md:right-6">
       <Link
-        href={WHATSAPP_FALLBACK_HREF}
+        href={getSiteWhatsAppHref('Hola, quiero hacer una consulta sobre Patagónicos.')}
+        target="_blank"
+        rel="noreferrer"
         aria-label="WhatsApp"
         className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-black/10 bg-white text-black shadow-[0_12px_35px_rgba(0,0,0,0.12)] transition hover:-translate-y-0.5 hover:border-black hover:bg-black hover:text-white"
       >

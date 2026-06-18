@@ -1,3 +1,6 @@
+import Link from 'next/link'
+import { getSiteWhatsAppHref, SITE_WHATSAPP_DISPLAY } from '@/lib/site-contact'
+
 export default function ContactPage() {
   return (
     <section className="shell pb-12 pt-40">
@@ -8,6 +11,18 @@ export default function ContactPage() {
           <p className="mt-5 text-base leading-8 text-black/62">
             Consultas sobre talles, stock, entregas en Bariloche o preparación de la colección. Sin estética de petshop, con foco total en producto y clima.
           </p>
+          <div className="mt-6 rounded-[22px] border border-black/10 bg-[#f7f7f4] p-5">
+            <p className="text-xs uppercase tracking-[0.18em] text-black/48">WhatsApp</p>
+            <p className="mt-2 text-2xl font-semibold tracking-[-0.04em] text-black/88">{SITE_WHATSAPP_DISPLAY}</p>
+            <Link
+              href={getSiteWhatsAppHref('Hola, quiero hacer una consulta sobre Patagónicos.')}
+              target="_blank"
+              rel="noreferrer"
+              className="button-primary mt-4"
+            >
+              Escribir por WhatsApp
+            </Link>
+          </div>
         </div>
         <form className="card-surface p-7 md:p-9">
           <div className="grid gap-4 md:grid-cols-2">
