@@ -15,6 +15,29 @@ type MercadoPagoPreferenceResponse = {
   sandbox_init_point?: string | null
 }
 
+type MercadoPagoPreferenceLookupResponse = {
+  id?: string
+  init_point?: string | null
+  sandbox_init_point?: string | null
+  external_reference?: string | null
+  notification_url?: string | null
+  back_urls?: {
+    success?: string | null
+    pending?: string | null
+    failure?: string | null
+  } | null
+  items?: Array<{
+    id?: string | null
+    title?: string | null
+    quantity?: number | null
+    unit_price?: number | null
+    currency_id?: string | null
+  }> | null
+  payer?: {
+    email?: string | null
+  } | null
+}
+
 function getClient() {
   if (!env.MERCADOPAGO_ACCESS_TOKEN) {
     throw new Error('Mercado Pago access token not configured')
@@ -84,6 +107,27 @@ export async function getMercadoPagoPaymentById(paymentId: string) {
   }
 }
 
+export async function getMercadoPagoPreferenceById(preferenceId: string) {
+  if (!env.MERCADOPAGO_ACCESS_TOKEN) {
+    throw new Error('Mercado Pago access token not configured')
+  }
+
+  const response = await fetch(`https://api.mercadopago.com/checkout/preferences/${encodeURIComponent(preferenceId)}`, {
+    method: 'GET',
+    headers: {
+      Accept: 'application/json',
+      Authorization: `Bearer ${env.MERCADOPAGO_ACCESS_TOKEN}`,
+    },
+    cache: 'no-store',
+  })
+
+  if (!response.ok) {
+    throw new Error(`Mercado Pago preference lookup failed with status ${response.status}.`)
+  }
+
+  return (await response.json()) as MercadoPagoPreferenceLookupResponse
+}
+
 export async function createPendingPreference(input: {
   orderId: string
   orderNumber: string
@@ -118,6 +162,9 @@ export async function createPendingPreference(input: {
         currency_id: item.currency_id ?? 'ARS',
       })),
       external_reference: input.orderId,
+      payer: {
+        email: input.email,
+      },
       back_urls: {
         success: successUrl.toString(),
         failure: failureUrl.toString(),
@@ -133,6 +180,7 @@ export async function createPendingPreference(input: {
   logMercadoPagoPreference('standard preference created', response, {
     orderId: input.orderId,
     orderNumber: input.orderNumber,
+    payerEmail: input.email,
     hasBackUrls: true,
     hasNotificationUrl: true,
     itemCount: input.items.length,
