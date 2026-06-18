@@ -188,6 +188,7 @@ export async function createPendingPreference(input: {
       currency_id: item.currency_id ?? 'ARS',
     })),
     external_reference: input.orderId,
+    auto_return: 'approved' as const,
     back_urls: {
       success: successUrl.toString(),
       failure: failureUrl.toString(),

@@ -187,6 +187,8 @@ export async function queuePrintJobForOrder(orderId: string) {
 }
 
 export async function syncApprovedPayment(orderId: string, paymentReference?: string | null) {
+  let justApproved = false
+
   const order = await prisma.$transaction(async (tx) => {
     const currentOrder = await tx.order.findUniqueOrThrow({
       where: { id: orderId },
@@ -194,6 +196,17 @@ export async function syncApprovedPayment(orderId: string, paymentReference?: st
         items: true,
       },
     })
+
+    if (currentOrder.paymentStatus === PaymentStatus.PAID) {
+      return tx.order.update({
+        where: { id: orderId },
+        data: {
+          ...(paymentReference && currentOrder.mercadopagoRef !== paymentReference
+            ? { mercadopagoRef: paymentReference }
+            : {}),
+        },
+      })
+    }
 
     const shouldApplyStock = !currentOrder.stockAppliedAt
 
@@ -223,6 +236,8 @@ export async function syncApprovedPayment(orderId: string, paymentReference?: st
       }
     }
 
+    justApproved = true
+
     return tx.order.update({
       where: { id: orderId },
       data: {
@@ -235,8 +250,11 @@ export async function syncApprovedPayment(orderId: string, paymentReference?: st
     })
   })
 
-  await queuePrintJobForOrder(order.id)
-  await sendOrderPaidNotification(order.id)
+  if (justApproved) {
+    await queuePrintJobForOrder(order.id)
+    await sendOrderPaidNotification(order.id)
+  }
+
   return order
 }
 

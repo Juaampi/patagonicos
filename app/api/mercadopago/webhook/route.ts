@@ -104,6 +104,13 @@ export async function POST(request: NextRequest) {
       String(request.nextUrl.searchParams.get('topic') ?? '').trim() ||
       String(request.nextUrl.searchParams.get('type') ?? '').trim()
 
+    console.info('[mercadopago-webhook] received', {
+      dataId: dataId || null,
+      topic: topic || 'unknown',
+      hasSignature: Boolean(request.headers.get('x-signature')),
+      hasRequestId: Boolean(request.headers.get('x-request-id')),
+    })
+
     if (topic !== 'payment' || !dataId) {
       return NextResponse.json({ ok: true, ignored: true, topic: topic || 'unknown' })
     }
@@ -115,6 +122,12 @@ export async function POST(request: NextRequest) {
     if (payment.status === 'approved' && orderId) {
       await syncApprovedPayment(orderId, String(payment.id))
     }
+
+    console.info('[mercadopago-webhook] processed', {
+      paymentId: String(payment.id),
+      status: payment.status ?? 'unknown',
+      orderId: orderId || null,
+    })
 
     return NextResponse.json({
       ok: true,
