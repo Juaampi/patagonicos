@@ -162,9 +162,6 @@ export async function createPendingPreference(input: {
         currency_id: item.currency_id ?? 'ARS',
       })),
       external_reference: input.orderId,
-      payer: {
-        email: input.email,
-      },
       back_urls: {
         success: successUrl.toString(),
         failure: failureUrl.toString(),
@@ -180,7 +177,7 @@ export async function createPendingPreference(input: {
   logMercadoPagoPreference('standard preference created', response, {
     orderId: input.orderId,
     orderNumber: input.orderNumber,
-    payerEmail: input.email,
+    payerEmailIncluded: false,
     hasBackUrls: true,
     hasNotificationUrl: true,
     itemCount: input.items.length,
