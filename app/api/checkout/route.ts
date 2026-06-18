@@ -52,18 +52,36 @@ export async function POST(request: Request) {
   let paymentUrl: string | null = null
 
   if (result.order.paymentMethod === PaymentMethod.ONLINE && env.MERCADOPAGO_ACCESS_TOKEN) {
+    const preferenceItems = [
+      ...result.order.items.map((item) => ({
+        id: item.productId,
+        title: `${item.productName} - ${item.colorName} - ${item.size}`,
+        quantity: item.quantity,
+        currency_id: 'ARS' as const,
+        unit_price: item.unitPrice,
+      })),
+      ...(result.order.shippingAmount > 0
+        ? [
+            {
+              id: `shipping-${result.order.shippingMethod.toLowerCase()}`,
+              title:
+                result.order.shippingMethod === 'LOCAL_DELIVERY' || result.order.shippingMethod === 'BARILOCHE_SAME_DAY'
+                  ? 'Envío local'
+                  : 'Envío nacional',
+              quantity: 1,
+              currency_id: 'ARS' as const,
+              unit_price: result.order.shippingAmount,
+            },
+          ]
+        : []),
+    ]
+
     const preference = await createPendingPreference({
       orderId: result.order.id,
       orderNumber: result.order.orderNumber,
       shortCode: result.order.shortCode,
       email: result.order.customer.email,
-      items: result.order.items.map((item) => ({
-        id: item.productId,
-        title: `${item.productName} - ${item.colorName} - ${item.size}`,
-        quantity: item.quantity,
-        currency_id: 'ARS',
-        unit_price: item.unitPrice,
-      })),
+      items: preferenceItems,
     })
 
     paymentUrl = preference.init_point ?? preference.sandbox_init_point ?? null
