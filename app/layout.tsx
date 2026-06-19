@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Inter, Space_Grotesk } from 'next/font/google'
+import Script from 'next/script'
 import { Suspense } from 'react'
 import './globals.css'
 import { CartProvider } from '@/components/cart/cart-provider'
@@ -25,6 +26,8 @@ export const metadata: Metadata = {
     'Marca premium de indumentaria outdoor para animales en Bariloche. Camperas, abrigo técnico y protección real para frío, nieve, viento y humedad.',
 }
 
+const GOOGLE_TAG_ID = 'G-4H1KEMP4DP'
+
 export default async function RootLayout({
   children,
 }: Readonly<{
@@ -46,6 +49,15 @@ export default async function RootLayout({
           </div>
         </CartProvider>
       </body>
+      <Script src={`https://www.googletagmanager.com/gtag/js?id=${GOOGLE_TAG_ID}`} strategy="afterInteractive" />
+      <Script id="google-analytics" strategy="afterInteractive">
+        {`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', '${GOOGLE_TAG_ID}');
+        `}
+      </Script>
     </html>
   )
 }
