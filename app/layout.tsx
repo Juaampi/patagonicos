@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     'Marca premium de indumentaria outdoor para animales en Bariloche. Camperas, abrigo técnico y protección real para frío, nieve, viento y humedad.',
 }
 
-const GOOGLE_TAG_ID = 'G-4H1KEMP4DP'
+const GOOGLE_TAG_ID = 'G-KZNYV9TE96'
 
 export default async function RootLayout({
   children,
