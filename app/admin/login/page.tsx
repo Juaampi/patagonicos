@@ -14,11 +14,11 @@ export default async function AdminLoginPage({
         <p className="eyebrow">Panel admin</p>
         <h1 className="mt-4 font-display text-4xl tracking-[-0.05em]">Ingreso de administración</h1>
         <p className="mt-4 text-sm leading-7 text-black/60">
-          Entrá con el email administrador y la clave definida en el entorno para gestionar pedidos, productos y logística.
+          Entrá con el email administrador para gestionar pedidos, productos y logística.
         </p>
         {params?.error ? (
           <div className="mt-5 rounded-[20px] border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-            El email o la contraseña no coinciden. Probá de nuevo.
+            El email administrador no coincide. Probá de nuevo.
           </div>
         ) : null}
         {params?.logged_out ? (
@@ -33,13 +33,6 @@ export default async function AdminLoginPage({
             type="email"
             autoComplete="email"
             placeholder="admin@patitasandinas.com"
-            className="w-full rounded-[20px] border border-black/10 bg-[#f7f7f4] px-4 py-4 text-sm outline-none"
-          />
-          <input
-            name="password"
-            type="password"
-            autoComplete="current-password"
-            placeholder="Contraseña admin"
             className="w-full rounded-[20px] border border-black/10 bg-[#f7f7f4] px-4 py-4 text-sm outline-none"
           />
           <button className="button-primary w-full">Entrar al admin</button>

@@ -12,10 +12,9 @@ export async function hasAdminAccess() {
 
 export async function adminLoginAction(formData: FormData) {
   const email = String(formData.get('email') ?? '').trim().toLowerCase()
-  const password = String(formData.get('password') ?? '').trim()
   const nextPath = String(formData.get('next') ?? '/admin/dashboard').trim() || '/admin/dashboard'
 
-  if (email !== env.ADMIN_EMAIL.toLowerCase() || password !== env.ADMIN_PASS) {
+  if (email !== env.ADMIN_EMAIL.toLowerCase()) {
     redirect(`/admin/login?next=${encodeURIComponent(nextPath)}&error=1`)
   }
 
