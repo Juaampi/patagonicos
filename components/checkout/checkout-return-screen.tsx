@@ -4,6 +4,23 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { AlertCircle, ArrowRight, CheckCheck, Clock3 } from 'lucide-react'
+import { hasTrackedPurchase, markPurchaseTracked, trackPurchase } from '@/lib/client/analytics'
+
+type ConfirmedOrderPayload = {
+  id: string
+  orderNumber?: string | null
+  shortCode?: string | null
+  currency?: string
+  total: number
+  shippingAmount?: number
+  items: Array<{
+    item_id: string
+    item_name: string
+    item_variant?: string
+    price: number
+    quantity: number
+  }>
+}
 
 type CheckoutReturnScreenProps = {
   email?: string
@@ -24,6 +41,7 @@ export function CheckoutReturnScreen({
 }: CheckoutReturnScreenProps) {
   const router = useRouter()
   const [countdown, setCountdown] = useState(5)
+  const [confirmedOrder, setConfirmedOrder] = useState<ConfirmedOrderPayload | null>(null)
   const [confirmationStatus, setConfirmationStatus] = useState<'idle' | 'confirming' | 'confirmed' | 'failed'>(
     paymentId ? 'confirming' : 'idle',
   )
@@ -51,9 +69,10 @@ export function CheckoutReturnScreen({
             cache: 'no-store',
             keepalive: true,
           })
-          const data = (await response.json()) as { ok?: boolean }
+          const data = (await response.json()) as { ok?: boolean; approved?: boolean; order?: ConfirmedOrderPayload | null }
 
           if (!cancelled && response.ok && data.ok) {
+            setConfirmedOrder(data.order ?? null)
             setConfirmationStatus('confirmed')
             return
           }
@@ -77,6 +96,28 @@ export function CheckoutReturnScreen({
       cancelled = true
     }
   }, [orderId, paymentId, status])
+
+  useEffect(() => {
+    const safeOrderId = confirmedOrder?.id ?? orderId
+
+    if (status !== 'success' || confirmationStatus !== 'confirmed' || !confirmedOrder || !safeOrderId) {
+      return
+    }
+
+    if (hasTrackedPurchase(safeOrderId)) {
+      return
+    }
+
+    trackPurchase({
+      orderId: safeOrderId,
+      orderNumber: confirmedOrder.orderNumber ?? confirmedOrder.shortCode ?? undefined,
+      currency: confirmedOrder.currency ?? 'ARS',
+      shipping: confirmedOrder.shippingAmount ?? 0,
+      total: confirmedOrder.total,
+      items: confirmedOrder.items,
+    })
+    markPurchaseTracked(safeOrderId)
+  }, [confirmationStatus, confirmedOrder, orderId, status])
 
   useEffect(() => {
     if (status !== 'success' || !email || !orderId) {

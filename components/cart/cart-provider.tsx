@@ -1,6 +1,7 @@
 'use client'
 
 import { createContext, useContext, useEffect, useMemo, useState, useSyncExternalStore } from 'react'
+import { trackAddToCart } from '@/lib/client/analytics'
 import type { CartItem } from '@/types/store'
 
 const CART_STORAGE_KEY = 'pa2-cart'
@@ -95,6 +96,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
               : entry,
           )
         })
+        trackAddToCart(normalizedItem)
         setCartPulseKey((current) => current + 1)
         window.dispatchEvent(new CustomEvent('pa2-cart-pulse'))
       },

@@ -2,9 +2,57 @@ import type { Product, ProductColor, ProductImage, ProductVariant } from '@/type
 
 export const OUT_OF_STOCK_PLACEHOLDER_SIZE = '__OUT_OF_STOCK__'
 
+const SIZE_PRIORITY = ['XXXS', 'XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL', 'XXXXL']
+
 export type ProductGalleryItem =
   | { kind: 'image'; id: string; image: ProductImage }
   | { kind: 'video'; id: string; url: string }
+
+function normalizeSizeLabel(value: string) {
+  return value
+    .trim()
+    .toUpperCase()
+    .replace(/\s+/g, '')
+}
+
+export function compareProductSizes(left: string, right: string) {
+  const normalizedLeft = normalizeSizeLabel(left)
+  const normalizedRight = normalizeSizeLabel(right)
+
+  const leftPriority = SIZE_PRIORITY.indexOf(normalizedLeft)
+  const rightPriority = SIZE_PRIORITY.indexOf(normalizedRight)
+
+  if (leftPriority >= 0 && rightPriority >= 0) {
+    return leftPriority - rightPriority
+  }
+
+  if (leftPriority >= 0) {
+    return -1
+  }
+
+  if (rightPriority >= 0) {
+    return 1
+  }
+
+  const leftNumeric = Number(normalizedLeft)
+  const rightNumeric = Number(normalizedRight)
+  const leftIsNumeric = Number.isFinite(leftNumeric)
+  const rightIsNumeric = Number.isFinite(rightNumeric)
+
+  if (leftIsNumeric && rightIsNumeric) {
+    return leftNumeric - rightNumeric
+  }
+
+  if (leftIsNumeric) {
+    return -1
+  }
+
+  if (rightIsNumeric) {
+    return 1
+  }
+
+  return normalizedLeft.localeCompare(normalizedRight, 'es')
+}
 
 export function getProductColors(product: Product): ProductColor[] {
   if (product.colors.length > 0) {
@@ -98,7 +146,9 @@ export function getVariantsByColor(product: Product, colorName: string): Product
 export function getAvailableSizes(product: Product, colorName: string) {
   const variants = getVariantsByColor(product, colorName).filter((variant) => variant.size !== OUT_OF_STOCK_PLACEHOLDER_SIZE)
   const sizeSet = new Set(variants.map((variant) => variant.size))
-  return product.sizes.filter((size) => sizeSet.has(size.label))
+  return [...product.sizes]
+    .filter((size) => sizeSet.has(size.label))
+    .sort((left, right) => compareProductSizes(left.label, right.label))
 }
 
 export function getSizesForColor(product: Product, colorName: string) {
@@ -109,7 +159,7 @@ export function getSizesForColor(product: Product, colorName: string) {
       stock: variant.stock,
       inStock: variant.stock > 0,
     }))
-    .sort((a, b) => a.label.localeCompare(b.label))
+    .sort((a, b) => compareProductSizes(a.label, b.label))
 }
 
 export function getVariantForSelection(product: Product, colorName: string, size: string) {

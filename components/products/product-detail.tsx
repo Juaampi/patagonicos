@@ -8,6 +8,7 @@ import { useCart } from '@/components/cart/cart-provider'
 import { CashOnDeliveryInfo } from '@/components/marketing/cash-on-delivery-info'
 import { BarilocheDeliveryCountdown } from '@/components/marketing/bariloche-delivery-countdown'
 import { ProductImageWatermark } from '@/components/products/product-image-watermark'
+import { trackViewItem } from '@/lib/client/analytics'
 import { getFeatureChips } from '@/lib/product-display'
 import type { StoreSettingsSnapshot } from '@/lib/store-settings'
 import {
@@ -223,6 +224,7 @@ export function ProductDetail({
   const mobileAddToCartRef = useRef<HTMLButtonElement>(null)
   const touchStartXRef = useRef<number | null>(null)
   const wasSwipingRef = useRef(false)
+  const trackedViewRef = useRef<string | null>(null)
   const featureChips = getFeatureChips(product.featureTags)
 
   const gallery = useMemo(() => getGalleryForColor(product, selectedColor), [product, selectedColor])
@@ -275,6 +277,15 @@ export function ProductDetail({
       }
     }
   }, [product.slug])
+
+  useEffect(() => {
+    if (trackedViewRef.current === product.id) {
+      return
+    }
+
+    trackViewItem(product, selectedVariant)
+    trackedViewRef.current = product.id
+  }, [product, selectedVariant])
 
   const onColorChange = (colorName: string) => {
     setSelectedColor(colorName)

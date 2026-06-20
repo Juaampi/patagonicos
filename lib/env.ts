@@ -11,6 +11,8 @@ const emptyToUndefined = <T extends z.ZodTypeAny>(schema: T) =>
 
 const envSchema = z.object({
   DATABASE_URL: emptyToUndefined(z.string().optional()),
+  NEXT_PUBLIC_GOOGLE_TAG_ID: emptyToUndefined(z.string().optional()),
+  NEXT_PUBLIC_META_PIXEL_ID: emptyToUndefined(z.string().optional()),
   NEXT_PUBLIC_SITE_URL: emptyToUndefined(z.string().url().default('http://localhost:3000')),
   SITE_URL: emptyToUndefined(z.string().url().default('http://localhost:3000')),
   JWT_SECRET: emptyToUndefined(z.string().default('change-me')),
@@ -31,6 +33,8 @@ const envSchema = z.object({
 
 export const env = envSchema.parse({
   DATABASE_URL: process.env.DATABASE_URL,
+  NEXT_PUBLIC_GOOGLE_TAG_ID: process.env.NEXT_PUBLIC_GOOGLE_TAG_ID,
+  NEXT_PUBLIC_META_PIXEL_ID: process.env.NEXT_PUBLIC_META_PIXEL_ID,
   NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
   SITE_URL: process.env.SITE_URL,
   JWT_SECRET: process.env.JWT_SECRET,

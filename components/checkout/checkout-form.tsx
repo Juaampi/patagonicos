@@ -7,6 +7,7 @@ import { useCart } from '@/components/cart/cart-provider'
 import { AddressPinPicker } from '@/components/checkout/address-pin-picker'
 import { SearchableSelect } from '@/components/checkout/searchable-select'
 import { BarilocheDeliveryCountdown } from '@/components/marketing/bariloche-delivery-countdown'
+import { mapCartItemToAnalyticsItem, trackBeginCheckout } from '@/lib/client/analytics'
 import {
   argentinaProvinces,
   getCanonicalProvince,
@@ -331,6 +332,12 @@ export function CheckoutForm({ items, settings }: CheckoutFormProps) {
 
     setSubmitProgress(10)
     setState({ status: 'saving', message: 'Estamos preparando tu pedido…' })
+
+    trackBeginCheckout({
+      total: shippingPreview.total,
+      shipping: shippingPreview.shippingAmount,
+      items: items.map(mapCartItemToAnalyticsItem),
+    })
 
     const payload = {
       ...form,
