@@ -1109,8 +1109,8 @@ export function ProductDetail({
           <div className="relative w-full max-w-5xl overflow-hidden rounded-[32px] bg-white shadow-[0_30px_80px_rgba(0,0,0,0.18)]">
             <div className="flex items-center justify-between border-b border-black/8 px-6 py-4">
               <div>
-                <p className="text-[11px] uppercase tracking-[0.18em] text-black/45">Guía de talles</p>
-                <h3 className="mt-1 font-display text-2xl tracking-[-0.04em]">Elegí el talle ideal</h3>
+                <p className="text-[11px] uppercase tracking-[0.18em] text-black/45">Guía de medición</p>
+                <h3 className="mt-1 font-display text-2xl tracking-[-0.04em]">Cómo medir a tu Patagónico</h3>
               </div>
               <button
                 type="button"
@@ -1124,7 +1124,7 @@ export function ProductDetail({
             <div className="relative aspect-[16/11] w-full bg-[#f6f6f2]">
               <Image
                 src="/size-guide-modal.png"
-                alt="Guía de talles con medidas de cuello, pecho y largo para XS, S, M y L"
+                alt="Guía para medir a tu Patagónico con referencias de largo, cuello, pecho, cruz y abdomen"
                 fill
                 sizes="100vw"
                 className="object-contain"
