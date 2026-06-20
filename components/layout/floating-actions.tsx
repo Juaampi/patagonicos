@@ -49,7 +49,7 @@ export function FloatingActions() {
     }
   }, [])
 
-  if (pathname?.startsWith('/admin') || pathname?.startsWith('/delivery')) {
+  if (pathname?.startsWith('/admin') || pathname?.startsWith('/adminpatagonicos') || pathname?.startsWith('/delivery')) {
     return null
   }
 

@@ -48,12 +48,6 @@ export function AdminHeader() {
             >
               Repartos del dia
             </Link>
-            <Link
-              href="/admin/logout"
-              className="rounded-full border border-black/10 bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-black/76 transition hover:bg-black hover:text-white"
-            >
-              Salir
-            </Link>
           </div>
         </div>
       </div>
