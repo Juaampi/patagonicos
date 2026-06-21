@@ -2,11 +2,11 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { Minus, Package, Plus, ShieldCheck, Trash2, Truck } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Minus, Package, Plus, Search, ShieldCheck, Trash2, Truck, X } from 'lucide-react'
 import { useEffect, useMemo, useState, useSyncExternalStore } from 'react'
 import { getAvailableSizes, getColorImages, getMainImage, getProductColors, getVariantForSelection } from '@/lib/variant-utils'
 import { getSiteWhatsAppHref } from '@/lib/site-contact'
-import type { CartItem, Product } from '@/types/store'
+import type { CartItem, Product, ProductImage } from '@/types/store'
 import {
   getWholesalePrice,
   getWholesaleValidation,
@@ -46,6 +46,135 @@ function normalizePositiveQuantity(value: string | number, fallback = 1) {
   }
 
   return Math.max(1, Math.floor(parsed))
+}
+
+function WholesaleInfoGallery({
+  images,
+  productName,
+}: {
+  images: ProductImage[]
+  productName: string
+}) {
+  const [activeIndex, setActiveIndex] = useState(0)
+  const [zoomedImage, setZoomedImage] = useState<ProductImage | null>(null)
+
+  if (images.length === 0) {
+    return null
+  }
+
+  const activeImage = images[activeIndex] ?? images[0]
+  const hasMultipleImages = images.length > 1
+
+  return (
+    <>
+      <div className="mt-4 space-y-3">
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-black/46">Guía e información</p>
+          {hasMultipleImages ? (
+            <div className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-black/42">
+              <span>
+                {activeIndex + 1}/{images.length}
+              </span>
+            </div>
+          ) : null}
+        </div>
+
+        <div className="relative aspect-[4/3] overflow-hidden rounded-[22px] border border-black/8 bg-[#f7f7f4]">
+          <Image
+            src={activeImage.url}
+            alt={activeImage.alt}
+            fill
+            sizes="(max-width: 768px) 100vw, 50vw"
+            className="object-contain"
+          />
+
+          <button
+            type="button"
+            onClick={() => setZoomedImage(activeImage)}
+            className="absolute bottom-3 right-3 inline-flex items-center gap-2 rounded-full bg-white/92 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-black shadow-[0_10px_28px_rgba(0,0,0,0.12)]"
+            aria-label={`Ampliar imagen informativa de ${productName}`}
+          >
+            <Search className="h-3.5 w-3.5" />
+            Zoom
+          </button>
+
+          {hasMultipleImages ? (
+            <>
+              <button
+                type="button"
+                onClick={() => setActiveIndex((current) => (current === 0 ? images.length - 1 : current - 1))}
+                className="absolute left-3 top-1/2 inline-flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/88 text-black shadow-[0_10px_30px_rgba(0,0,0,0.08)] transition hover:bg-white"
+                aria-label={`Imagen informativa anterior de ${productName}`}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveIndex((current) => (current + 1) % images.length)}
+                className="absolute right-3 top-1/2 inline-flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/88 text-black shadow-[0_10px_30px_rgba(0,0,0,0.08)] transition hover:bg-white"
+                aria-label={`Siguiente imagen informativa de ${productName}`}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </>
+          ) : null}
+        </div>
+
+        {hasMultipleImages ? (
+          <div className="flex gap-2 overflow-x-auto pb-1">
+            {images.map((image, index) => (
+              <button
+                key={image.id ?? image.url}
+                type="button"
+                onClick={() => setActiveIndex(index)}
+                className={`relative h-16 w-16 shrink-0 overflow-hidden rounded-[16px] border transition ${
+                  index === activeIndex ? 'border-black bg-white' : 'border-black/10 bg-[#f7f7f4]'
+                }`}
+                aria-label={`Ver imagen informativa ${index + 1} de ${productName}`}
+              >
+                <Image
+                  src={image.url}
+                  alt={image.alt}
+                  fill
+                  sizes="64px"
+                  className="object-contain"
+                />
+              </button>
+            ))}
+          </div>
+        ) : null}
+      </div>
+
+      {zoomedImage ? (
+        <div className="fixed inset-0 z-[90] bg-black/88 px-4 py-6" onClick={() => setZoomedImage(null)}>
+          <div className="mx-auto flex h-full max-w-6xl flex-col" onClick={(event) => event.stopPropagation()}>
+            <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={() => setZoomedImage(null)}
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/18 bg-white/8 text-white transition hover:bg-white/14"
+                aria-label={`Cerrar imagen informativa ampliada de ${productName}`}
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="flex min-h-0 flex-1 items-center justify-center py-4">
+              <div className="relative h-full w-full">
+                <Image
+                  src={zoomedImage.url}
+                  alt={zoomedImage.alt}
+                  fill
+                  priority
+                  sizes="100vw"
+                  className="object-contain"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
+    </>
+  )
 }
 
 export function WholesalePageClient({
@@ -309,27 +438,7 @@ export function WholesalePageClient({
                       ) : null}
                     </div>
 
-                    {infoImages.length > 0 ? (
-                      <div className="mt-4 space-y-3">
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-black/46">Guía e información</p>
-                        <div className="grid gap-3">
-                          {infoImages.map((infoImage) => (
-                            <div
-                              key={infoImage.id ?? infoImage.url}
-                              className="relative aspect-[4/3] overflow-hidden rounded-[22px] border border-black/8 bg-[#f7f7f4]"
-                            >
-                              <Image
-                                src={infoImage.url}
-                                alt={infoImage.alt}
-                                fill
-                                sizes="(max-width: 768px) 100vw, 50vw"
-                                className="object-contain"
-                              />
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    ) : null}
+                    <WholesaleInfoGallery images={infoImages} productName={product.name} />
 
                     <p className="mt-5 text-[11px] font-semibold uppercase tracking-[0.18em] text-black/46">{product.category}</p>
                     <h3 className="mt-2 font-display text-3xl tracking-[-0.05em] text-black/90">{product.name}</h3>
