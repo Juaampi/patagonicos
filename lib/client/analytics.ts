@@ -1,5 +1,6 @@
 'use client'
 
+import { buildMetaPurchaseEventId } from '@/lib/analytics-shared'
 import type { CartItem, Product, ProductVariant } from '@/types/store'
 
 declare global {
@@ -60,8 +61,15 @@ function trackGtagEvent(name: string, params: Record<string, unknown>) {
   })
 }
 
-function trackMetaEvent(name: string, params: Record<string, unknown>) {
+function trackMetaEvent(name: string, params: Record<string, unknown>, options?: { eventId?: string }) {
   if (!isBrowser() || typeof window.fbq !== 'function') {
+    return
+  }
+
+  if (options?.eventId) {
+    window.fbq('track', name, params, {
+      eventID: options.eventId,
+    })
     return
   }
 
@@ -182,6 +190,7 @@ export function markPurchaseTracked(orderId: string) {
 export function trackPurchase(input: PurchasePayload) {
   const currency = input.currency ?? DEFAULT_CURRENCY
   const transactionId = input.orderNumber?.trim() || input.orderId
+  const metaEventId = buildMetaPurchaseEventId(input.orderId)
 
   trackGtagEvent('purchase', {
     transaction_id: transactionId,
@@ -199,5 +208,5 @@ export function trackPurchase(input: PurchasePayload) {
     currency,
     num_items: input.items.reduce((total, item) => total + item.quantity, 0),
     value: input.total,
-  })
+  }, { eventId: metaEventId })
 }
