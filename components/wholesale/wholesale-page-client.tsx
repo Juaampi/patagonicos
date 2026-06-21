@@ -290,6 +290,9 @@ export function WholesalePageClient({
                 const colors = getProductColors(product)
                 const sizes = getAvailableSizes(product, selection.colorName)
                 const variant = getVariantForSelection(product, selection.colorName, selection.size)
+                const infoImages = product.images
+                  .filter((image) => image.type === 'INFO')
+                  .sort((left, right) => left.sortOrder - right.sortOrder)
                 const image =
                   getColorImages(product, selection.colorName)[0] ??
                   getMainImage(product) ??
@@ -305,6 +308,28 @@ export function WholesalePageClient({
                         <Image src={image.url} alt={image.alt} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-contain" />
                       ) : null}
                     </div>
+
+                    {infoImages.length > 0 ? (
+                      <div className="mt-4 space-y-3">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-black/46">Guía e información</p>
+                        <div className="grid gap-3">
+                          {infoImages.map((infoImage) => (
+                            <div
+                              key={infoImage.id ?? infoImage.url}
+                              className="relative aspect-[4/3] overflow-hidden rounded-[22px] border border-black/8 bg-[#f7f7f4]"
+                            >
+                              <Image
+                                src={infoImage.url}
+                                alt={infoImage.alt}
+                                fill
+                                sizes="(max-width: 768px) 100vw, 50vw"
+                                className="object-contain"
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ) : null}
 
                     <p className="mt-5 text-[11px] font-semibold uppercase tracking-[0.18em] text-black/46">{product.category}</p>
                     <h3 className="mt-2 font-display text-3xl tracking-[-0.05em] text-black/90">{product.name}</h3>
