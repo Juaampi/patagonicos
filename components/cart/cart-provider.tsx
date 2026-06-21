@@ -23,6 +23,7 @@ const CartContext = createContext<CartContextValue | null>(null)
 function normalizeStoredItem(item: CartItem): CartItem {
   return {
     ...item,
+    salesChannel: item.salesChannel ?? 'RETAIL',
     maxStock: Math.max(item.maxStock ?? 0, item.quantity ?? 1, 10),
   }
 }

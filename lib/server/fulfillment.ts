@@ -18,6 +18,12 @@ import { prisma } from '@/lib/prisma'
 import { sendMetaPurchaseEventSafely } from '@/lib/server/meta-conversions'
 import { getCheckoutPreview } from '@/lib/store-settings'
 import { formatPrice } from '@/lib/utils'
+import type { SalesChannel } from '@/types/store'
+import {
+  getWholesalePrice,
+  WHOLESALE_MIN_UNITS,
+  WHOLESALE_MIN_UNITS_PER_MODEL_COLOR,
+} from '@/lib/wholesale'
 
 function isMissingSchemaError(error: unknown) {
   return (
@@ -353,8 +359,72 @@ export async function createOrderFromCheckout(input: {
   notes?: string
   items: CheckoutOrderItemInput[]
   paymentMethod: PaymentMethod
+  salesChannel?: SalesChannel
 }) {
-  const subtotal = input.items.reduce((total, item) => total + item.unitPrice * item.quantity, 0)
+  let normalizedItems = input.items.map((item) => ({
+    ...item,
+  }))
+
+  if (input.salesChannel === 'WHOLESALE') {
+    const totalUnits = input.items.reduce((total, item) => total + item.quantity, 0)
+
+    if (totalUnits < WHOLESALE_MIN_UNITS) {
+      throw new Error(`El pedido mayorista requiere al menos ${WHOLESALE_MIN_UNITS} unidades combinadas.`)
+    }
+
+    const colorGroups = new Map<string, number>()
+    for (const item of input.items) {
+      const key = `${item.productId}::${item.colorName}`
+      colorGroups.set(key, (colorGroups.get(key) ?? 0) + item.quantity)
+    }
+
+    const invalidGroup = Array.from(colorGroups.entries()).find(([, quantity]) => quantity < WHOLESALE_MIN_UNITS_PER_MODEL_COLOR)
+    if (invalidGroup) {
+      throw new Error(
+        `Cada combinación de modelo y color del pedido mayorista debe llevar al menos ${WHOLESALE_MIN_UNITS_PER_MODEL_COLOR} unidades.`,
+      )
+    }
+
+    const productIds = Array.from(new Set(input.items.map((item) => item.productId)))
+    const products = await prisma.product.findMany({
+      where: {
+        id: {
+          in: productIds,
+        },
+      },
+      include: {
+        variants: true,
+      },
+    })
+    const productMap = new Map(products.map((product) => [product.id, product]))
+
+    normalizedItems = input.items.map((item) => {
+      const product = productMap.get(item.productId)
+      if (!product) {
+        throw new Error('No pudimos validar uno de los productos mayoristas.')
+      }
+
+      const variant = product.variants.find(
+        (candidate) => candidate.colorName === item.colorName && candidate.size === item.size,
+      )
+
+      if (!variant) {
+        throw new Error(`La variante ${item.productName} ${item.colorName} ${item.size} ya no está disponible.`)
+      }
+
+      if (variant.stock < item.quantity) {
+        throw new Error(`No hay stock suficiente para ${product.name} ${item.colorName} ${item.size}.`)
+      }
+
+      return {
+        ...item,
+        productName: product.name,
+        unitPrice: getWholesalePrice(product.price),
+      }
+    })
+  }
+
+  const subtotal = normalizedItems.reduce((total, item) => total + item.unitPrice * item.quantity, 0)
   const shipping = await calculateShippingForCheckout(subtotal, input.city, input.province)
   const shortCode = generateShortCode()
   const orderNumber = generateOrderNumber()
@@ -434,11 +504,14 @@ export async function createOrderFromCheckout(input: {
       discountAmount: shipping.discountAmount,
       shippingAmount: shipping.shippingAmount,
       total,
-      notes: input.notes || null,
+      notes:
+        input.salesChannel === 'WHOLESALE'
+          ? [input.notes?.trim(), 'Canal mayorista'].filter(Boolean).join(' · ')
+          : input.notes || null,
       internalQrUrl: buildInternalQrUrl(shortCode),
       internalQrImage: buildInternalQrImage(shortCode),
       items: {
-        create: input.items.map((item) => ({
+        create: normalizedItems.map((item) => ({
           productId: item.productId,
           productName: item.productName,
           colorName: item.colorName,

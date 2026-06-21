@@ -64,6 +64,8 @@ export type Product = {
   reviews: ProductReview[]
 }
 
+export type SalesChannel = 'RETAIL' | 'WHOLESALE'
+
 export type OrderSummary = {
   id: string
   status: string
@@ -80,6 +82,7 @@ export type CartItem = {
   name: string
   category: string
   price: number
+  salesChannel?: SalesChannel
   compareAtPrice?: number
   imageUrl?: string
   imageAlt?: string

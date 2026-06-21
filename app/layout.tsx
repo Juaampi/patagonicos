@@ -27,7 +27,7 @@ export const metadata: Metadata = {
 }
 
 const GOOGLE_TAG_ID = process.env.NEXT_PUBLIC_GOOGLE_TAG_ID || 'G-KZNYV9TE96'
-const META_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID || ''
+const META_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID || '1694957065075802'
 
 export default async function RootLayout({
   children,

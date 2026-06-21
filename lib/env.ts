@@ -12,8 +12,8 @@ const emptyToUndefined = <T extends z.ZodTypeAny>(schema: T) =>
 const envSchema = z.object({
   DATABASE_URL: emptyToUndefined(z.string().optional()),
   NEXT_PUBLIC_GOOGLE_TAG_ID: emptyToUndefined(z.string().optional()),
-  NEXT_PUBLIC_META_PIXEL_ID: emptyToUndefined(z.string().optional()),
-  META_PIXEL_ID: emptyToUndefined(z.string().optional()),
+  NEXT_PUBLIC_META_PIXEL_ID: emptyToUndefined(z.string().default('1694957065075802')),
+  META_PIXEL_ID: emptyToUndefined(z.string().default('1694957065075802')),
   META_CONVERSIONS_ACCESS_TOKEN: emptyToUndefined(z.string().optional()),
   META_TEST_EVENT_CODE: emptyToUndefined(z.string().optional()),
   NEXT_PUBLIC_SITE_URL: emptyToUndefined(z.string().url().default('http://localhost:3000')),

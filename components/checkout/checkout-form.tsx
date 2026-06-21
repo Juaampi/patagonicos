@@ -15,12 +15,14 @@ import {
   normalizeProvinceName,
 } from '@/lib/argentina-data'
 import { getCheckoutPreview, isBarilocheLocation, type StoreSettingsSnapshot } from '@/lib/store-settings'
-import type { CartItem } from '@/types/store'
+import type { CartItem, SalesChannel } from '@/types/store'
 import { formatPrice } from '@/lib/utils'
 
 type CheckoutFormProps = {
   items: CartItem[]
   settings: StoreSettingsSnapshot
+  salesChannel?: SalesChannel
+  clearItems?: () => void
 }
 
 type AddressSuggestion = {
@@ -47,7 +49,12 @@ function MercadoPagoBadge({ compact = false }: { compact?: boolean }) {
   )
 }
 
-export function CheckoutForm({ items, settings }: CheckoutFormProps) {
+export function CheckoutForm({
+  items,
+  settings,
+  salesChannel = 'RETAIL',
+  clearItems,
+}: CheckoutFormProps) {
   const router = useRouter()
   const { clearCart } = useCart()
   const fullNameRef = useRef<HTMLInputElement>(null)
@@ -343,6 +350,7 @@ export function CheckoutForm({ items, settings }: CheckoutFormProps) {
       ...form,
       phone: `${form.phoneAreaCode.trim()} ${form.phoneNumber.trim()}`.trim(),
       paymentMethod,
+      salesChannel,
       latitude: form.latitude ? Number(form.latitude) : undefined,
       longitude: form.longitude ? Number(form.longitude) : undefined,
       items: items.map((item) => ({
@@ -396,7 +404,8 @@ export function CheckoutForm({ items, settings }: CheckoutFormProps) {
         return
       }
 
-      clearCart()
+      const clearCheckoutItems = clearItems ?? clearCart
+      clearCheckoutItems()
     } catch {
       setSubmitProgress(0)
       setState({

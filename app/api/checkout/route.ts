@@ -5,6 +5,8 @@ import { env } from '@/lib/env'
 import { createPendingPreference } from '@/lib/mercadopago'
 import { createOrderFromCheckout, syncApprovedPayment } from '@/lib/server/fulfillment'
 
+const salesChannelSchema = z.enum(['RETAIL', 'WHOLESALE'])
+
 const checkoutSchema = z.object({
   fullName: z.string().min(2),
   lastName: z.string().min(2),
@@ -26,6 +28,7 @@ const checkoutSchema = z.object({
   pinLabel: z.string().optional(),
   notes: z.string().optional(),
   paymentMethod: z.nativeEnum(PaymentMethod),
+  salesChannel: salesChannelSchema.default('RETAIL'),
   items: z.array(
     z.object({
       productId: z.string().min(1),
