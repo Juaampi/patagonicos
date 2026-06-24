@@ -704,6 +704,11 @@ export function WholesalePageClient({
             <p className="mt-4 max-w-3xl text-sm leading-7 text-white/68">
               El costo de envío lo abona el comprador y se define según el peso final del pedido y la localidad de envío.
             </p>
+            <div className="mt-5 max-w-3xl rounded-[24px] border border-white/14 bg-white/8 p-5 text-sm leading-7 text-white/82">
+              Los pedidos mayoristas se entregan con la marca de su fabricante. En Patagónicos desarrollamos parte de la
+              colección y también trabajamos con productos importados seleccionados, por eso el canal mayorista mantiene la
+              marca de origen de cada prenda.
+            </div>
 
             {validation.isValid ? (
               <div className="mt-8 flex flex-wrap items-center gap-4">
