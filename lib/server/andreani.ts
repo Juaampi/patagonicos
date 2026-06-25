@@ -2,7 +2,7 @@ import { ShippingMethod, ShippingStatus } from '@prisma/client'
 import ExcelJS from 'exceljs'
 import { prisma } from '@/lib/prisma'
 
-const ANDREANI_TRACKING_URL = 'https://www.andreani.com/envio/W'
+const ANDREANI_TRACKING_URL = 'https://www.andreani.com/envio/'
 const BUZO_WEIGHT_GRAMS = 300
 const DISPATCHED_SHIPPING_STATUSES: ShippingStatus[] = [
   ShippingStatus.DESPACHADO,

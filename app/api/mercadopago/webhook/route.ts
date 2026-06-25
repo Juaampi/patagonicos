@@ -132,7 +132,10 @@ export async function POST(request: NextRequest) {
       String(payment.external_reference ?? payment.metadata?.orderId ?? '').trim()
 
     if (payment.status === 'approved' && orderId) {
-      await syncApprovedPayment(orderId, String(payment.id))
+      await syncApprovedPayment(orderId, String(payment.id), {
+        strictEmailDelivery: true,
+        retryPaidNotificationIfAlreadyPaid: true,
+      })
     }
 
     console.info('[mercadopago-webhook] processed', {

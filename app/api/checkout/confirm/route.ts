@@ -21,7 +21,9 @@ export async function GET(request: Request) {
     const approved = payment.status === 'approved'
 
     if (approved && orderId) {
-      await syncApprovedPayment(orderId, String(payment.id))
+      await syncApprovedPayment(orderId, String(payment.id), {
+        retryPaidNotificationIfAlreadyPaid: true,
+      })
     }
 
     const order =

@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma'
 import { sendEmail } from '@/lib/email'
 import { env } from '@/lib/env'
+import { getAndreaniTrackingUrl } from '@/lib/server/andreani'
 import { formatPrice } from '@/lib/utils'
 
 type OrderEmailRecord = NonNullable<Awaited<ReturnType<typeof getOrderEmailRecord>>>
@@ -141,6 +142,87 @@ function buildOrderSummaryMarkup(order: OrderEmailRecord) {
         <td style="padding-top:12px;border-top:1px solid #d1d5db;text-align:right;font-size:16px;font-weight:700;color:#111827;">${formatPrice(order.total)}</td>
       </tr>
     </table>
+  `
+}
+
+function getShipmentTimeline(order: OrderEmailRecord) {
+  const paymentConfirmed = order.paymentStatus === 'PAID'
+  const prepared =
+    paymentConfirmed || ['EN_PREPARACION', 'DESPACHADO', 'EN_TRANSITO', 'EN_SUCURSAL', 'ENTREGADO'].includes(order.shippingStatus)
+  const dispatched = ['DESPACHADO', 'EN_TRANSITO', 'EN_SUCURSAL', 'ENTREGADO'].includes(order.shippingStatus)
+  const inTransit = ['EN_TRANSITO', 'EN_SUCURSAL', 'ENTREGADO'].includes(order.shippingStatus)
+  const delivered = order.shippingStatus === 'ENTREGADO'
+
+  return [
+    {
+      label: 'Pedido confirmado',
+      description: paymentConfirmed ? 'El pago ya fue acreditado y el pedido quedó validado.' : 'Estamos esperando la confirmación del pago.',
+      done: paymentConfirmed,
+    },
+    {
+      label: 'Preparando paquete',
+      description: prepared ? 'El pedido ya entró a preparación y embalaje.' : 'Todavía no empezó el armado del paquete.',
+      done: prepared,
+    },
+    {
+      label: 'Despachado',
+      description: dispatched ? 'Ya lo entregamos a Andreani con tu código de seguimiento.' : 'Todavía no fue despachado al correo.',
+      done: dispatched,
+    },
+    {
+      label: 'En viaje',
+      description: inTransit ? 'El paquete ya está en movimiento hacia tu zona.' : 'Aún no figura en tránsito.',
+      done: inTransit,
+    },
+    {
+      label: 'Entregado',
+      description: delivered ? 'El pedido figura como entregado.' : 'Todavía no aparece como entregado.',
+      done: delivered,
+    },
+  ]
+}
+
+function buildShipmentTimelineMarkup(order: OrderEmailRecord) {
+  const steps = getShipmentTimeline(order)
+
+  return `
+    <div style="margin-top:18px;border:1px solid #e5e7eb;border-radius:26px;background:linear-gradient(180deg,#fbfbf8 0%,#f4f4ef 100%);padding:22px 22px 14px;">
+      <div style="font-size:11px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#6b7280;">Camino del envío</div>
+      <div style="margin-top:18px;">
+        ${steps
+          .map(
+            (step, index) => `
+              <div style="display:flex;gap:16px;">
+                <div style="width:42px;display:flex;flex-direction:column;align-items:center;flex-shrink:0;">
+                  <div style="width:40px;height:40px;border-radius:999px;border:1px solid ${
+                    step.done ? '#111827' : '#d1d5db'
+                  };background:${step.done ? '#111827' : '#ffffff'};color:${step.done ? '#ffffff' : '#6b7280'};display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;">
+                    ${step.done ? '•' : '○'}
+                  </div>
+                  ${
+                    index < steps.length - 1
+                      ? `<div style="margin-top:8px;width:1px;flex:1;min-height:28px;background:${step.done ? 'rgba(17,24,39,0.22)' : 'rgba(17,24,39,0.10)'};"></div>`
+                      : ''
+                  }
+                </div>
+                <div style="padding-bottom:16px;flex:1;">
+                  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                    <div style="font-size:15px;font-weight:700;color:${step.done ? '#111827' : 'rgba(17,24,39,0.64)'};">${step.label}</div>
+                    <span style="display:inline-block;padding:6px 10px;border-radius:999px;font-size:10px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;${
+                      step.done
+                        ? 'background:#111827;color:#ffffff;'
+                        : 'background:#ffffff;color:rgba(17,24,39,0.48);border:1px solid rgba(17,24,39,0.10);'
+                    }">
+                      ${step.done ? 'Hecho' : 'Pendiente'}
+                    </span>
+                  </div>
+                  <p style="margin:8px 0 0;font-size:14px;line-height:1.7;color:#4b5563;">${step.description}</p>
+                </div>
+              </div>`,
+          )
+          .join('')}
+      </div>
+    </div>
   `
 }
 
@@ -342,6 +424,102 @@ function buildCustomerStatusHtml(order: OrderEmailRecord) {
   )
 }
 
+function buildCustomerShipmentStatusHtml(order: OrderEmailRecord) {
+  const displayCode = order.shortCode ?? order.orderNumber
+  const trackingUrl = order.trackingNumber?.trim() ? getAndreaniTrackingUrl(order.trackingNumber) : null
+
+  return buildEmailShell(
+    `Tu pedido ${displayCode} fue despachado`,
+    'Despacho confirmado',
+    `
+      <p style="margin:0;font-size:15px;line-height:1.8;color:#334155;">
+        Hola ${order.customer.fullName ?? ''}, ya despachamos tu pedido y quedó cargado con seguimiento para que puedas ver cada avance.
+      </p>
+
+      <div style="margin-top:22px;border:1px solid #e5e7eb;border-radius:28px;background:linear-gradient(180deg,#fbfbf8 0%,#f5f7f2 100%);padding:24px;">
+        <table role="presentation" style="width:100%;border-collapse:collapse;">
+          <tr>
+            <td style="padding:0;vertical-align:top;">
+              <div style="font-size:11px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#6b7280;">Pedido ${displayCode}</div>
+              <div style="margin-top:12px;font-size:32px;line-height:1.05;font-weight:700;letter-spacing:-0.05em;color:#111827;">Despachado</div>
+              <div style="margin-top:12px;">${buildEmailStatusBadge(getOrderStateLabel(order.shippingStatus), order.shippingStatus)}</div>
+              <div style="margin-top:12px;font-size:14px;line-height:1.7;color:#4b5563;">
+                ${order.carrier ?? 'Andreani'} · ${getShippingMethodLabel(order.shippingMethod)}
+              </div>
+            </td>
+            <td style="padding:0;text-align:right;vertical-align:top;">
+              <div style="font-size:11px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:#6b7280;">Tracking</div>
+              <div style="margin-top:10px;font-size:26px;line-height:1.1;font-weight:700;color:#111827;">${order.trackingNumber ?? 'Pendiente'}</div>
+              <div style="margin-top:10px;font-size:13px;line-height:1.6;color:#4b5563;">${order.orderNumber}</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <table role="presentation" style="width:100%;border-collapse:collapse;margin-top:18px;">
+        <tr>
+          ${buildInfoCard('Correo', order.carrier ?? 'Andreani', 'Seguimiento oficial del transporte')}
+          ${buildInfoCard('Estado', getOrderStateLabel(order.shippingStatus), 'Ya fue entregado al operador logístico')}
+          ${buildInfoCard('Destino', order.address?.city ?? 'Cuenta del pedido', order.address?.province ?? 'Seguimiento disponible en tu panel')}
+        </tr>
+      </table>
+
+      ${buildShipmentTimelineMarkup(order)}
+
+      <div style="margin-top:18px;border:1px solid #e5e7eb;border-radius:24px;background:#ffffff;padding:20px 24px;">
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#6b7280;">Seguimiento y datos</div>
+        <p style="margin:12px 0 0;font-size:15px;line-height:1.8;color:#334155;">
+          Código de seguimiento: <strong>${order.trackingNumber ?? 'Pendiente de carga'}</strong>.
+        </p>
+        ${
+          trackingUrl
+            ? `<div style="margin-top:18px;">
+                <a href="${trackingUrl}" style="display:inline-block;padding:14px 22px;border-radius:999px;background:#111827;color:#ffffff;text-decoration:none;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;font-size:12px;">Seguir en Andreani</a>
+              </div>`
+            : ''
+        }
+        <div style="margin-top:12px;">
+          <a href="${buildTrackingUrl(order)}" style="display:inline-block;padding:14px 22px;border-radius:999px;border:1px solid #d1d5db;background:#ffffff;color:#111827;text-decoration:none;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;font-size:12px;">Ver mi pedido</a>
+        </div>
+      </div>
+    `,
+  )
+}
+
+function buildAdminShipmentStatusHtml(order: OrderEmailRecord) {
+  const trackingUrl = order.trackingNumber?.trim() ? getAndreaniTrackingUrl(order.trackingNumber) : null
+
+  return buildEmailShell(
+    `Pedido despachado ${order.shortCode ?? order.orderNumber}`,
+    'Despacho registrado',
+    `
+      <p style="margin:0 0 14px;font-size:15px;line-height:1.7;"><strong>${order.customer.fullName ?? order.customer.email}</strong> ya tiene el pedido despachado.</p>
+      <p style="margin:0 0 14px;font-size:15px;line-height:1.7;">Pedido: <strong>${order.shortCode ?? order.orderNumber}</strong> · Estado de envío: <strong>${getOrderStateLabel(order.shippingStatus)}</strong>.</p>
+      <p style="margin:0 0 14px;font-size:15px;line-height:1.7;">Tracking: <strong>${order.trackingNumber ?? 'Sin tracking'}</strong>${trackingUrl ? ` · <a href="${trackingUrl}" style="color:#111827;">Abrir Andreani</a>` : ''}</p>
+      ${buildOrderSummaryMarkup(order)}
+      <div style="margin-top:24px;">
+        <a href="${env.SITE_URL}/admin/pedidos/${order.id}" style="display:inline-block;padding:14px 22px;border-radius:999px;background:#111827;color:#ffffff;text-decoration:none;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;font-size:12px;">Abrir pedido</a>
+      </div>
+    `,
+  )
+}
+
+function buildAdminStatusChangedHtml(order: OrderEmailRecord) {
+  return buildEmailShell(
+    `Estado actualizado ${order.shortCode ?? order.orderNumber}`,
+    'Actualización operativa',
+    `
+      <p style="margin:0 0 14px;font-size:15px;line-height:1.7;"><strong>${order.customer.fullName ?? order.customer.email}</strong> tiene una actualización en su pedido.</p>
+      <p style="margin:0 0 14px;font-size:15px;line-height:1.7;">Pedido: <strong>${order.shortCode ?? order.orderNumber}</strong> · Estado del pedido: <strong>${getOrderStateLabel(order.status)}</strong> · Estado de envío: <strong>${getOrderStateLabel(order.shippingStatus)}</strong>.</p>
+      <p style="margin:0 0 14px;font-size:15px;line-height:1.7;">Tracking: <strong>${order.trackingNumber ?? 'Sin tracking'}</strong>.</p>
+      ${buildOrderSummaryMarkup(order)}
+      <div style="margin-top:24px;">
+        <a href="${env.SITE_URL}/admin/pedidos/${order.id}" style="display:inline-block;padding:14px 22px;border-radius:999px;background:#111827;color:#ffffff;text-decoration:none;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;font-size:12px;">Abrir pedido</a>
+      </div>
+    `,
+  )
+}
+
 function buildExchangeSummaryMarkup(exchangeRequest: ExchangeEmailRecord) {
   return `
     <div style="margin-top:18px;padding:18px;border-radius:22px;background:#f8fafc;border:1px solid #e5e7eb;">
@@ -509,6 +687,12 @@ async function sendSafeEmail(input: { to: string; subject: string; html: string 
   }
 }
 
+async function sendTrackedEmail(input: { to: string; subject: string; html: string }) {
+  const result = await sendEmail(input)
+  console.info('[order-email]', { to: input.to, subject: input.subject, result })
+  return result
+}
+
 export async function sendOrderCreatedNotifications(orderId: string) {
   const order = await getOrderEmailRecord(orderId)
 
@@ -534,51 +718,79 @@ export async function sendOrderPaidNotification(orderId: string) {
   const order = await getOrderEmailRecord(orderId)
 
   if (!order) {
-    return
+    return false
   }
 
   await Promise.all([
-    sendSafeEmail({
+    sendTrackedEmail({
       to: order.customer.email,
       subject: `Pago confirmado: ${order.shortCode ?? order.orderNumber}`,
       html: buildCustomerStatusHtml(order),
     }),
-    sendSafeEmail({
+    sendTrackedEmail({
       to: env.ADMIN_EMAIL,
       subject: `[ADMIN] Pago confirmado - ${order.shortCode ?? order.orderNumber} - ${order.customer.fullName ?? order.customer.email}`,
       html: buildAdminOrderCreatedHtml(order),
     }),
   ])
+
+  return true
 }
 
 export async function sendOrderStatusChangedNotification(orderId: string) {
   const order = await getOrderEmailRecord(orderId)
 
   if (!order) {
-    return
+    return false
   }
 
   if (order.replacementExchangeRequests[0] && order.status === 'SHIPPED') {
     await Promise.all([
-      sendSafeEmail({
+      sendTrackedEmail({
         to: order.customer.email,
         subject: `Despacho de cambio: ${order.shortCode ?? order.orderNumber}`,
         html: buildCustomerReplacementShippedHtml(order),
       }),
-      sendSafeEmail({
+      sendTrackedEmail({
         to: env.ADMIN_EMAIL,
         subject: `[ADMIN] Recambio despachado - ${order.shortCode ?? order.orderNumber}`,
         html: buildAdminReplacementShippedHtml(order),
       }),
     ])
-    return
+    return true
   }
 
-  await sendSafeEmail({
-    to: order.customer.email,
-    subject: `Estado actualizado: ${order.shortCode ?? order.orderNumber}`,
-    html: buildCustomerStatusHtml(order),
-  })
+  if (order.status === 'SHIPPED' || order.shippingStatus === 'DESPACHADO') {
+    await Promise.all([
+      sendTrackedEmail({
+        to: order.customer.email,
+        subject: `Tu pedido fue despachado: ${order.shortCode ?? order.orderNumber}`,
+        html: buildCustomerShipmentStatusHtml(order),
+      }),
+      sendTrackedEmail({
+        to: env.ADMIN_EMAIL,
+        subject: `[ADMIN] Pedido despachado - ${order.shortCode ?? order.orderNumber} - ${order.customer.fullName ?? order.customer.email}`,
+        html: buildAdminShipmentStatusHtml(order),
+      }),
+    ])
+
+    return true
+  }
+
+  await Promise.all([
+    sendTrackedEmail({
+      to: order.customer.email,
+      subject: `Estado actualizado: ${order.shortCode ?? order.orderNumber}`,
+      html: buildCustomerStatusHtml(order),
+    }),
+    sendTrackedEmail({
+      to: env.ADMIN_EMAIL,
+      subject: `[ADMIN] Estado actualizado - ${order.shortCode ?? order.orderNumber} - ${order.customer.fullName ?? order.customer.email}`,
+      html: buildAdminStatusChangedHtml(order),
+    }),
+  ])
+
+  return true
 }
 
 export async function sendExchangeRequestCreatedNotifications(exchangeRequestId: string) {

@@ -25,6 +25,20 @@ import {
   WHOLESALE_MIN_UNITS_PER_MODEL_COLOR,
 } from '@/lib/wholesale'
 
+const PAYMENT_EMAIL_SENT_MARKER = '[system] payment-email-sent'
+
+function hasSystemMarker(source: string | null | undefined, marker: string) {
+  return Boolean(source?.includes(marker))
+}
+
+function appendSystemMarker(source: string | null | undefined, marker: string) {
+  if (hasSystemMarker(source, marker)) {
+    return source ?? null
+  }
+
+  return [source?.trim(), marker].filter(Boolean).join('\n')
+}
+
 function isMissingSchemaError(error: unknown) {
   return (
     error instanceof Prisma.PrismaClientKnownRequestError &&
@@ -193,8 +207,16 @@ export async function queuePrintJobForOrder(orderId: string) {
   })
 }
 
-export async function syncApprovedPayment(orderId: string, paymentReference?: string | null) {
+export async function syncApprovedPayment(
+  orderId: string,
+  paymentReference?: string | null,
+  options?: {
+    strictEmailDelivery?: boolean
+    retryPaidNotificationIfAlreadyPaid?: boolean
+  },
+) {
   let justApproved = false
+  let shouldAttemptPaidEmail = false
 
   const order = await prisma.$transaction(async (tx) => {
     const currentOrder = await tx.order.findUniqueOrThrow({
@@ -203,8 +225,11 @@ export async function syncApprovedPayment(orderId: string, paymentReference?: st
         items: true,
       },
     })
+    const paymentEmailAlreadySent = hasSystemMarker(currentOrder.fulfillmentNote, PAYMENT_EMAIL_SENT_MARKER)
 
     if (currentOrder.paymentStatus === PaymentStatus.PAID) {
+      shouldAttemptPaidEmail = Boolean(options?.retryPaidNotificationIfAlreadyPaid) && !paymentEmailAlreadySent
+
       return tx.order.update({
         where: { id: orderId },
         data: {
@@ -244,6 +269,7 @@ export async function syncApprovedPayment(orderId: string, paymentReference?: st
     }
 
     justApproved = true
+    shouldAttemptPaidEmail = !paymentEmailAlreadySent
 
     return tx.order.update({
       where: { id: orderId },
@@ -260,7 +286,31 @@ export async function syncApprovedPayment(orderId: string, paymentReference?: st
   if (justApproved) {
     await queuePrintJobForOrder(order.id)
     await sendMetaPurchaseEventSafely({ orderId: order.id })
-    await sendOrderPaidNotification(order.id)
+  }
+
+  if (shouldAttemptPaidEmail) {
+    try {
+      const sent = await sendOrderPaidNotification(order.id)
+
+      if (sent) {
+        await prisma.order.update({
+          where: { id: order.id },
+          data: {
+            fulfillmentNote: appendSystemMarker(order.fulfillmentNote, PAYMENT_EMAIL_SENT_MARKER),
+          },
+        })
+      }
+    } catch (error) {
+      console.error('[payment-email] failed', {
+        orderId: order.id,
+        paymentReference: paymentReference ?? null,
+        message: error instanceof Error ? error.message : 'Unknown error',
+      })
+
+      if (options?.strictEmailDelivery) {
+        throw error
+      }
+    }
   }
 
   return order
