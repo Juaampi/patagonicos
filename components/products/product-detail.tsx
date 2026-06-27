@@ -590,7 +590,7 @@ export function ProductDetail({
               >
                 <div className="relative aspect-[4/4.6] w-full overflow-hidden bg-[#f3f3ef]">
                   <Image
-                    src={(getColorImages(product, color.name)[0] ?? mainImage)?.url ?? '/hero-header.png'}
+                    src={(getColorImages(product, color.name)[0] ?? mainImage)?.url ?? '/hero-header-otono.webp'}
                     alt={(getColorImages(product, color.name)[0] ?? mainImage)?.alt ?? `${product.name} ${color.name}`}
                     fill
                     sizes="106px"
@@ -1123,10 +1123,10 @@ export function ProductDetail({
             </div>
             <div className="relative aspect-[16/11] w-full bg-[#f6f6f2]">
               <Image
-                src="/size-guide-modal.png"
+                src="/size-guide-modal.webp"
                 alt="Guía para medir a tu Patagónico con referencias de largo, cuello, pecho, cruz y abdomen"
                 fill
-                sizes="100vw"
+                sizes="(min-width: 1280px) 1100px, (min-width: 768px) 90vw, 100vw"
                 className="object-contain"
               />
             </div>

@@ -1,4 +1,5 @@
 import { sampleOrders } from './store-data'
+import { optimizeStoreProductImages, optimizeStoreProductsImages } from './image-delivery'
 import type { Product } from '@/types/store'
 import {
   getCatalogProductBySlug,
@@ -8,30 +9,31 @@ import {
 } from './server/catalog'
 
 export async function getAllProducts() {
-  return getCatalogProducts()
+  return optimizeStoreProductsImages(await getCatalogProducts())
 }
 
 export async function getFeaturedProducts(animalType?: Product['animalType']) {
-  const products = await getFeaturedCatalogProducts()
+  const products = optimizeStoreProductsImages(await getFeaturedCatalogProducts())
   return animalType ? products.filter((product) => product.animalType === animalType) : products
 }
 
 export async function getStarProduct(animalType?: Product['animalType']) {
-  const products = await getCatalogProducts()
+  const products = optimizeStoreProductsImages(await getCatalogProducts())
   const filtered = animalType ? products.filter((product) => product.animalType === animalType) : products
   return filtered[0] ?? products[0]
 }
 
 export async function getProductBySlug(slug: string) {
-  return getCatalogProductBySlug(slug)
+  const product = await getCatalogProductBySlug(slug)
+  return product ? optimizeStoreProductImages(product) : null
 }
 
 export async function getRelatedProducts(slug: string) {
-  return getRelatedCatalogProducts(slug)
+  return optimizeStoreProductsImages(await getRelatedCatalogProducts(slug))
 }
 
 export async function getProductsByAnimal(animalType: Product['animalType']) {
-  const products = await getCatalogProducts()
+  const products = optimizeStoreProductsImages(await getCatalogProducts())
   return products.filter((product) => product.animalType === animalType)
 }
 

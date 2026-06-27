@@ -5,7 +5,7 @@ export function HeroSlider() {
     <section className="relative isolate bg-black text-white">
       <div className="relative min-h-[calc(100svh-96px)] md:min-h-[calc(100svh-108px)]">
         <Image
-          src="/hero-header-otono.png"
+          src="/hero-header-otono.webp"
           alt="Perro con abrigo negro técnico en exterior durante temporada otoñal"
           fill
           priority
