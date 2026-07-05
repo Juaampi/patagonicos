@@ -8,6 +8,14 @@ export type ProductGalleryItem =
   | { kind: 'image'; id: string; image: ProductImage }
   | { kind: 'video'; id: string; url: string }
 
+function compareStockPriority(leftInStock: boolean, rightInStock: boolean) {
+  if (leftInStock === rightInStock) {
+    return 0
+  }
+
+  return leftInStock ? -1 : 1
+}
+
 function normalizeSizeLabel(value: string) {
   return value
     .trim()
@@ -56,7 +64,18 @@ export function compareProductSizes(left: string, right: string) {
 
 export function getProductColors(product: Product): ProductColor[] {
   if (product.colors.length > 0) {
-    return product.colors
+    return [...product.colors].sort((left, right) => {
+      const stockPriority = compareStockPriority(
+        getStockForColor(product, left.name) > 0,
+        getStockForColor(product, right.name) > 0,
+      )
+
+      if (stockPriority !== 0) {
+        return stockPriority
+      }
+
+      return left.name.localeCompare(right.name, 'es')
+    })
   }
 
   const colorMap = new Map<string, ProductColor>()
@@ -69,7 +88,18 @@ export function getProductColors(product: Product): ProductColor[] {
     }
   }
 
-  return Array.from(colorMap.values())
+  return Array.from(colorMap.values()).sort((left, right) => {
+    const stockPriority = compareStockPriority(
+      getStockForColor(product, left.name) > 0,
+      getStockForColor(product, right.name) > 0,
+    )
+
+    if (stockPriority !== 0) {
+      return stockPriority
+    }
+
+    return left.name.localeCompare(right.name, 'es')
+  })
 }
 
 export function getMainImage(product: Product): ProductImage | null {
@@ -148,7 +178,17 @@ export function getAvailableSizes(product: Product, colorName: string) {
   const sizeSet = new Set(variants.map((variant) => variant.size))
   return [...product.sizes]
     .filter((size) => sizeSet.has(size.label))
-    .sort((left, right) => compareProductSizes(left.label, right.label))
+    .sort((left, right) => {
+      const leftVariant = variants.find((variant) => variant.size === left.label)
+      const rightVariant = variants.find((variant) => variant.size === right.label)
+      const stockPriority = compareStockPriority((leftVariant?.stock ?? 0) > 0, (rightVariant?.stock ?? 0) > 0)
+
+      if (stockPriority !== 0) {
+        return stockPriority
+      }
+
+      return compareProductSizes(left.label, right.label)
+    })
 }
 
 export function getSizesForColor(product: Product, colorName: string) {
@@ -159,7 +199,15 @@ export function getSizesForColor(product: Product, colorName: string) {
       stock: variant.stock,
       inStock: variant.stock > 0,
     }))
-    .sort((a, b) => compareProductSizes(a.label, b.label))
+    .sort((a, b) => {
+      const stockPriority = compareStockPriority(a.inStock, b.inStock)
+
+      if (stockPriority !== 0) {
+        return stockPriority
+      }
+
+      return compareProductSizes(a.label, b.label)
+    })
 }
 
 export function getVariantForSelection(product: Product, colorName: string, size: string) {

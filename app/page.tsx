@@ -58,14 +58,35 @@ export default async function HomePage() {
   const dogProducts = await getProductsByAnimal('DOG')
   const catProducts = await getProductsByAnimal('CAT')
   const adoptionPets = await getPublicAdoptionPets()
+  const hasCatProducts = catProducts.length > 0
 
   return (
     <>
       <HeroSlider />
 
-      <BrandStory />
-
       <ProductFeature product={starProduct} />
+
+      <section className="shell mt-20">
+        <SectionHeading
+          eyebrow={speciesMeta.DOG.eyebrow}
+          title={speciesMeta.DOG.title}
+          description={speciesMeta.DOG.description}
+        />
+        {renderCategoryBlocks(dogProducts)}
+      </section>
+
+      {hasCatProducts ? (
+        <section className="shell mt-24">
+          <SectionHeading
+            eyebrow={speciesMeta.CAT.eyebrow}
+            title={speciesMeta.CAT.title}
+            description={speciesMeta.CAT.description}
+          />
+          {renderCategoryBlocks(catProducts)}
+        </section>
+      ) : null}
+
+      <BrandStory />
 
       <ShoppingBenefits
         localDeliveryFreeThreshold={settings.localDeliveryFreeThreshold}
@@ -108,30 +129,6 @@ export default async function HomePage() {
       </section>
 
       <AdoptionShowcase pets={adoptionPets.slice(0, 6)} />
-
-      <section className="shell mt-20">
-        <SectionHeading
-          eyebrow={speciesMeta.DOG.eyebrow}
-          title={speciesMeta.DOG.title}
-          description={speciesMeta.DOG.description}
-        />
-        {renderCategoryBlocks(dogProducts)}
-      </section>
-
-      <section className="shell mt-24">
-        <SectionHeading
-          eyebrow={speciesMeta.CAT.eyebrow}
-          title={speciesMeta.CAT.title}
-          description={speciesMeta.CAT.description}
-        />
-        {catProducts.length > 0 ? (
-          renderCategoryBlocks(catProducts)
-        ) : (
-          <div className="card-surface mt-8 p-7 text-sm leading-7 text-black/58">
-            Todavía no hay productos para gatos cargados en la base. El panel ya quedó preparado para asignarlos por separado.
-          </div>
-        )}
-      </section>
 
       {settings.barilocheEnabled ? (
         <section className="shell mt-20">

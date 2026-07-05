@@ -32,9 +32,19 @@ const MIN_VISIBLE_MS = 420
 const SAFETY_TIMEOUT_MS = 12000
 
 function forceScrollToTop() {
-  window.scrollTo(0, 0)
+  const previousHtmlBehavior = document.documentElement.style.scrollBehavior
+  const previousBodyBehavior = document.body.style.scrollBehavior
+
+  document.documentElement.style.scrollBehavior = 'auto'
+  document.body.style.scrollBehavior = 'auto'
+  window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
   document.documentElement.scrollTop = 0
   document.body.scrollTop = 0
+
+  window.requestAnimationFrame(() => {
+    document.documentElement.style.scrollBehavior = previousHtmlBehavior
+    document.body.style.scrollBehavior = previousBodyBehavior
+  })
 }
 
 export function NavigationFeedback() {

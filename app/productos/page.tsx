@@ -86,12 +86,19 @@ export default async function ProductsPage({
   searchParams?: Promise<{ animal?: string; category?: string; sort?: string }>
 }) {
   const params = searchParams ? await searchParams : undefined
-  const selectedAnimal = params?.animal === 'CAT' ? 'CAT' : params?.animal === 'DOG' ? 'DOG' : null
+  const products = await getAllProducts()
+  const hasDogProducts = products.some((product) => product.animalType === 'DOG')
+  const hasCatProducts = products.some((product) => product.animalType === 'CAT')
+  const availableAnimals = {
+    DOG: hasDogProducts,
+    CAT: hasCatProducts,
+  } as const
+  const requestedAnimal = params?.animal === 'CAT' ? 'CAT' : params?.animal === 'DOG' ? 'DOG' : null
+  const selectedAnimal = requestedAnimal && availableAnimals[requestedAnimal] ? requestedAnimal : null
   const selectedCategory = params?.category?.trim() ? params.category.trim() : null
   const selectedSort = sortOptions.some((option) => option.value === params?.sort)
     ? (params?.sort as SortValue)
     : 'featured'
-  const products = await getAllProducts()
   const filteredByAnimal = selectedAnimal ? products.filter((product) => product.animalType === selectedAnimal) : products
   const allCategories = Array.from(new Set(filteredByAnimal.map((product) => product.category)))
   const normalizedCategory = selectedCategory && allCategories.includes(selectedCategory) ? selectedCategory : null
@@ -129,18 +136,22 @@ export default async function ProductsPage({
               >
                 Todo
               </Link>
-              <Link
-                href={buildProductsHref('DOG', normalizedCategory, selectedSort)}
-                className={`rounded-full border px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.16em] transition ${getFilterChipClass(selectedAnimal === 'DOG')}`}
-              >
-                Perros
-              </Link>
-              <Link
-                href={buildProductsHref('CAT', normalizedCategory, selectedSort)}
-                className={`rounded-full border px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.16em] transition ${getFilterChipClass(selectedAnimal === 'CAT')}`}
-              >
-                Gatos
-              </Link>
+              {hasDogProducts ? (
+                <Link
+                  href={buildProductsHref('DOG', normalizedCategory, selectedSort)}
+                  className={`rounded-full border px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.16em] transition ${getFilterChipClass(selectedAnimal === 'DOG')}`}
+                >
+                  Perros
+                </Link>
+              ) : null}
+              {hasCatProducts ? (
+                <Link
+                  href={buildProductsHref('CAT', normalizedCategory, selectedSort)}
+                  className={`rounded-full border px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.16em] transition ${getFilterChipClass(selectedAnimal === 'CAT')}`}
+                >
+                  Gatos
+                </Link>
+              ) : null}
             </div>
           </div>
 

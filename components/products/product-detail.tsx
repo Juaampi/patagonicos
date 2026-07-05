@@ -257,9 +257,19 @@ export function ProductDetail({
     let secondFrame: number | null = null
 
     const scrollToTop = () => {
+      const previousHtmlBehavior = document.documentElement.style.scrollBehavior
+      const previousBodyBehavior = document.body.style.scrollBehavior
+
+      document.documentElement.style.scrollBehavior = 'auto'
+      document.body.style.scrollBehavior = 'auto'
       window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
       document.documentElement.scrollTop = 0
       document.body.scrollTop = 0
+
+      window.requestAnimationFrame(() => {
+        document.documentElement.style.scrollBehavior = previousHtmlBehavior
+        document.body.style.scrollBehavior = previousBodyBehavior
+      })
     }
 
     const firstFrame = window.requestAnimationFrame(() => {
