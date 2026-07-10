@@ -7,7 +7,10 @@ import { useEffect, useState } from 'react'
 import { useCart } from '@/components/cart/cart-provider'
 import { BarilocheDeliveryCountdown } from '@/components/marketing/bariloche-delivery-countdown'
 import { Logo } from '@/components/brand/logo'
-import type { StoreSettingsSnapshot } from '@/lib/store-settings'
+import {
+  TRANSFER_DISCOUNT_PERCENT,
+  type StoreSettingsSnapshot,
+} from '@/lib/store-settings'
 import { cn } from '@/lib/utils'
 
 const instagramUrl = 'https://www.instagram.com/patagonicos.ok/'
@@ -150,6 +153,7 @@ export function SiteHeader({ settings }: { settings: StoreSettingsSnapshot }) {
     currency: 'ARS',
     maximumFractionDigits: 0,
   }).format(settings.localDeliveryFreeThreshold)}`
+  const transferHeadline = `${TRANSFER_DISCOUNT_PERCENT}% off por transferencia`
 
   return (
     <header className="fixed inset-x-0 top-0 z-50">
@@ -159,11 +163,13 @@ export function SiteHeader({ settings }: { settings: StoreSettingsSnapshot }) {
             <div className="top-strip-group">
               <span>{shippingHeadline}</span>
               <span>{freeShippingHeadline}</span>
+              <span>{transferHeadline}</span>
               {settings.barilocheEnabled ? <BarilocheDeliveryCountdown light className="text-white/88" /> : null}
             </div>
             <div className="top-strip-group" aria-hidden="true">
               <span>{shippingHeadline}</span>
               <span>{freeShippingHeadline}</span>
+              <span>{transferHeadline}</span>
               {settings.barilocheEnabled ? <BarilocheDeliveryCountdown light className="text-white/88" /> : null}
             </div>
           </div>

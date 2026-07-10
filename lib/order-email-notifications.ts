@@ -2,6 +2,7 @@ import { prisma } from '@/lib/prisma'
 import { sendEmail } from '@/lib/email'
 import { env } from '@/lib/env'
 import { getAndreaniTrackingUrl } from '@/lib/server/andreani'
+import { TRANSFER_DISCOUNT_PERCENT, TRANSFER_PAYMENT_ALIAS } from '@/lib/store-settings'
 import { formatPrice } from '@/lib/utils'
 
 type OrderEmailRecord = NonNullable<Awaited<ReturnType<typeof getOrderEmailRecord>>>
@@ -36,6 +37,9 @@ function getOrderStateLabel(status: string) {
     PENDING: 'Pendiente',
     REJECTED: 'Rechazado',
     PENDING_ON_DELIVERY: 'Pendiente al entregar',
+    ONLINE: 'Pagado online',
+    CASH_ON_DELIVERY: 'Contra entrega',
+    TRANSFER: 'Transferencia',
     EN_PREPARACION: 'En preparación',
     DESPACHADO: 'Despachado',
     EN_TRANSITO: 'En tránsito',
@@ -118,6 +122,15 @@ function buildItemsMarkup(order: OrderEmailRecord) {
 }
 
 function buildOrderSummaryMarkup(order: OrderEmailRecord) {
+  const discountLabel =
+    order.paymentMethod === 'TRANSFER' && order.shippingMethod === 'LOCAL_DELIVERY'
+      ? 'Descuentos aplicados'
+      : order.paymentMethod === 'TRANSFER'
+        ? `Descuento transferencia (${TRANSFER_DISCOUNT_PERCENT}%)`
+        : order.shippingMethod === 'LOCAL_DELIVERY'
+          ? 'Descuento Bariloche'
+          : 'Descuento'
+
   return `
     <table style="width:100%;border-collapse:collapse;margin-top:16px;">
       ${buildItemsMarkup(order)}
@@ -128,7 +141,7 @@ function buildOrderSummaryMarkup(order: OrderEmailRecord) {
       ${
         order.discountAmount > 0
           ? `<tr>
-              <td style="padding-top:8px;color:#15803d;">Descuento</td>
+              <td style="padding-top:8px;color:#15803d;">${discountLabel}</td>
               <td style="padding-top:8px;text-align:right;font-weight:600;color:#15803d;">-${formatPrice(order.discountAmount)}</td>
             </tr>`
           : ''
@@ -142,6 +155,33 @@ function buildOrderSummaryMarkup(order: OrderEmailRecord) {
         <td style="padding-top:12px;border-top:1px solid #d1d5db;text-align:right;font-size:16px;font-weight:700;color:#111827;">${formatPrice(order.total)}</td>
       </tr>
     </table>
+  `
+}
+
+function buildTransferInstructionsMarkup(order: OrderEmailRecord, audience: 'customer' | 'admin' = 'customer') {
+  if (order.paymentMethod !== 'TRANSFER') {
+    return ''
+  }
+
+  return `
+    <div style="margin-top:18px;border:1px solid #fcd34d;border-radius:24px;background:#fffbeb;padding:20px 22px;">
+      <div style="font-size:11px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#92400e;">Pago por transferencia</div>
+      <div style="margin-top:10px;font-size:15px;line-height:1.8;color:#78350f;">
+        ${
+          audience === 'customer'
+            ? 'Tu pedido quedó <strong>pendiente de pago</strong>. Transferí el total a este alias:'
+            : 'La orden quedó <strong>pendiente de pago</strong>. El cliente debe transferir el total a este alias:'
+        }
+      </div>
+      <div style="margin-top:12px;font-size:28px;line-height:1;font-weight:700;letter-spacing:-0.04em;color:#111827;">${TRANSFER_PAYMENT_ALIAS}</div>
+      <div style="margin-top:12px;font-size:14px;line-height:1.7;color:#92400e;">
+        ${
+          audience === 'customer'
+            ? 'Apenas impacte la transferencia, actualizamos el estado del pedido y te avisamos por mail.'
+            : 'Apenas impacte la transferencia, el pedido puede pasar a preparación.'
+        }
+      </div>
+    </div>
   `
 }
 
@@ -323,6 +363,7 @@ function buildCustomerOrderCreatedHtml(order: OrderEmailRecord) {
         <div style="margin-top:6px;font-size:24px;font-weight:700;">${order.shortCode ?? order.orderNumber}</div>
         <div style="margin-top:8px;color:#4b5563;">${order.orderNumber}</div>
       </div>
+      ${buildTransferInstructionsMarkup(order)}
       ${buildOrderSummaryMarkup(order)}
       <div style="margin-top:24px;">
         <a href="${buildProfileUrl(order)}" style="display:inline-block;padding:14px 22px;border-radius:999px;background:#111827;color:#ffffff;text-decoration:none;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;font-size:12px;">Ver mi pedido</a>
@@ -338,12 +379,14 @@ function buildAdminOrderCreatedHtml(order: OrderEmailRecord) {
     `
       <p style="margin:0 0 14px;font-size:15px;line-height:1.7;"><strong>${order.customer.fullName ?? order.customer.email}</strong> realizó una compra.</p>
       <p style="margin:0 0 14px;font-size:15px;line-height:1.7;">Pedido: <strong>${order.shortCode ?? order.orderNumber}</strong> · Estado del pedido: <strong>${getOrderStateLabel(order.status)}</strong> · Estado del pago: <strong>${getOrderStateLabel(order.paymentStatus)}</strong>.</p>
+      <p style="margin:0 0 14px;font-size:15px;line-height:1.7;">Método de pago: <strong>${getOrderStateLabel(order.paymentMethod)}</strong>.</p>
       <p style="margin:0 0 14px;font-size:15px;line-height:1.7;">Email: ${order.customer.email}${order.customer.phone ? ` · Teléfono: ${order.customer.phone}` : ''}</p>
       ${
         order.address
           ? `<p style="margin:0 0 14px;font-size:15px;line-height:1.7;">Entrega: ${[order.address.line1, order.address.city, order.address.province, order.address.postalCode].filter(Boolean).join(', ')}</p>`
           : ''
       }
+      ${buildTransferInstructionsMarkup(order, 'admin')}
       ${buildOrderSummaryMarkup(order)}
       <div style="margin-top:24px;">
         <a href="${env.SITE_URL}/admin/pedidos/${order.id}" style="display:inline-block;padding:14px 22px;border-radius:999px;background:#111827;color:#ffffff;text-decoration:none;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;font-size:12px;">Abrir pedido</a>

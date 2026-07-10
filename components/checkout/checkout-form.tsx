@@ -1,6 +1,6 @@
 'use client'
 
-import { ArrowRight, CheckCheck, LoaderCircle, MapPin, Phone } from 'lucide-react'
+import { ArrowRight, CheckCheck, Landmark, LoaderCircle, MapPin, Phone } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useCart } from '@/components/cart/cart-provider'
@@ -14,7 +14,12 @@ import {
   getProvinceCitySuggestions,
   normalizeProvinceName,
 } from '@/lib/argentina-data'
-import { getCheckoutPreview, isBarilocheLocation, type StoreSettingsSnapshot } from '@/lib/store-settings'
+import {
+  getCheckoutPreview,
+  isBarilocheLocation,
+  TRANSFER_DISCOUNT_PERCENT,
+  type StoreSettingsSnapshot,
+} from '@/lib/store-settings'
 import type { CartItem, SalesChannel } from '@/types/store'
 import { formatPrice } from '@/lib/utils'
 
@@ -33,6 +38,8 @@ type AddressSuggestion = {
 type GeoRefLocality = {
   nombre: string
 }
+
+type CheckoutPaymentMethod = 'ONLINE' | 'CASH_ON_DELIVERY' | 'TRANSFER'
 
 function MercadoPagoBadge({ compact = false }: { compact?: boolean }) {
   return (
@@ -94,7 +101,7 @@ export function CheckoutForm({
     longitude: '',
     pinLabel: '',
   })
-  const [paymentMethod, setPaymentMethod] = useState<'ONLINE' | 'CASH_ON_DELIVERY'>('ONLINE')
+  const [paymentMethod, setPaymentMethod] = useState<CheckoutPaymentMethod>('ONLINE')
   const [cityOptions, setCityOptions] = useState<string[]>([])
   const [addressSuggestions, setAddressSuggestions] = useState<AddressSuggestion[]>([])
   const [addressSuggestionsOpen, setAddressSuggestionsOpen] = useState(false)
@@ -105,6 +112,8 @@ export function CheckoutForm({
     shortCode?: string
     orderId?: string
     paymentUrl?: string
+    paymentMethod?: CheckoutPaymentMethod
+    paymentStatus?: string
   }>({
     status: 'idle',
     message: '',
@@ -113,8 +122,8 @@ export function CheckoutForm({
   const [redirectCountdown, setRedirectCountdown] = useState(5)
 
   const shippingPreview = useMemo(() => {
-    return getCheckoutPreview(subtotal, form.city, form.province, settings)
-  }, [form.city, form.province, settings, subtotal])
+    return getCheckoutPreview(subtotal, form.city, form.province, settings, paymentMethod)
+  }, [form.city, form.province, paymentMethod, settings, subtotal])
   const shouldRequirePin = shippingPreview.isBariloche
   const selectedProvince = getCanonicalProvince(form.province)
   const selectedCity = cityOptions.find((city) => normalizeProvinceName(city) === normalizeProvinceName(form.city))
@@ -127,6 +136,17 @@ export function CheckoutForm({
     hasValidProvince
 
   const citySuggestions = cityOptions
+  const isTransferPayment = paymentMethod === 'TRANSFER'
+  const successUsesTransfer = state.paymentMethod === 'TRANSFER'
+  const successAccentClasses = {
+    backdrop: 'bg-[linear-gradient(180deg,#16a34a_0%,#22c55e_48%,rgba(34,197,94,0.18)_100%)]',
+    card: 'shadow-[0_40px_120px_rgba(4,120,87,0.35)]',
+    hero: 'bg-[linear-gradient(135deg,#15803d_0%,#22c55e_55%,#86efac_100%)]',
+    eyebrow: 'text-emerald-700',
+    message: 'border-emerald-200 bg-emerald-50 text-emerald-900',
+    redirect: 'text-emerald-800',
+  }
+  const clearCheckoutItems = clearItems ?? clearCart
 
   useEffect(() => {
     if (!selectedProvince) {
@@ -198,13 +218,16 @@ export function CheckoutForm({
 
     const timeout = window.setTimeout(() => {
       router.push(`/perfil?email=${encodeURIComponent(form.email)}&saved=created&order=${encodeURIComponent(state.orderId ?? '')}`)
+      window.setTimeout(() => {
+        clearCheckoutItems()
+      }, 150)
     }, 5000)
 
     return () => {
       window.clearInterval(interval)
       window.clearTimeout(timeout)
     }
-  }, [form.email, router, state.orderId, state.paymentUrl, state.status])
+  }, [clearCheckoutItems, form.email, router, state.orderId, state.paymentUrl, state.status])
 
   function updateField<K extends keyof typeof form>(key: K, value: (typeof form)[K]) {
     setForm((current) => ({ ...current, [key]: value }))
@@ -392,6 +415,8 @@ export function CheckoutForm({
         shortCode: data.shortCode,
         orderId: data.orderId,
         paymentUrl: data.paymentUrl,
+        paymentMethod: data.paymentMethod,
+        paymentStatus: data.paymentStatus,
       })
 
       if (data.paymentUrl) {
@@ -404,13 +429,11 @@ export function CheckoutForm({
         return
       }
 
-      const clearCheckoutItems = clearItems ?? clearCart
-      clearCheckoutItems()
     } catch {
       setSubmitProgress(0)
       setState({
         status: 'error',
-        message: 'No pudimos conectar con Mercado Pago. Intentá nuevamente.',
+        message: 'No pudimos procesar tu pedido en este momento. Intentá nuevamente.',
       })
     }
   }
@@ -419,31 +442,39 @@ export function CheckoutForm({
     <div className="relative">
       {state.status === 'success' && !state.paymentUrl ? (
         <div className="fixed inset-0 z-[160] overflow-y-auto">
-          <div className="absolute inset-0 bg-[linear-gradient(180deg,#16a34a_0%,#22c55e_48%,rgba(34,197,94,0.18)_100%)]" />
+          <div className={`absolute inset-0 ${successAccentClasses.backdrop}`} />
           <div className="absolute inset-x-0 top-0 h-[56vh] bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.3),transparent_55%)]" />
           <div className="relative mx-auto flex min-h-screen max-w-6xl items-center justify-center px-4 py-10 md:px-8">
-            <div className="w-full overflow-hidden rounded-[36px] border border-white/30 bg-white shadow-[0_40px_120px_rgba(4,120,87,0.35)]">
-              <div className="bg-[linear-gradient(135deg,#15803d_0%,#22c55e_55%,#86efac_100%)] px-6 py-10 text-white md:px-10 md:py-14">
+            <div className={`w-full overflow-hidden rounded-[36px] border border-white/30 bg-white ${successAccentClasses.card}`}>
+              <div className={`${successAccentClasses.hero} px-6 py-10 text-white md:px-10 md:py-14`}>
                 <div className="mx-auto max-w-3xl text-center">
                   <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full border border-white/35 bg-white/14 shadow-[0_16px_40px_rgba(255,255,255,0.18)] md:h-24 md:w-24">
                     <CheckCheck className="h-10 w-10 md:h-12 md:w-12" />
                   </div>
-                  <p className="mt-6 text-[11px] font-semibold uppercase tracking-[0.3em] text-white/82">Pago confirmado</p>
-                  <h2 className="mt-4 font-display text-4xl tracking-[-0.06em] md:text-6xl">Gracias por tu compra</h2>
+                  <p className="mt-6 text-[11px] font-semibold uppercase tracking-[0.3em] text-white/82">
+                    Pedido confirmado
+                  </p>
+                  <h2 className="mt-4 font-display text-4xl tracking-[-0.06em] md:text-6xl">
+                    {successUsesTransfer ? 'Tu pedido ya quedó registrado' : 'Gracias por tu compra'}
+                  </h2>
                   <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-white/88 md:text-base md:leading-8">
-                    Tu pago ya fue acreditado y el pedido quedó guardado en tu cuenta para que puedas seguir cada etapa del proceso.
+                    {successUsesTransfer
+                      ? 'Tu pedido quedó confirmado en la web y marcado como pendiente de pago. Te enviamos por email los datos para completar la transferencia y te avisamos cuando impacte.'
+                      : 'Tu pago ya fue acreditado y el pedido quedó guardado en tu cuenta para que puedas seguir cada etapa del proceso.'}
                   </p>
                 </div>
               </div>
 
               <div className="grid gap-8 px-6 py-8 md:px-10 md:py-10 lg:grid-cols-[minmax(0,1.2fr)_320px] lg:items-center">
                 <div>
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-emerald-700">Redirección automática</p>
+                  <p className={`text-[11px] font-semibold uppercase tracking-[0.24em] ${successAccentClasses.eyebrow}`}>Redirección automática</p>
                   <h3 className="mt-3 font-display text-3xl tracking-[-0.05em] text-black md:text-4xl">
                     Te vamos a llevar a tu panel de control para ver el estado de tu pedido en {redirectCountdown}.
                   </h3>
                   <p className="mt-4 text-sm leading-7 text-black/62 md:text-base md:leading-8">
-                    Ahí vas a poder revisar la compra, confirmar que el pago quedó acreditado y seguir el avance del envío.
+                    {successUsesTransfer
+                      ? 'Ahí vas a poder revisar la compra, ver que quedó pendiente de pago y seguir el avance una vez acreditada la transferencia.'
+                      : 'Ahí vas a poder revisar la compra, confirmar que el pago quedó acreditado y seguir el avance del envío.'}
                   </p>
 
                   <div className="mt-6 flex flex-wrap items-center gap-3">
@@ -476,12 +507,18 @@ export function CheckoutForm({
                   </div>
                 </div>
 
-                <div className="rounded-[30px] border border-emerald-100 bg-[#f6fff7] p-6 shadow-[0_16px_50px_rgba(17,24,39,0.06)]">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-700">Resumen de compra</p>
+                <div
+                  className={`rounded-[30px] p-6 shadow-[0_16px_50px_rgba(17,24,39,0.06)] ${
+                    successUsesTransfer ? 'border border-amber-100 bg-[#fffaf1]' : 'border border-emerald-100 bg-[#f6fff7]'
+                  }`}
+                >
+                  <p className={`text-[11px] font-semibold uppercase tracking-[0.18em] ${successAccentClasses.eyebrow}`}>Resumen de compra</p>
                   <div className="mt-4 space-y-4">
                     <div>
                       <p className="text-xs uppercase tracking-[0.14em] text-black/44">Estado</p>
-                      <p className="mt-1 text-lg font-semibold text-black">Pago acreditado</p>
+                      <p className="mt-1 text-lg font-semibold text-black">
+                        {successUsesTransfer ? 'Pendiente de pago por transferencia' : 'Pago acreditado'}
+                      </p>
                     </div>
                     {state.shortCode ? (
                       <div>
@@ -495,10 +532,15 @@ export function CheckoutForm({
                         <p className="mt-1 text-lg font-semibold text-black">{state.orderNumber}</p>
                       </div>
                     ) : null}
-                    <div className="rounded-[22px] border border-emerald-200 bg-emerald-50 px-4 py-4 text-sm leading-6 text-emerald-900">
+                    <div className={`rounded-[22px] border px-4 py-4 text-sm leading-6 ${successAccentClasses.message}`}>
                       {state.message}
                     </div>
-                    <div className="inline-flex items-center gap-2 text-sm font-medium text-emerald-800">
+                    {successUsesTransfer ? (
+                      <div className="rounded-[22px] border border-emerald-200 bg-emerald-50 px-4 py-4 text-sm leading-6 text-emerald-900">
+                        Ya te llevamos al pedido para que lo veas en estado pendiente de pago. Las instrucciones llegan por email junto con el detalle completo.
+                      </div>
+                    ) : null}
+                    <div className={`inline-flex items-center gap-2 text-sm font-medium ${successAccentClasses.redirect}`}>
                       <ArrowRight className="h-4 w-4" />
                       Redirigiendo a tu panel ahora
                     </div>
@@ -525,10 +567,12 @@ export function CheckoutForm({
                 <div>
                   <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/70">Procesando compra</p>
                   <h2 className="mt-2 font-display text-3xl tracking-[-0.05em] text-white md:text-4xl">
-                    Estamos abriendo el checkout de Mercado Pago
+                    {isTransferPayment ? 'Estamos registrando tu pedido con transferencia' : 'Estamos abriendo el checkout de Mercado Pago'}
                   </h2>
                   <p className="mt-3 max-w-xl text-sm leading-7 text-white/82 md:text-base">
-                    Tu orden ya se está preparando. En unos segundos te redirigimos para completar el pago de forma segura.
+                    {isTransferPayment
+                      ? 'Guardamos tu pedido, aplicamos el descuento y dejamos el pago pendiente para que puedas transferir.'
+                      : 'Tu orden ya se está preparando. En unos segundos te redirigimos para completar el pago de forma segura.'}
                   </p>
                 </div>
               </div>
@@ -543,13 +587,21 @@ export function CheckoutForm({
                 </div>
                 <div className="rounded-[22px] border border-black/8 bg-white px-4 py-4">
                   <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-black/42">Paso 2</p>
-                  <p className="mt-2 text-sm font-semibold text-black">Preparando pago</p>
-                  <p className="mt-1 text-sm leading-6 text-black/60">Conectamos la orden con Mercado Pago.</p>
+                  <p className="mt-2 text-sm font-semibold text-black">
+                    {isTransferPayment ? 'Registrando pedido' : 'Preparando pago'}
+                  </p>
+                  <p className="mt-1 text-sm leading-6 text-black/60">
+                    {isTransferPayment ? 'Estamos generando tu orden con pago pendiente.' : 'Conectamos la orden con Mercado Pago.'}
+                  </p>
                 </div>
                 <div className="rounded-[22px] border border-black/8 bg-white px-4 py-4">
                   <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-black/42">Paso 3</p>
                   <p className="mt-2 text-sm font-semibold text-black">Redirección automática</p>
-                  <p className="mt-1 text-sm leading-6 text-black/60">Se abrirá el checkout sin que tengas que hacer nada.</p>
+                  <p className="mt-1 text-sm leading-6 text-black/60">
+                    {isTransferPayment
+                      ? 'Cuando termine, te mostraremos la confirmación del pedido y te enviaremos por email los datos para pagar.'
+                      : 'Se abrirá el checkout sin que tengas que hacer nada.'}
+                  </p>
                 </div>
               </div>
 
@@ -594,7 +646,9 @@ export function CheckoutForm({
               <div
                 className={`mt-6 rounded-[24px] px-5 py-4 text-sm ${
                   state.status === 'success'
-                    ? 'border border-emerald-200 bg-emerald-50 text-emerald-800'
+                    ? successUsesTransfer
+                      ? 'border border-amber-200 bg-amber-50 text-amber-800'
+                      : 'border border-emerald-200 bg-emerald-50 text-emerald-800'
                     : state.status === 'error'
                       ? 'border border-red-200 bg-red-50 text-red-700'
                       : 'border border-black/10 bg-[#f7f7f4] text-black/62'
@@ -899,15 +953,27 @@ export function CheckoutForm({
                       : `Tu compra no supera ${formatPrice(settings.localDeliveryFreeThreshold)}. Tiene que superar ese monto para obtener el envío en el día en Bariloche.`}
                   </p>
                   {shippingPreview.discountAmount > 0 ? (
-                    <p className="rounded-[18px] border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-800">
-                      Descuento Bariloche activo: {shippingPreview.discountPercent}% menos sobre productos en esta compra.
-                    </p>
+                    <div className="space-y-2">
+                      {shippingPreview.barilocheDiscountAmount > 0 ? (
+                        <p className="rounded-[18px] border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-800">
+                          Descuento Bariloche activo: {shippingPreview.barilocheDiscountPercent}% menos sobre productos en esta compra.
+                        </p>
+                      ) : null}
+                      {shippingPreview.transferDiscountAmount > 0 ? (
+                        <p className="rounded-[18px] border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800">
+                          Descuento por transferencia activo: {shippingPreview.transferDiscountPercent}% menos sobre productos en esta compra.
+                        </p>
+                      ) : null}
+                    </div>
                   ) : null}
                 </div>
               ) : (
                 <div className="mt-3 space-y-3">
                   <p className="text-sm text-black/58">
                     Comprando antes de las 17 hs despachamos en el día. Si la compra entra después, sale al día siguiente.
+                  </p>
+                  <p className="rounded-[18px] border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800">
+                    {TRANSFER_DISCOUNT_PERCENT}% de descuento abonando por transferencia.
                   </p>
                   {shippingPreview.shippingAmount === 0 ? (
                     <p className="rounded-[18px] border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">
@@ -953,6 +1019,50 @@ export function CheckoutForm({
                     </div>
                     <p className="text-sm font-semibold tracking-normal text-black/84">Pagar con Mercado Pago</p>
                     <p className="mt-1 text-xs tracking-normal text-black/56">Checkout seguro para tarjeta, saldo o dinero en cuenta.</p>
+                  </div>
+                </div>
+              </label>
+              <label
+                className={`group cursor-pointer rounded-[24px] border px-4 py-4 text-sm transition ${
+                  paymentMethod === 'TRANSFER'
+                    ? 'border-amber-300 bg-amber-50 shadow-[0_12px_28px_rgba(217,119,6,0.12)]'
+                    : 'border-black/10 bg-white hover:border-amber-200 hover:bg-amber-50/40'
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="paymentMethod"
+                  checked={paymentMethod === 'TRANSFER'}
+                  onChange={() => setPaymentMethod('TRANSFER')}
+                  className="sr-only"
+                />
+                <div className="flex items-start gap-3">
+                  <span
+                    className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition ${
+                      paymentMethod === 'TRANSFER' ? 'border-amber-700 bg-amber-700' : 'border-black/22 bg-white'
+                    }`}
+                    aria-hidden="true"
+                  >
+                    <span
+                      className={`h-2 w-2 rounded-full bg-white transition ${
+                        paymentMethod === 'TRANSFER' ? 'scale-100 opacity-100' : 'scale-0 opacity-0'
+                      }`}
+                    />
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="inline-flex items-center rounded-full border border-amber-200 bg-white px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-amber-800">
+                        <Landmark className="mr-2 h-3.5 w-3.5" />
+                        Transferencia
+                      </span>
+                      <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-amber-700">
+                        {TRANSFER_DISCOUNT_PERCENT}% off
+                      </span>
+                    </div>
+                    <p className="text-sm font-semibold tracking-normal text-black/84">Pagar por transferencia</p>
+                    <p className="mt-1 text-xs tracking-normal text-black/56">
+                      Te enviamos los datos por mail y el pedido queda pendiente de pago hasta acreditar la transferencia.
+                    </p>
                   </div>
                 </div>
               </label>
@@ -1003,10 +1113,16 @@ export function CheckoutForm({
               <span>Subtotal</span>
               <span>{formatPrice(subtotal)}</span>
             </div>
-            {shippingPreview.discountAmount > 0 ? (
+            {shippingPreview.barilocheDiscountAmount > 0 ? (
               <div className="flex justify-between text-emerald-700">
-                <span>Descuento Bariloche ({shippingPreview.discountPercent}%)</span>
-                <span>-{formatPrice(shippingPreview.discountAmount)}</span>
+                <span>Descuento Bariloche ({shippingPreview.barilocheDiscountPercent}%)</span>
+                <span>-{formatPrice(shippingPreview.barilocheDiscountAmount)}</span>
+              </div>
+            ) : null}
+            {shippingPreview.transferDiscountAmount > 0 ? (
+              <div className="flex justify-between text-amber-700">
+                <span>Descuento transferencia ({shippingPreview.transferDiscountPercent}%)</span>
+                <span>-{formatPrice(shippingPreview.transferDiscountAmount)}</span>
               </div>
             ) : null}
             <div className="flex justify-between">
@@ -1025,6 +1141,10 @@ export function CheckoutForm({
             Donamos el 5% de tu compra a refugios para mascotas en toda Argentina.
           </p>
 
+          <p className="mt-2 text-sm leading-6 text-amber-700">
+            {TRANSFER_DISCOUNT_PERCENT}% de descuento pagando por transferencia.
+          </p>
+
           <button
             type="submit"
             disabled={state.status === 'saving'}
@@ -1038,7 +1158,13 @@ export function CheckoutForm({
             />
             <span className="relative z-10 inline-flex items-center justify-center gap-2">
               {state.status === 'saving' ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
-              {state.status === 'saving' ? 'Cargando Mercado Pago…' : 'Pagar con Mercado Pago'}
+              {state.status === 'saving'
+                ? isTransferPayment
+                  ? 'Registrando pedido…'
+                  : 'Cargando Mercado Pago…'
+                : isTransferPayment
+                  ? 'Confirmar pedido con transferencia'
+                  : 'Pagar con Mercado Pago'}
             </span>
           </button>
         </aside>

@@ -31,6 +31,11 @@ export async function GET(request: Request) {
         ? await prisma.order.findUnique({
             where: { id: orderId },
             include: {
+              customer: {
+                select: {
+                  email: true,
+                },
+              },
               items: {
                 orderBy: {
                   id: 'asc',
@@ -46,11 +51,12 @@ export async function GET(request: Request) {
       status: payment.status ?? 'unknown',
       orderId: orderId || null,
       approved,
-      order: order
+          order: order
         ? {
             id: order.id,
             orderNumber: order.orderNumber,
             shortCode: order.shortCode,
+            customerEmail: order.customer?.email ?? null,
             currency: 'ARS',
             total: order.total,
             shippingAmount: order.shippingAmount,

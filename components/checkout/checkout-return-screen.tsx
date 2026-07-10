@@ -10,6 +10,7 @@ type ConfirmedOrderPayload = {
   id: string
   orderNumber?: string | null
   shortCode?: string | null
+  customerEmail?: string | null
   currency?: string
   total: number
   shippingAmount?: number
@@ -45,6 +46,10 @@ export function CheckoutReturnScreen({
   const [confirmationStatus, setConfirmationStatus] = useState<'idle' | 'confirming' | 'confirmed' | 'failed'>(
     paymentId ? 'confirming' : 'idle',
   )
+  const resolvedOrderId = confirmedOrder?.id ?? orderId
+  const resolvedEmail = confirmedOrder?.customerEmail ?? email
+  const resolvedOrderNumber = confirmedOrder?.orderNumber ?? orderNumber
+  const resolvedShortCode = confirmedOrder?.shortCode ?? shortCode
 
   useEffect(() => {
     if (status !== 'success' || !paymentId) {
@@ -98,7 +103,7 @@ export function CheckoutReturnScreen({
   }, [orderId, paymentId, status])
 
   useEffect(() => {
-    const safeOrderId = confirmedOrder?.id ?? orderId
+    const safeOrderId = resolvedOrderId
 
     if (status !== 'success' || confirmationStatus !== 'confirmed' || !confirmedOrder || !safeOrderId) {
       return
@@ -117,10 +122,10 @@ export function CheckoutReturnScreen({
       items: confirmedOrder.items,
     })
     markPurchaseTracked(safeOrderId)
-  }, [confirmationStatus, confirmedOrder, orderId, status])
+  }, [confirmationStatus, confirmedOrder, resolvedOrderId, status])
 
   useEffect(() => {
-    if (status !== 'success' || !email || !orderId) {
+    if (status !== 'success' || !resolvedEmail || !resolvedOrderId) {
       return
     }
 
@@ -140,14 +145,14 @@ export function CheckoutReturnScreen({
     }, 1000)
 
     const timeout = window.setTimeout(() => {
-      router.push(`/perfil?email=${encodeURIComponent(email)}&saved=created&order=${encodeURIComponent(orderId)}`)
+      router.push(`/perfil?email=${encodeURIComponent(resolvedEmail)}&saved=created&order=${encodeURIComponent(resolvedOrderId)}`)
     }, 5000)
 
     return () => {
       window.clearInterval(interval)
       window.clearTimeout(timeout)
     }
-  }, [confirmationStatus, email, orderId, paymentId, router, status])
+  }, [confirmationStatus, paymentId, resolvedEmail, resolvedOrderId, router, status])
 
   if (status === 'success') {
     return (
@@ -226,17 +231,25 @@ export function CheckoutReturnScreen({
                     <p className="text-xs uppercase tracking-[0.14em] text-black/44">Estado</p>
                     <p className="mt-1 text-lg font-semibold text-black">Pago acreditado</p>
                   </div>
-                  {shortCode ? (
+                  {resolvedShortCode ? (
                     <div>
                       <p className="text-xs uppercase tracking-[0.14em] text-black/44">Código</p>
-                      <p className="mt-1 text-lg font-semibold text-black">{shortCode}</p>
+                      <p className="mt-1 text-lg font-semibold text-black">{resolvedShortCode}</p>
                     </div>
                   ) : null}
-                  {orderNumber ? (
+                  {resolvedOrderNumber ? (
                     <div>
                       <p className="text-xs uppercase tracking-[0.14em] text-black/44">Pedido</p>
-                      <p className="mt-1 text-lg font-semibold text-black">{orderNumber}</p>
+                      <p className="mt-1 text-lg font-semibold text-black">{resolvedOrderNumber}</p>
                     </div>
+                  ) : null}
+                  {resolvedEmail && resolvedOrderId ? (
+                    <Link
+                      href={`/perfil?email=${encodeURIComponent(resolvedEmail)}&saved=created&order=${encodeURIComponent(resolvedOrderId)}`}
+                      className="button-primary w-full justify-center"
+                    >
+                      Ver mi pedido ahora
+                    </Link>
                   ) : null}
                   <div className="inline-flex items-center gap-2 text-sm font-medium text-emerald-800">
                     <ArrowRight className="h-4 w-4" />

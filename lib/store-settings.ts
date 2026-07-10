@@ -10,6 +10,9 @@ export type StoreSettingsSnapshot = {
   barilocheDiscountPercent: number
 }
 
+export const TRANSFER_PAYMENT_ALIAS = 'patagonicos.ok'
+export const TRANSFER_DISCOUNT_PERCENT = 10
+
 export function normalizeCity(value: string) {
   return value
     .normalize('NFD')
@@ -33,12 +36,17 @@ export function getCheckoutPreview(
   city: string,
   province: string,
   settings: StoreSettingsSnapshot,
+  paymentMethod: 'ONLINE' | 'CASH_ON_DELIVERY' | 'TRANSFER' = 'ONLINE',
 ) {
   const isBarilocheCustomer = isBarilocheLocation(city, province)
   const isEligibleForBariloche = settings.barilocheEnabled && isBarilocheCustomer
   const qualifiesForFreeShipping = subtotal >= settings.localDeliveryFreeThreshold
-  const discountPercent = isBarilocheCustomer ? settings.barilocheDiscountPercent : 0
-  const discountAmount = Math.round((subtotal * discountPercent) / 100)
+  const barilocheDiscountPercent = isBarilocheCustomer ? settings.barilocheDiscountPercent : 0
+  const barilocheDiscountAmount = Math.round((subtotal * barilocheDiscountPercent) / 100)
+  const transferDiscountPercent = paymentMethod === 'TRANSFER' ? TRANSFER_DISCOUNT_PERCENT : 0
+  const transferDiscountAmount = Math.round((subtotal * transferDiscountPercent) / 100)
+  const discountPercent = barilocheDiscountPercent + transferDiscountPercent
+  const discountAmount = barilocheDiscountAmount + transferDiscountAmount
   const shippingAmount = isEligibleForBariloche
     ? qualifiesForFreeShipping
       ? 0
@@ -52,6 +60,10 @@ export function getCheckoutPreview(
     qualifiesForFreeShipping,
     shippingMethod: isEligibleForBariloche ? 'LOCAL_DELIVERY' : 'NATIONAL_SHIPPING',
     shippingAmount,
+    barilocheDiscountPercent,
+    barilocheDiscountAmount,
+    transferDiscountPercent,
+    transferDiscountAmount,
     discountPercent,
     discountAmount,
     total: Math.max(0, subtotal - discountAmount + shippingAmount),

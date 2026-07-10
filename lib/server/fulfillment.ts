@@ -141,9 +141,14 @@ export function buildInternalQrImage(shortCode: string) {
   return `https://quickchart.io/qr?text=${encodeURIComponent(buildInternalQrUrl(shortCode))}&size=240`
 }
 
-export async function calculateShippingForCheckout(subtotal: number, city: string, province: string) {
+export async function calculateShippingForCheckout(
+  subtotal: number,
+  city: string,
+  province: string,
+  paymentMethod: PaymentMethod = PaymentMethod.ONLINE,
+) {
   const settings = await ensureStoreSettings()
-  const preview = getCheckoutPreview(subtotal, city, province, settings)
+  const preview = getCheckoutPreview(subtotal, city, province, settings, paymentMethod)
   return {
     shippingMethod:
       preview.shippingMethod === 'LOCAL_DELIVERY' ? ShippingMethod.LOCAL_DELIVERY : ShippingMethod.NATIONAL_SHIPPING,
@@ -338,6 +343,7 @@ export function getOrderStateLabel(status: string) {
     PENDING_ON_DELIVERY: 'Pendiente al entregar',
     ONLINE: 'Pagado online',
     CASH_ON_DELIVERY: 'Contra entrega',
+    TRANSFER: 'Transferencia',
     PENDING_DELIVERY: 'Pendiente de entrega',
     IN_ROUTE: 'En camino',
     FAILED_DELIVERY: 'Intento fallido',
@@ -475,12 +481,27 @@ export async function createOrderFromCheckout(input: {
   }
 
   const subtotal = normalizedItems.reduce((total, item) => total + item.unitPrice * item.quantity, 0)
-  const shipping = await calculateShippingForCheckout(subtotal, input.city, input.province)
+  const settings = await ensureStoreSettings()
+  const shippingPreview = getCheckoutPreview(subtotal, input.city, input.province, settings, input.paymentMethod)
+  const shipping = {
+    shippingMethod:
+      shippingPreview.shippingMethod === 'LOCAL_DELIVERY' ? ShippingMethod.LOCAL_DELIVERY : ShippingMethod.NATIONAL_SHIPPING,
+    shippingAmount: shippingPreview.shippingAmount,
+    discountAmount: shippingPreview.discountAmount,
+    discountPercent: shippingPreview.discountPercent,
+    total: shippingPreview.total,
+    allowCashOnDelivery: shippingPreview.allowCashOnDelivery,
+    deliveryCopy: shippingPreview.isBariloche
+      ? `Entrega en el día comprando antes de las ${`${settings.barilocheCutoffHour}`.padStart(2, '0')}:${`${settings.barilocheCutoffMinute}`.padStart(2, '0')} hs en Bariloche`
+      : 'Envíos nacionales con despacho rápido desde Bariloche.',
+  }
   const shortCode = generateShortCode()
   const orderNumber = generateOrderNumber()
   const total = shipping.total
   const effectivePaymentMethod =
-    shipping.shippingMethod === ShippingMethod.LOCAL_DELIVERY ? input.paymentMethod : PaymentMethod.ONLINE
+    input.paymentMethod === PaymentMethod.CASH_ON_DELIVERY && shipping.shippingMethod !== ShippingMethod.LOCAL_DELIVERY
+      ? PaymentMethod.ONLINE
+      : input.paymentMethod
 
   const baseStatus =
     shipping.shippingMethod === ShippingMethod.LOCAL_DELIVERY && effectivePaymentMethod === PaymentMethod.CASH_ON_DELIVERY
@@ -893,6 +914,14 @@ export function renderTicketHtml(order: {
     id: string
   }>
 }) {
+  const discountLabel =
+    order.paymentMethod === PaymentMethod.TRANSFER && order.shippingMethod === ShippingMethod.LOCAL_DELIVERY
+      ? 'Descuentos aplicados'
+      : order.paymentMethod === PaymentMethod.TRANSFER
+        ? 'Descuento transferencia'
+        : order.shippingMethod === ShippingMethod.LOCAL_DELIVERY
+          ? 'Descuento Bariloche'
+          : 'Descuento'
   const addressLine = order.address
     ? [order.address.line1, order.address.city, order.address.province, order.address.postalCode].filter(Boolean).join(', ')
     : 'Sin dirección'
@@ -968,7 +997,7 @@ export function renderTicketHtml(order: {
           <div style="display:flex;justify-content:space-between;"><span class="muted">Subtotal</span><strong>${formatPrice(order.subtotal)}</strong></div>
           ${
             order.discountAmount && order.discountAmount > 0
-              ? `<div style="display:flex;justify-content:space-between;"><span class="muted">Descuento Bariloche</span><strong style="color:#15803d;">-${formatPrice(order.discountAmount)}</strong></div>`
+              ? `<div style="display:flex;justify-content:space-between;"><span class="muted">${discountLabel}</span><strong style="color:#15803d;">-${formatPrice(order.discountAmount)}</strong></div>`
               : ''
           }
           <div style="display:flex;justify-content:space-between;"><span class="muted">Envío</span><strong>${formatPrice(order.shippingAmount)}</strong></div>

@@ -113,11 +113,14 @@ export async function POST(request: Request) {
     shortCode: confirmedOrder.shortCode,
     status: confirmedOrder.status,
     paymentStatus: confirmedOrder.paymentStatus,
+    paymentMethod: confirmedOrder.paymentMethod,
     shippingMethod: confirmedOrder.shippingMethod,
     paymentUrl,
     message:
       confirmedOrder.paymentMethod === PaymentMethod.CASH_ON_DELIVERY
         ? 'Orden creada con pago contra entrega. El ticket interno ya quedó listo para impresión.'
+        : confirmedOrder.paymentMethod === PaymentMethod.TRANSFER
+          ? 'Pedido recibido. Quedó pendiente de pago por transferencia. Te enviamos por email los datos para completar el pago.'
         : paymentUrl
           ? 'Orden creada. Te vamos a redirigir a Mercado Pago para completar el pago.'
           : 'Orden confirmada. Como Mercado Pago todavía no está configurado en este entorno, acreditamos el pago internamente.',

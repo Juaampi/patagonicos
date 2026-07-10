@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { ArrowRight, Minus, Plus, Sparkles, Trash2 } from 'lucide-react'
 import { CheckoutForm } from '@/components/checkout/checkout-form'
 import { useCart } from '@/components/cart/cart-provider'
-import type { StoreSettingsSnapshot } from '@/lib/store-settings'
+import { TRANSFER_DISCOUNT_PERCENT, type StoreSettingsSnapshot } from '@/lib/store-settings'
 import type { Product } from '@/types/store'
 import { formatPrice } from '@/lib/utils'
 
@@ -81,6 +81,9 @@ export function CartPageClient({
             <div className="rounded-[22px] border border-black/8 px-5 py-4">
               <p className="text-xs uppercase tracking-[0.18em] text-black/46">Subtotal actual</p>
               <p className="mt-2 text-2xl font-semibold text-black/84">{formatPrice(subtotal)}</p>
+              <p className="mt-2 text-sm leading-6 text-amber-700">
+                {TRANSFER_DISCOUNT_PERCENT}% off por transferencia.
+              </p>
             </div>
           </div>
         </div>

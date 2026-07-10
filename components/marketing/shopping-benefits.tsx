@@ -6,6 +6,7 @@ import { useState } from 'react'
 import { BarilocheDeliveryCountdown } from '@/components/marketing/bariloche-delivery-countdown'
 import { CashOnDeliveryInfo } from '@/components/marketing/cash-on-delivery-info'
 import { TrackingInfo } from '@/components/marketing/tracking-info'
+import { TRANSFER_DISCOUNT_PERCENT } from '@/lib/store-settings'
 import { formatPrice } from '@/lib/utils'
 
 export function ShoppingBenefits({
@@ -105,6 +106,20 @@ export function ShoppingBenefits({
             </div>
           </article>
 
+          <article className="rounded-[24px] border border-amber-200 bg-[#fff7ed] px-5 py-5">
+            <div className="flex items-start gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/88">
+                <CreditCard className="h-4.5 w-4.5 text-amber-700" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <h3 className="text-base font-medium text-amber-900">{TRANSFER_DISCOUNT_PERCENT}% de descuento por transferencia</h3>
+                <p className="mt-1 text-sm leading-6 text-amber-900/80">
+                  Aplicamos el descuento directo en el checkout cuando elegís transferencia.
+                </p>
+              </div>
+            </div>
+          </article>
+
           <article className="rounded-[24px] border border-black/8 bg-white px-5 py-5">
             <div className="flex items-start gap-3">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#f7f7f4]">
@@ -113,7 +128,7 @@ export function ShoppingBenefits({
               <div className="min-w-0 flex-1">
                 <h3 className="text-base font-medium text-black/86">Pago seguro</h3>
                 <p className="mt-1 text-sm leading-6 text-black/60">
-                  Pagás con Mercado Pago, 100% seguro.
+                  Pagás con Mercado Pago o transferencia bancaria.
                 </p>
               </div>
             </div>

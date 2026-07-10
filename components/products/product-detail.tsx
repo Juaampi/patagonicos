@@ -10,6 +10,7 @@ import { BarilocheDeliveryCountdown } from '@/components/marketing/bariloche-del
 import { ProductImageWatermark } from '@/components/products/product-image-watermark'
 import { trackViewItem } from '@/lib/client/analytics'
 import { getFeatureChips } from '@/lib/product-display'
+import { TRANSFER_DISCOUNT_PERCENT } from '@/lib/store-settings'
 import type { StoreSettingsSnapshot } from '@/lib/store-settings'
 import {
   getAvailableSizes,
@@ -481,6 +482,9 @@ export function ProductDetail({
           <p className="mt-3 text-sm font-medium leading-6 text-emerald-700">
             Mismo precio en 3 cuotas de {formatPrice(installmentPrice)}
           </p>
+          <p className="mt-2 text-sm font-medium leading-6 text-amber-700">
+            {TRANSFER_DISCOUNT_PERCENT}% off pagando por transferencia
+          </p>
           <p className="mt-4 max-w-[28rem] whitespace-pre-line text-sm leading-7 text-black/62">{product.shortDescription}</p>
         </div>
 
@@ -832,6 +836,9 @@ export function ProductDetail({
               ) : null}
               <p className="mt-2 text-sm font-medium leading-6 text-emerald-700">
                 3 cuotas de {formatPrice(installmentPrice)}
+              </p>
+              <p className="mt-2 text-sm font-medium leading-6 text-amber-700">
+                {TRANSFER_DISCOUNT_PERCENT}% off pagando por transferencia
               </p>
             </div>
           </div>
