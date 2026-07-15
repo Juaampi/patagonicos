@@ -209,8 +209,14 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
                 </div>
                 {order.discountAmount > 0 ? (
                   <div className="flex items-center justify-between text-emerald-700">
-                    <span>Descuento Bariloche</span>
+                    <span>Descuentos automáticos</span>
                     <strong>-{formatPrice(order.discountAmount)}</strong>
+                  </div>
+                ) : null}
+                {order.couponDiscountAmount > 0 ? (
+                  <div className="flex items-center justify-between text-sky-700">
+                    <span>Cupón {order.couponCode ?? ''}</span>
+                    <strong>-{formatPrice(order.couponDiscountAmount)}</strong>
                   </div>
                 ) : null}
                 <div className="flex items-center justify-between">

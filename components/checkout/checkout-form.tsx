@@ -20,6 +20,7 @@ import {
   TRANSFER_DISCOUNT_PERCENT,
   type StoreSettingsSnapshot,
 } from '@/lib/store-settings'
+import { getCouponDiscountAmount } from '@/lib/coupons'
 import type { CartItem, SalesChannel } from '@/types/store'
 import { formatPrice } from '@/lib/utils'
 
@@ -40,6 +41,15 @@ type GeoRefLocality = {
 }
 
 type CheckoutPaymentMethod = 'ONLINE' | 'CASH_ON_DELIVERY' | 'TRANSFER'
+
+type AppliedCoupon = {
+  id: string
+  code: string
+  description?: string | null
+  type: 'PERCENTAGE' | 'FIXED'
+  value: number
+  minSubtotal: number
+}
 
 function MercadoPagoBadge({ compact = false }: { compact?: boolean }) {
   return (
@@ -120,10 +130,20 @@ export function CheckoutForm({
   })
   const [submitProgress, setSubmitProgress] = useState(0)
   const [redirectCountdown, setRedirectCountdown] = useState(5)
+  const [couponInput, setCouponInput] = useState('')
+  const [appliedCoupon, setAppliedCoupon] = useState<AppliedCoupon | null>(null)
+  const [couponFeedback, setCouponFeedback] = useState<{
+    status: 'idle' | 'success' | 'error'
+    message: string
+  }>({
+    status: 'idle',
+    message: '',
+  })
+  const [isApplyingCoupon, setIsApplyingCoupon] = useState(false)
 
   const shippingPreview = useMemo(() => {
-    return getCheckoutPreview(subtotal, form.city, form.province, settings, paymentMethod)
-  }, [form.city, form.province, paymentMethod, settings, subtotal])
+    return getCheckoutPreview(subtotal, form.city, form.province, settings, paymentMethod, appliedCoupon)
+  }, [appliedCoupon, form.city, form.province, paymentMethod, settings, subtotal])
   const shouldRequirePin = shippingPreview.isBariloche
   const selectedProvince = getCanonicalProvince(form.province)
   const selectedCity = cityOptions.find((city) => normalizeProvinceName(city) === normalizeProvinceName(form.city))
@@ -147,6 +167,9 @@ export function CheckoutForm({
     redirect: 'text-emerald-800',
   }
   const clearCheckoutItems = clearItems ?? clearCart
+  const couponDiscountAmount = useMemo(() => {
+    return getCouponDiscountAmount(subtotal, shippingPreview.discountAmount, appliedCoupon)
+  }, [appliedCoupon, shippingPreview.discountAmount, subtotal])
 
   useEffect(() => {
     if (!selectedProvince) {
@@ -372,6 +395,7 @@ export function CheckoutForm({
     const payload = {
       ...form,
       phone: `${form.phoneAreaCode.trim()} ${form.phoneNumber.trim()}`.trim(),
+      couponCode: appliedCoupon?.code,
       paymentMethod,
       salesChannel,
       latitude: form.latitude ? Number(form.latitude) : undefined,
@@ -436,6 +460,82 @@ export function CheckoutForm({
         message: 'No pudimos procesar tu pedido en este momento. Intentá nuevamente.',
       })
     }
+  }
+
+  async function handleApplyCoupon() {
+    const rawCode = couponInput.trim()
+
+    if (!rawCode) {
+      setCouponFeedback({
+        status: 'error',
+        message: 'Ingresá un código para aplicar el cupón.',
+      })
+      return
+    }
+
+    setIsApplyingCoupon(true)
+    setCouponFeedback({
+      status: 'idle',
+      message: '',
+    })
+
+    try {
+      const response = await fetch('/api/checkout/coupon', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          code: rawCode,
+          subtotal,
+          city: form.city,
+          province: form.province,
+          paymentMethod,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok || !data?.coupon) {
+        setAppliedCoupon(null)
+        setCouponFeedback({
+          status: 'error',
+          message: data?.message || 'No pudimos aplicar el cupón.',
+        })
+        return
+      }
+
+      setAppliedCoupon({
+        id: data.coupon.id,
+        code: data.coupon.code,
+        description: data.coupon.description ?? null,
+        type: data.coupon.type,
+        value: data.coupon.value,
+        minSubtotal: data.coupon.minSubtotal,
+      })
+      setCouponInput(data.coupon.code)
+      setCouponFeedback({
+        status: 'success',
+        message: data.message || 'Cupón aplicado.',
+      })
+    } catch {
+      setAppliedCoupon(null)
+      setCouponFeedback({
+        status: 'error',
+        message: 'No pudimos validar el cupón en este momento.',
+      })
+    } finally {
+      setIsApplyingCoupon(false)
+    }
+  }
+
+  function handleRemoveCoupon() {
+    setAppliedCoupon(null)
+    setCouponInput('')
+    setCouponFeedback({
+      status: 'idle',
+      message: '',
+    })
   }
 
   return (
@@ -985,6 +1085,56 @@ export function CheckoutForm({
             </div>
 
             <div className="mt-6 grid gap-3">
+              <div className="rounded-[24px] border border-black/10 bg-white p-4">
+                <div className="flex flex-col gap-3 md:flex-row md:items-center">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-semibold text-black/84">Cupón de descuento</p>
+                    <p className="mt-1 text-xs text-black/56">Si tenés un código, lo podés aplicar antes de pagar.</p>
+                  </div>
+                  <div className="flex flex-1 gap-2">
+                    <input
+                      value={couponInput}
+                      onChange={(event) => setCouponInput(event.target.value.toUpperCase())}
+                      placeholder="Ej: PATI10"
+                      className="min-w-0 flex-1 rounded-[18px] border border-black/10 bg-[#f7f7f4] px-4 py-3 text-sm uppercase outline-none"
+                    />
+                    {appliedCoupon ? (
+                      <button
+                        type="button"
+                        onClick={handleRemoveCoupon}
+                        className="rounded-full border border-black/10 px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-black/72 transition hover:bg-black hover:text-white"
+                      >
+                        Quitar
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={handleApplyCoupon}
+                        disabled={isApplyingCoupon}
+                        className="rounded-full bg-black px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-white transition hover:bg-black/88 disabled:cursor-wait disabled:bg-black/70"
+                      >
+                        {isApplyingCoupon ? 'Aplicando…' : 'Aplicar'}
+                      </button>
+                    )}
+                  </div>
+                </div>
+                {couponFeedback.status !== 'idle' ? (
+                  <div
+                    className={`mt-3 rounded-[18px] px-4 py-3 text-sm ${
+                      couponFeedback.status === 'success'
+                        ? 'border border-emerald-200 bg-emerald-50 text-emerald-800'
+                        : 'border border-red-200 bg-red-50 text-red-700'
+                    }`}
+                  >
+                    {couponFeedback.message}
+                  </div>
+                ) : null}
+                {appliedCoupon ? (
+                  <p className="mt-3 text-xs uppercase tracking-[0.16em] text-emerald-700">
+                    Cupón activo: {appliedCoupon.code}
+                  </p>
+                ) : null}
+              </div>
               <label
                 className={`group cursor-pointer rounded-[24px] border px-4 py-4 text-sm transition ${
                   paymentMethod === 'ONLINE'
@@ -1123,6 +1273,12 @@ export function CheckoutForm({
               <div className="flex justify-between text-amber-700">
                 <span>Descuento transferencia ({shippingPreview.transferDiscountPercent}%)</span>
                 <span>-{formatPrice(shippingPreview.transferDiscountAmount)}</span>
+              </div>
+            ) : null}
+            {couponDiscountAmount > 0 && appliedCoupon ? (
+              <div className="flex justify-between text-sky-700">
+                <span>Cupón {appliedCoupon.code}</span>
+                <span>-{formatPrice(couponDiscountAmount)}</span>
               </div>
             ) : null}
             <div className="flex justify-between">

@@ -7,6 +7,7 @@ import {
   Bike,
   Settings2,
   MessageSquareQuote,
+  BadgePercent,
 } from 'lucide-react'
 
 export type AdminNavItem = {
@@ -23,6 +24,7 @@ export const adminNavigationItems: AdminNavItem[] = [
   { href: '/admin/clientes', label: 'Clientes', icon: Users, match: ['/admin/clientes'] },
   { href: '/admin/envios', label: 'Envios', icon: Truck, match: ['/admin/envios'] },
   { href: '/admin/repartos', label: 'Repartos', icon: Bike, match: ['/admin/repartos'] },
+  { href: '/admin/cupones', label: 'Cupones', icon: BadgePercent, match: ['/admin/cupones'] },
   { href: '/admin/configuracion', label: 'Configuracion', icon: Settings2, match: ['/admin/configuracion'] },
   { href: '/admin/comentarios', label: 'Comentarios', icon: MessageSquareQuote, match: ['/admin/comentarios'] },
 ]

@@ -27,6 +27,7 @@ const checkoutSchema = z.object({
   longitude: z.number().optional(),
   pinLabel: z.string().optional(),
   notes: z.string().optional(),
+  couponCode: z.string().optional(),
   paymentMethod: z.nativeEnum(PaymentMethod),
   salesChannel: salesChannelSchema.default('RETAIL'),
   items: z.array(
@@ -49,35 +50,58 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: parsed.error.flatten(), message: 'Revisá los datos del checkout.' }, { status: 400 })
   }
 
-  const result = await createOrderFromCheckout(parsed.data)
+  let result
+
+  try {
+    result = await createOrderFromCheckout(parsed.data)
+  } catch (error) {
+    return NextResponse.json(
+      {
+        message: error instanceof Error ? error.message : 'No pudimos crear la orden.',
+      },
+      { status: 400 },
+    )
+  }
+
   let confirmedOrder = result.order
 
   let paymentUrl: string | null = null
 
   if (result.order.paymentMethod === PaymentMethod.ONLINE && env.MERCADOPAGO_ACCESS_TOKEN) {
-    const preferenceItems = [
-      ...result.order.items.map((item) => ({
-        id: item.productId,
-        title: `${item.productName} - ${item.colorName} - ${item.size}`,
-        quantity: item.quantity,
-        currency_id: 'ARS' as const,
-        unit_price: item.unitPrice,
-      })),
-      ...(result.order.shippingAmount > 0
-        ? [
-            {
-              id: `shipping-${result.order.shippingMethod.toLowerCase()}`,
-              title:
-                result.order.shippingMethod === 'LOCAL_DELIVERY' || result.order.shippingMethod === 'BARILOCHE_SAME_DAY'
-                  ? 'Envío local'
-                  : 'Envío nacional',
-              quantity: 1,
-              currency_id: 'ARS' as const,
-              unit_price: result.order.shippingAmount,
-            },
-          ]
-        : []),
-    ]
+    const hasCheckoutDiscounts = result.order.discountAmount > 0 || result.order.couponDiscountAmount > 0
+    const preferenceItems = hasCheckoutDiscounts
+      ? [
+          {
+            id: result.order.id,
+            title: `Pedido Patagónicos ${result.order.shortCode ?? result.order.orderNumber}`,
+            quantity: 1,
+            currency_id: 'ARS' as const,
+            unit_price: result.order.total,
+          },
+        ]
+      : [
+          ...result.order.items.map((item) => ({
+            id: item.productId,
+            title: `${item.productName} - ${item.colorName} - ${item.size}`,
+            quantity: item.quantity,
+            currency_id: 'ARS' as const,
+            unit_price: item.unitPrice,
+          })),
+          ...(result.order.shippingAmount > 0
+            ? [
+                {
+                  id: `shipping-${result.order.shippingMethod.toLowerCase()}`,
+                  title:
+                    result.order.shippingMethod === 'LOCAL_DELIVERY' || result.order.shippingMethod === 'BARILOCHE_SAME_DAY'
+                      ? 'Envío local'
+                      : 'Envío nacional',
+                  quantity: 1,
+                  currency_id: 'ARS' as const,
+                  unit_price: result.order.shippingAmount,
+                },
+              ]
+            : []),
+        ]
 
     const preference = await createPendingPreference({
       orderId: result.order.id,

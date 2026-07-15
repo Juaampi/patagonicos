@@ -1,4 +1,5 @@
 import { normalizeProvinceName } from '@/lib/argentina-data'
+import { getCouponDiscountAmount, type CouponPreviewInput } from '@/lib/coupons'
 
 export type StoreSettingsSnapshot = {
   localDeliveryFreeThreshold: number
@@ -37,6 +38,7 @@ export function getCheckoutPreview(
   province: string,
   settings: StoreSettingsSnapshot,
   paymentMethod: 'ONLINE' | 'CASH_ON_DELIVERY' | 'TRANSFER' = 'ONLINE',
+  coupon: CouponPreviewInput | null = null,
 ) {
   const isBarilocheCustomer = isBarilocheLocation(city, province)
   const isEligibleForBariloche = settings.barilocheEnabled && isBarilocheCustomer
@@ -47,6 +49,7 @@ export function getCheckoutPreview(
   const transferDiscountAmount = Math.round((subtotal * transferDiscountPercent) / 100)
   const discountPercent = barilocheDiscountPercent + transferDiscountPercent
   const discountAmount = barilocheDiscountAmount + transferDiscountAmount
+  const couponDiscountAmount = getCouponDiscountAmount(subtotal, discountAmount, coupon)
   const shippingAmount = isEligibleForBariloche
     ? qualifiesForFreeShipping
       ? 0
@@ -66,7 +69,8 @@ export function getCheckoutPreview(
     transferDiscountAmount,
     discountPercent,
     discountAmount,
-    total: Math.max(0, subtotal - discountAmount + shippingAmount),
+    couponDiscountAmount,
+    total: Math.max(0, subtotal - discountAmount - couponDiscountAmount + shippingAmount),
     allowCashOnDelivery: isEligibleForBariloche,
   }
 }

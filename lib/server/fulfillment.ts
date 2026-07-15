@@ -15,6 +15,7 @@ import { normalizeProvinceName } from '@/lib/argentina-data'
 import { env } from '@/lib/env'
 import { sendOrderCreatedNotifications, sendOrderPaidNotification } from '@/lib/order-email-notifications'
 import { prisma } from '@/lib/prisma'
+import { validateCouponCode } from '@/lib/server/coupons'
 import { sendMetaPurchaseEventSafely } from '@/lib/server/meta-conversions'
 import { getCheckoutPreview } from '@/lib/store-settings'
 import { formatPrice } from '@/lib/utils'
@@ -146,9 +147,32 @@ export async function calculateShippingForCheckout(
   city: string,
   province: string,
   paymentMethod: PaymentMethod = PaymentMethod.ONLINE,
+  couponCode?: string,
 ) {
   const settings = await ensureStoreSettings()
-  const preview = getCheckoutPreview(subtotal, city, province, settings, paymentMethod)
+  const basePreview = getCheckoutPreview(subtotal, city, province, settings, paymentMethod)
+  const couponResult = couponCode
+    ? await validateCouponCode({
+        code: couponCode,
+        subtotal,
+        existingDiscountAmount: basePreview.discountAmount,
+      })
+    : null
+  const preview = getCheckoutPreview(
+    subtotal,
+    city,
+    province,
+    settings,
+    paymentMethod,
+    couponResult?.ok && couponResult.coupon
+      ? {
+          code: couponResult.coupon.code,
+          type: couponResult.coupon.type,
+          value: couponResult.coupon.value,
+          minSubtotal: couponResult.coupon.minSubtotal,
+        }
+      : null,
+  )
   return {
     shippingMethod:
       preview.shippingMethod === 'LOCAL_DELIVERY' ? ShippingMethod.LOCAL_DELIVERY : ShippingMethod.NATIONAL_SHIPPING,
@@ -394,7 +418,7 @@ export type CheckoutOrderItemInput = {
 }
 
 export async function createOrderFromCheckout(input: {
-  fullName: string
+    fullName: string
   lastName: string
   dni: string
   email: string
@@ -415,6 +439,7 @@ export async function createOrderFromCheckout(input: {
   notes?: string
   items: CheckoutOrderItemInput[]
   paymentMethod: PaymentMethod
+  couponCode?: string
   salesChannel?: SalesChannel
 }) {
   let normalizedItems = input.items.map((item) => ({
@@ -482,12 +507,39 @@ export async function createOrderFromCheckout(input: {
 
   const subtotal = normalizedItems.reduce((total, item) => total + item.unitPrice * item.quantity, 0)
   const settings = await ensureStoreSettings()
-  const shippingPreview = getCheckoutPreview(subtotal, input.city, input.province, settings, input.paymentMethod)
+  const basePreview = getCheckoutPreview(subtotal, input.city, input.province, settings, input.paymentMethod)
+  const couponResult = input.couponCode
+    ? await validateCouponCode({
+        code: input.couponCode,
+        subtotal,
+        existingDiscountAmount: basePreview.discountAmount,
+      })
+    : null
+  if (input.couponCode && couponResult && !couponResult.ok) {
+    throw new Error(couponResult.message)
+  }
+  const appliedCoupon = couponResult?.ok ? couponResult.coupon : null
+  const shippingPreview = getCheckoutPreview(
+    subtotal,
+    input.city,
+    input.province,
+    settings,
+    input.paymentMethod,
+    appliedCoupon
+      ? {
+          code: appliedCoupon.code,
+          type: appliedCoupon.type,
+          value: appliedCoupon.value,
+          minSubtotal: appliedCoupon.minSubtotal,
+        }
+      : null,
+  )
   const shipping = {
     shippingMethod:
       shippingPreview.shippingMethod === 'LOCAL_DELIVERY' ? ShippingMethod.LOCAL_DELIVERY : ShippingMethod.NATIONAL_SHIPPING,
     shippingAmount: shippingPreview.shippingAmount,
-    discountAmount: shippingPreview.discountAmount,
+      discountAmount: shippingPreview.discountAmount,
+    couponDiscountAmount: shippingPreview.couponDiscountAmount,
     discountPercent: shippingPreview.discountPercent,
     total: shippingPreview.total,
     allowCashOnDelivery: shippingPreview.allowCashOnDelivery,
@@ -573,6 +625,9 @@ export async function createOrderFromCheckout(input: {
       whatsappOptIn: input.whatsappOptIn,
       subtotal,
       discountAmount: shipping.discountAmount,
+      couponDiscountAmount: shipping.couponDiscountAmount,
+      couponCode: appliedCoupon?.code ?? null,
+      couponId: appliedCoupon?.id ?? null,
       shippingAmount: shipping.shippingAmount,
       total,
       notes:
@@ -726,6 +781,8 @@ export async function getAdminFulfillmentSnapshot() {
           whatsappOptIn: true,
           subtotal: true,
           discountAmount: true,
+          couponDiscountAmount: true,
+          couponCode: true,
           shippingAmount: true,
           total: true,
           notes: true,
@@ -770,6 +827,7 @@ export async function getAdminFulfillmentSnapshot() {
         amountToCollect: deriveLegacyAmountToCollect(order),
         deliveryNotes: order.notes,
         discountAmount: 0,
+        couponDiscountAmount: 0,
         inRouteAt: null,
         deliveredAt: null,
         deliveryStops: [],
@@ -840,6 +898,8 @@ export async function getOrderForTicket(orderId: string) {
         whatsappOptIn: true,
         subtotal: true,
         discountAmount: true,
+        couponDiscountAmount: true,
+        couponCode: true,
         shippingAmount: true,
         total: true,
         notes: true,
@@ -866,6 +926,7 @@ export async function getOrderForTicket(orderId: string) {
       amountToCollect: deriveLegacyAmountToCollect(order),
       deliveryNotes: order.notes,
       discountAmount: 0,
+      couponDiscountAmount: 0,
       inRouteAt: null,
       deliveredAt: null,
       deliveryStops: [],
@@ -883,6 +944,8 @@ export function renderTicketHtml(order: {
   status: string
   subtotal: number
   discountAmount?: number
+  couponDiscountAmount?: number
+  couponCode?: string | null
   shippingAmount: number
   total: number
   notes?: string | null
@@ -998,6 +1061,11 @@ export function renderTicketHtml(order: {
           ${
             order.discountAmount && order.discountAmount > 0
               ? `<div style="display:flex;justify-content:space-between;"><span class="muted">${discountLabel}</span><strong style="color:#15803d;">-${formatPrice(order.discountAmount)}</strong></div>`
+              : ''
+          }
+          ${
+            order.couponDiscountAmount && order.couponDiscountAmount > 0
+              ? `<div style="display:flex;justify-content:space-between;"><span class="muted">Cupón ${order.couponCode ?? ''}</span><strong style="color:#0369a1;">-${formatPrice(order.couponDiscountAmount)}</strong></div>`
               : ''
           }
           <div style="display:flex;justify-content:space-between;"><span class="muted">Envío</span><strong>${formatPrice(order.shippingAmount)}</strong></div>

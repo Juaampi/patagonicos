@@ -146,6 +146,14 @@ function buildOrderSummaryMarkup(order: OrderEmailRecord) {
             </tr>`
           : ''
       }
+      ${
+        order.couponDiscountAmount > 0
+          ? `<tr>
+              <td style="padding-top:8px;color:#0369a1;">Cupón ${order.couponCode ?? ''}</td>
+              <td style="padding-top:8px;text-align:right;font-weight:600;color:#0369a1;">-${formatPrice(order.couponDiscountAmount)}</td>
+            </tr>`
+          : ''
+      }
       <tr>
         <td style="padding-top:8px;color:#6b7280;">Envío</td>
         <td style="padding-top:8px;text-align:right;font-weight:600;">${formatPrice(order.shippingAmount)}</td>
