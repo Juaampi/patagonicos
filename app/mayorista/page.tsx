@@ -3,9 +3,9 @@ import { WholesalePageClient } from '@/components/wholesale/wholesale-page-clien
 import { getAllProducts } from '@/lib/store'
 
 export const metadata: Metadata = {
-  title: 'Patagónicos Mayorista 2026',
+  title: 'Mayorista Patagónicos | Catálogo online',
   description:
-    'Armá tu pedido mayorista con productos reales de Patagónicos, precio especial y cierre por WhatsApp.',
+    'Catálogo mayorista online con portada, productos, fotos grandes, colores, talles, beneficios y formulario de pedido por WhatsApp.',
 }
 
 export const dynamic = 'force-dynamic'

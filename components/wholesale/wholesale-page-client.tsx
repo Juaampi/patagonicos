@@ -2,178 +2,132 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { ChevronLeft, ChevronRight, Minus, Package, Plus, Search, ShieldCheck, Trash2, Truck, X } from 'lucide-react'
-import { useEffect, useMemo, useState, useSyncExternalStore } from 'react'
-import { getAvailableSizes, getColorImages, getMainImage, getProductColors, getVariantForSelection } from '@/lib/variant-utils'
+import { Check, ChevronLeft, ChevronRight, CircleCheckBig, Palette, PhoneCall, Ruler, Sparkles, Store, Truck } from 'lucide-react'
+import { useMemo, useState } from 'react'
+import { getGalleryForColor, getMainImage, getProductColors, getSizesForColor } from '@/lib/variant-utils'
+import { WHOLESALE_MIN_UNITS, WHOLESALE_MIN_UNITS_PER_MODEL_COLOR, getWholesalePrice } from '@/lib/wholesale'
 import { getSiteWhatsAppHref } from '@/lib/site-contact'
-import type { CartItem, Product, ProductImage } from '@/types/store'
-import {
-  getWholesalePrice,
-  getWholesaleValidation,
-  WHOLESALE_MIN_UNITS,
-  WHOLESALE_MIN_UNITS_PER_MODEL_COLOR,
-} from '@/lib/wholesale'
 import { formatPrice } from '@/lib/utils'
+import type { Product } from '@/types/store'
 
-const WHOLESALE_STORAGE_KEY = 'pa2-wholesale-cart'
-const INVALID_NUMBER_KEYS = ['e', 'E', '+', '-', '.', ',']
-
-function normalizeWholesaleItem(item: CartItem): CartItem {
-  return {
-    ...item,
-    salesChannel: 'WHOLESALE',
-    maxStock: Math.max(item.maxStock ?? 0, item.quantity ?? 1, 9999),
-  }
+type InquiryFormState = {
+  name: string
+  businessName: string
+  city: string
+  phone: string
+  notes: string
 }
 
-function normalizePositiveQuantity(value: string | number, fallback = 1) {
-  if (typeof value === 'number') {
-    if (!Number.isFinite(value)) {
-      return fallback
-    }
+const BENEFITS = [
+  {
+    title: 'Más moderno que un PDF',
+    description: 'Tus clientes mayoristas pueden ver la colección desde el celular con fotos grandes, colores y talles claros.',
+    icon: Sparkles,
+  },
+  {
+    title: 'Productos siempre actualizados',
+    description: 'Cada cambio que hagas en los productos se refleja en esta página sin reenviar catálogos una y otra vez.',
+    icon: CircleCheckBig,
+  },
+  {
+    title: 'Consulta simple, sin carrito',
+    description: 'La página muestra el catálogo y permite dejar un pedido o consulta, sin pasar por una compra online.',
+    icon: PhoneCall,
+  },
+]
 
-    return Math.max(1, Math.floor(value))
-  }
+const BUYING_STEPS = [
+  'Explorá los productos y revisá fotos, colores, talles y detalles de cada modelo.',
+  'Marcá los productos que te interesan para incluirlos en el formulario.',
+  'Completá tus datos y envianos la consulta por WhatsApp para confirmar stock, cantidades y envío.',
+]
 
-  const digitsOnly = value.replace(/\D/g, '')
-  if (!digitsOnly) {
-    return fallback
-  }
-
-  const parsed = Number(digitsOnly)
-  if (!Number.isFinite(parsed)) {
-    return fallback
-  }
-
-  return Math.max(1, Math.floor(parsed))
+function getInitialColor(product: Product) {
+  return getProductColors(product)[0]?.name ?? ''
 }
 
-function WholesaleInfoGallery({
-  images,
-  productName,
+function ProductGallery({
+  product,
+  colorName,
 }: {
-  images: ProductImage[]
-  productName: string
+  product: Product
+  colorName: string
 }) {
+  const gallery = useMemo(() => {
+    const items = getGalleryForColor(product, colorName)
+    return items.filter((item) => item.kind === 'image')
+  }, [colorName, product])
   const [activeIndex, setActiveIndex] = useState(0)
-  const [zoomedImage, setZoomedImage] = useState<ProductImage | null>(null)
 
-  if (images.length === 0) {
-    return null
+  const safeIndex = gallery[activeIndex] ? activeIndex : 0
+  const activeItem = gallery[safeIndex]
+  const activeImage = activeItem?.image ?? getMainImage(product)
+
+  if (!activeImage) {
+    return (
+      <div className="flex aspect-[4/5] items-center justify-center rounded-[28px] bg-[#f2ede6] text-sm text-black/45">
+        Sin imagen disponible
+      </div>
+    )
   }
-
-  const activeImage = images[activeIndex] ?? images[0]
-  const hasMultipleImages = images.length > 1
 
   return (
-    <>
-      <div className="mt-4 space-y-3">
-        <div className="flex items-center justify-between gap-3">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-black/46">Guía e información</p>
-          {hasMultipleImages ? (
-            <div className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-black/42">
-              <span>
-                {activeIndex + 1}/{images.length}
-              </span>
-            </div>
-          ) : null}
-        </div>
+    <div className="space-y-3">
+      <div className="relative aspect-[4/5] overflow-hidden rounded-[28px] border border-black/8 bg-[radial-gradient(circle_at_top,#fff8ef_0%,#f4ede5_45%,#efe7dd_100%)]">
+        <Image
+          src={activeImage.url}
+          alt={activeImage.alt}
+          fill
+          sizes="(max-width: 768px) 100vw, 40vw"
+          className="object-contain"
+        />
 
-        <div className="relative aspect-[4/3] overflow-hidden rounded-[22px] border border-black/8 bg-[#f7f7f4]">
-          <Image
-            src={activeImage.url}
-            alt={activeImage.alt}
-            fill
-            sizes="(max-width: 768px) 100vw, 50vw"
-            className="object-contain"
-          />
-
-          <button
-            type="button"
-            onClick={() => setZoomedImage(activeImage)}
-            className="absolute bottom-3 right-3 inline-flex items-center gap-2 rounded-full bg-white/92 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-black shadow-[0_10px_28px_rgba(0,0,0,0.12)]"
-            aria-label={`Ampliar imagen informativa de ${productName}`}
-          >
-            <Search className="h-3.5 w-3.5" />
-            Zoom
-          </button>
-
-          {hasMultipleImages ? (
-            <>
-              <button
-                type="button"
-                onClick={() => setActiveIndex((current) => (current === 0 ? images.length - 1 : current - 1))}
-                className="absolute left-3 top-1/2 inline-flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/88 text-black shadow-[0_10px_30px_rgba(0,0,0,0.08)] transition hover:bg-white"
-                aria-label={`Imagen informativa anterior de ${productName}`}
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveIndex((current) => (current + 1) % images.length)}
-                className="absolute right-3 top-1/2 inline-flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/88 text-black shadow-[0_10px_30px_rgba(0,0,0,0.08)] transition hover:bg-white"
-                aria-label={`Siguiente imagen informativa de ${productName}`}
-              >
-                <ChevronRight className="h-4 w-4" />
-              </button>
-            </>
-          ) : null}
-        </div>
-
-        {hasMultipleImages ? (
-          <div className="flex gap-2 overflow-x-auto pb-1">
-            {images.map((image, index) => (
-              <button
-                key={image.id ?? image.url}
-                type="button"
-                onClick={() => setActiveIndex(index)}
-                className={`relative h-16 w-16 shrink-0 overflow-hidden rounded-[16px] border transition ${
-                  index === activeIndex ? 'border-black bg-white' : 'border-black/10 bg-[#f7f7f4]'
-                }`}
-                aria-label={`Ver imagen informativa ${index + 1} de ${productName}`}
-              >
-                <Image
-                  src={image.url}
-                  alt={image.alt}
-                  fill
-                  sizes="64px"
-                  className="object-contain"
-                />
-              </button>
-            ))}
-          </div>
+        {gallery.length > 1 ? (
+          <>
+            <button
+              type="button"
+              onClick={() => setActiveIndex((current) => (current === 0 ? gallery.length - 1 : current - 1))}
+              className="absolute left-3 top-1/2 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-black shadow-[0_14px_30px_rgba(0,0,0,0.12)] transition hover:bg-white"
+              aria-label={`Imagen anterior de ${product.name}`}
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveIndex((current) => (current + 1) % gallery.length)}
+              className="absolute right-3 top-1/2 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-black shadow-[0_14px_30px_rgba(0,0,0,0.12)] transition hover:bg-white"
+              aria-label={`Siguiente imagen de ${product.name}`}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </>
         ) : null}
       </div>
 
-      {zoomedImage ? (
-        <div className="fixed inset-0 z-[90] bg-black/88 px-4 py-6" onClick={() => setZoomedImage(null)}>
-          <div className="mx-auto flex h-full max-w-6xl flex-col" onClick={(event) => event.stopPropagation()}>
-            <div className="flex justify-end">
-              <button
-                type="button"
-                onClick={() => setZoomedImage(null)}
-                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/18 bg-white/8 text-white transition hover:bg-white/14"
-                aria-label={`Cerrar imagen informativa ampliada de ${productName}`}
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-            <div className="flex min-h-0 flex-1 items-center justify-center py-4">
-              <div className="relative h-full w-full">
-                <Image
-                  src={zoomedImage.url}
-                  alt={zoomedImage.alt}
-                  fill
-                  priority
-                  sizes="100vw"
-                  className="object-contain"
-                />
-              </div>
-            </div>
-          </div>
+      {gallery.length > 1 ? (
+        <div className="flex gap-2 overflow-x-auto pb-1">
+          {gallery.map((item, index) => (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => setActiveIndex(index)}
+              className={`relative h-18 w-16 shrink-0 overflow-hidden rounded-[18px] border transition ${
+                index === safeIndex ? 'border-black bg-white' : 'border-black/10 bg-[#f4eee8]'
+              }`}
+              aria-label={`Ver foto ${index + 1} de ${product.name}`}
+            >
+              <Image
+                src={item.image.url}
+                alt={item.image.alt}
+                fill
+                sizes="64px"
+                className="object-contain"
+              />
+            </button>
+          ))}
         </div>
       ) : null}
-    </>
+    </div>
   )
 }
 
@@ -182,374 +136,268 @@ export function WholesalePageClient({
 }: {
   products: Product[]
 }) {
-  const [items, setItems] = useState<CartItem[]>(() => {
-    if (typeof window === 'undefined') {
-      return []
-    }
-
-    try {
-      const raw = window.localStorage.getItem(WHOLESALE_STORAGE_KEY)
-      if (!raw) {
-        return []
-      }
-
-      const parsed = JSON.parse(raw) as CartItem[]
-      return Array.isArray(parsed) ? parsed.map(normalizeWholesaleItem) : []
-    } catch {
-      return []
-    }
-  })
-  const isHydrated = useSyncExternalStore(
-    () => () => {},
-    () => true,
-    () => false,
+  const [selectedColors, setSelectedColors] = useState<Record<string, string>>(() =>
+    Object.fromEntries(products.map((product) => [product.id, getInitialColor(product)])),
   )
-  const [selectionByProduct, setSelectionByProduct] = useState<Record<string, { colorName: string; size: string; quantity: number }>>({})
-  const [feedback, setFeedback] = useState<string | null>(null)
+  const [selectedProducts, setSelectedProducts] = useState<string[]>([])
+  const [form, setForm] = useState<InquiryFormState>({
+    name: '',
+    businessName: '',
+    city: '',
+    phone: '',
+    notes: '',
+  })
 
-  useEffect(() => {
-    if (!isHydrated) {
-      return
-    }
+  const selectedProductCards = useMemo(
+    () =>
+      products.filter((product) => selectedProducts.includes(product.id)).map((product) => ({
+        id: product.id,
+        name: product.name,
+        colorName: selectedColors[product.id] ?? getInitialColor(product),
+      })),
+    [products, selectedColors, selectedProducts],
+  )
 
-    try {
-      window.localStorage.setItem(WHOLESALE_STORAGE_KEY, JSON.stringify(items))
-    } catch {
-      // Ignore local storage failures and keep the builder usable in memory.
-    }
-  }, [isHydrated, items])
-
-  const subtotal = items.reduce((total, item) => total + item.price * item.quantity, 0)
-  const validation = useMemo(() => getWholesaleValidation(items), [items])
-  const wholesaleMessage = useMemo(() => {
-    if (items.length === 0) {
-      return 'Hola Patagónicos, quiero consultar por compras mayoristas de indumentaria para mascotas.'
-    }
-
+  const whatsappHref = useMemo(() => {
     const lines = [
-      'Hola Patagónicos, quiero enviarles este pedido mayorista:',
+      'Hola Patagónicos, quiero hacer una consulta mayorista.',
       '',
-      ...items.map((item) => `- ${item.name} | ${item.colorName} | ${item.size} | ${item.quantity}u | ${formatPrice(item.price)} c/u`),
+      `Nombre: ${form.name || '-'}`,
+      `Local o emprendimiento: ${form.businessName || '-'}`,
+      `Ciudad / zona: ${form.city || '-'}`,
+      `Teléfono: ${form.phone || '-'}`,
       '',
-      `Total de unidades: ${validation.totalUnits}`,
-      `Subtotal mayorista: ${formatPrice(subtotal)}`,
+      'Productos de interés:',
+      ...(
+        selectedProductCards.length > 0
+          ? selectedProductCards.map((product) => `- ${product.name} | color de referencia: ${product.colorName}`)
+          : ['- Todavía no marqué productos, pero quiero recibir información mayorista.']
+      ),
       '',
-      'Quedo atento/a a confirmación de stock, envío y pasos siguientes.',
+      `Comentario: ${form.notes || 'Quiero conocer stock, condiciones y cómo avanzar con el pedido.'}`,
     ]
 
-    return lines.join('\n')
-  }, [items, subtotal, validation.totalUnits])
+    return getSiteWhatsAppHref(lines.join('\n'))
+  }, [form, selectedProductCards])
 
-  function getSelection(product: Product) {
-    const existing = selectionByProduct[product.id]
-    if (existing) {
-      return existing
-    }
-
-    const colors = getProductColors(product)
-    const colorName = colors[0]?.name ?? ''
-    const size = getAvailableSizes(product, colorName)[0]?.label ?? ''
-
-    return {
-      colorName,
-      size,
-      quantity: 1,
-    }
-  }
-
-  function updateSelection(productId: string, patch: Partial<{ colorName: string; size: string; quantity: number }>) {
-    setSelectionByProduct((current) => {
-      const currentSelection = current[productId] ?? { colorName: '', size: '', quantity: 1 }
-      const nextQuantity =
-        patch.quantity == null ? currentSelection.quantity : normalizePositiveQuantity(patch.quantity, currentSelection.quantity)
-
-      return {
-        ...current,
-        [productId]: {
-          ...currentSelection,
-          ...patch,
-          quantity: nextQuantity,
-        },
-      }
-    })
-  }
-
-  function addWholesaleItem(product: Product) {
-    const selection = getSelection(product)
-    const variant = getVariantForSelection(product, selection.colorName, selection.size)
-
-    if (!variant || selection.quantity <= 0) {
-      setFeedback('Elegí una variante válida antes de agregar al pedido mayorista.')
-      window.setTimeout(() => setFeedback(null), 2400)
-      return
-    }
-
-    const image =
-      getColorImages(product, variant.colorName)[0] ??
-      getMainImage(product) ??
-      undefined
-
-    const normalizedItem = normalizeWholesaleItem({
-      id: `wholesale:${product.id}:${variant.sku}`,
-      productId: product.id,
-      slug: product.slug,
-      name: product.name,
-      category: product.category,
-      price: getWholesalePrice(product.price),
-      compareAtPrice: product.price,
-      imageUrl: image?.url ?? product.mainImageUrl,
-      imageAlt: image?.alt ?? product.name,
-      colorName: variant.colorName,
-      colorHex: variant.colorHex,
-      size: variant.size,
-      sku: variant.sku,
-      quantity: selection.quantity,
-      maxStock: 9999,
-      salesChannel: 'WHOLESALE',
-    })
-
-    setItems((current) => {
-      const existingIndex = current.findIndex((item) => item.sku === normalizedItem.sku)
-
-      if (existingIndex === -1) {
-        return [...current, normalizedItem]
-      }
-
-      return current.map((item, index) =>
-        index === existingIndex
-          ? {
-              ...item,
-              quantity: item.quantity + normalizedItem.quantity,
-              maxStock: Math.max(item.maxStock, normalizedItem.maxStock),
-            }
-          : item,
-      )
-    })
-
-    setFeedback(`Sumamos ${selection.quantity} unidad${selection.quantity > 1 ? 'es' : ''} de ${product.name}.`)
-    window.setTimeout(() => setFeedback(null), 2200)
-  }
-
-  function updateQuantity(id: string, quantity: number) {
-    setItems((current) =>
-      current.flatMap((item) => {
-        if (item.id !== id) {
-          return [item]
-        }
-
-        const nextQuantity = Math.max(0, Math.floor(quantity))
-        if (nextQuantity <= 0) {
-          return []
-        }
-
-        return [{ ...item, quantity: nextQuantity }]
-      }),
+  function toggleProduct(productId: string) {
+    setSelectedProducts((current) =>
+      current.includes(productId) ? current.filter((id) => id !== productId) : [...current, productId],
     )
   }
 
-  function removeItem(id: string) {
-    setItems((current) => current.filter((item) => item.id !== id))
-  }
-
-  function clearItems() {
-    setItems([])
-  }
-
   return (
-    <section className="shell pb-12 pt-32 md:pt-40">
-      <div className="space-y-8">
-        <div className="card-surface overflow-hidden border border-[#dbe7df] bg-[linear-gradient(135deg,#f8fbf9_0%,#eef4f1_38%,#f7f7f3_100%)]">
-          <div className="grid gap-8 px-7 py-8 md:px-9 md:py-10 xl:grid-cols-[1.1fr_0.9fr] xl:items-end">
-            <div>
-              <p className="eyebrow">Canal exclusivo</p>
-              <h1 className="mt-4 max-w-5xl font-display text-5xl tracking-[-0.06em] text-black/92 md:text-6xl">
-                PATAGÓNICOS MAYORISTA 2026
+    <section className="shell pb-14 pt-28 md:pt-36">
+      <div className="space-y-8 md:space-y-10">
+        <section className="overflow-hidden rounded-[34px] border border-[#dccfc1] bg-[linear-gradient(135deg,#f7ecdc_0%,#ead7bf_40%,#d7e3d1_100%)]">
+          <div className="grid gap-8 px-6 py-7 md:px-10 md:py-10 xl:grid-cols-[1.1fr_0.9fr] xl:items-center">
+            <div className="max-w-3xl">
+              <p className="inline-flex rounded-full border border-black/10 bg-white/70 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-black/62 shadow-[0_12px_24px_rgba(0,0,0,0.06)]">
+                Catálogo mayorista online
+              </p>
+              <h1 className="mt-5 font-display text-5xl leading-[0.94] tracking-[-0.07em] text-black/90 md:text-7xl">
+                Mayorista con portada, catálogo y formulario en una sola experiencia.
               </h1>
-              <p className="mt-4 text-xl font-medium tracking-[-0.03em] text-black/72">Indumentaria para mascotas</p>
-              <p className="mt-6 max-w-3xl text-base leading-8 text-black/62">
-                Armá tu pedido mayorista con los productos reales de la colección, combinando modelos, colores y talles
-                con precio especial directo desde la web.
+              <p className="mt-5 max-w-2xl text-base leading-8 text-black/68 md:text-lg">
+                En vez de mandar un PDF, esta página muestra la colección con fotos grandes, colores, talles y una forma
+                simple de pedir información desde el celular.
               </p>
-              <p className="mt-4 max-w-3xl text-sm leading-7 text-black/54">
-                El envío corre por cuenta del comprador y se cotiza según el peso total del pedido y la localidad de entrega.
-              </p>
+
+              <div className="mt-7 flex flex-wrap gap-3">
+                <a href="#catalogo" className="button-primary">
+                  Ver productos
+                </a>
+                <a href="#pedido" className="button-secondary bg-white/55 backdrop-blur-sm">
+                  Ir al formulario
+                </a>
+              </div>
+
+              <div className="mt-7 grid gap-3 sm:grid-cols-3">
+                <div className="rounded-[22px] border border-black/8 bg-white/72 p-4 backdrop-blur-sm">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-black/48">Pedido mínimo</p>
+                  <p className="mt-2 text-2xl font-semibold tracking-[-0.05em] text-black/88">{WHOLESALE_MIN_UNITS} unidades</p>
+                </div>
+                <div className="rounded-[22px] border border-black/8 bg-white/72 p-4 backdrop-blur-sm">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-black/48">Modelo + color</p>
+                  <p className="mt-2 text-2xl font-semibold tracking-[-0.05em] text-black/88">{WHOLESALE_MIN_UNITS_PER_MODEL_COLOR} unidades</p>
+                </div>
+                <div className="rounded-[22px] border border-black/8 bg-white/72 p-4 backdrop-blur-sm">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-black/48">Canal</p>
+                  <p className="mt-2 text-2xl font-semibold tracking-[-0.05em] text-black/88">Sin carrito</p>
+                </div>
+              </div>
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
-              {[
-                { label: 'Pedido mínimo', value: `${WHOLESALE_MIN_UNITS} unidades`, icon: Package },
-                { label: 'Modelo + color', value: `${WHOLESALE_MIN_UNITS_PER_MODEL_COLOR} unidades`, icon: ShieldCheck },
-                { label: 'Descuento', value: '35% OFF', icon: ShieldCheck },
-                { label: 'Cobertura', value: 'Todo el país', icon: Truck },
-              ].map((item) => (
-                <div key={item.label} className="rounded-[26px] border border-black/8 bg-white/80 p-5 backdrop-blur-sm">
-                  <div className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-black/10 bg-[#f6f6f2] text-black/80">
-                    <item.icon className="h-5 w-5" />
-                  </div>
-                  <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-black/46">{item.label}</p>
-                  <p className="mt-2 text-2xl font-medium tracking-[-0.04em] text-black/88">{item.value}</p>
+              <div className="relative overflow-hidden rounded-[28px] border border-white/40 bg-[#f4ebe0] p-3 shadow-[0_24px_50px_rgba(94,72,35,0.15)] sm:col-span-2">
+                <div className="relative aspect-[16/10] overflow-hidden rounded-[22px]">
+                  <Image
+                    src="/hero-header-otono.webp"
+                    alt="Colección mayorista Patagónicos"
+                    fill
+                    priority
+                    sizes="(max-width: 1280px) 100vw, 42vw"
+                    className="object-cover"
+                  />
                 </div>
-              ))}
+              </div>
+              <div className="rounded-[26px] border border-black/8 bg-white/74 p-5 backdrop-blur-sm">
+                <Palette className="h-5 w-5 text-black/72" />
+                <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.2em] text-black/45">Colores</p>
+                <p className="mt-2 text-lg font-medium tracking-[-0.04em] text-black/84">
+                  Cada producto muestra sus variantes de color de forma visual.
+                </p>
+              </div>
+              <div className="rounded-[26px] border border-black/8 bg-white/74 p-5 backdrop-blur-sm">
+                <Ruler className="h-5 w-5 text-black/72" />
+                <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.2em] text-black/45">Talles</p>
+                <p className="mt-2 text-lg font-medium tracking-[-0.04em] text-black/84">
+                  Los talles disponibles quedan claros sin depender de una planilla adjunta.
+                </p>
+              </div>
             </div>
           </div>
-        </div>
+        </section>
 
-        {feedback ? (
-          <div className="rounded-[24px] border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm text-emerald-800">
-            {feedback}
-          </div>
-        ) : null}
+        <section className="grid gap-4 md:grid-cols-3">
+          {BENEFITS.map((benefit) => (
+            <article key={benefit.title} className="card-surface border-[#ddd7ce] bg-[linear-gradient(180deg,#fffdfa_0%,#f7f3ee_100%)] p-6">
+              <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-[#efe2d2] text-black/80">
+                <benefit.icon className="h-5 w-5" />
+              </div>
+              <h2 className="mt-5 font-display text-3xl tracking-[-0.05em] text-black/88">{benefit.title}</h2>
+              <p className="mt-3 text-sm leading-7 text-black/62">{benefit.description}</p>
+            </article>
+          ))}
+        </section>
 
-        <div className="grid gap-6 xl:grid-cols-[minmax(0,1.3fr)_380px]">
+        <section id="catalogo" className="grid gap-6 xl:grid-cols-[minmax(0,1.25fr)_380px]">
           <div className="space-y-6">
-            <div className="card-surface p-7 md:p-9">
-              <p className="eyebrow">Colección disponible</p>
-              <h2 className="mt-4 font-display text-4xl tracking-[-0.05em] text-black md:text-5xl">
-                Catálogo mayorista con los productos reales de la tienda
+            <div className="card-surface overflow-hidden border-[#d8d7d0] bg-[linear-gradient(135deg,#fffaf3_0%,#f4efe9_48%,#eef3ea_100%)] p-7 md:p-9">
+              <p className="eyebrow">Productos</p>
+              <h2 className="mt-4 font-display text-4xl tracking-[-0.06em] text-black md:text-5xl">
+                Colección mayorista para mostrar, no para comprar online.
               </h2>
               <p className="mt-4 max-w-3xl text-base leading-8 text-black/62">
-                Cada card permite elegir color, talle y cantidad. El precio mayorista se calcula automáticamente con el
-                descuento correspondiente.
+                Este espacio funciona como un catálogo vivo: podés actualizar productos e imágenes desde el admin y la
+                página queda lista para compartir sin volver a armar un PDF.
               </p>
             </div>
 
-            <div className="grid gap-5 md:grid-cols-2">
+            <div className="space-y-6">
               {products.map((product) => {
-                const selection = getSelection(product)
                 const colors = getProductColors(product)
-                const sizes = getAvailableSizes(product, selection.colorName)
-                const variant = getVariantForSelection(product, selection.colorName, selection.size)
-                const infoImages = product.images
-                  .filter((image) => image.type === 'INFO')
-                  .sort((left, right) => left.sortOrder - right.sortOrder)
-                const image =
-                  getColorImages(product, selection.colorName)[0] ??
-                  getMainImage(product) ??
-                  null
+                const selectedColor = selectedColors[product.id] ?? colors[0]?.name ?? ''
+                const sizes = getSizesForColor(product, selectedColor)
+                const isSelected = selectedProducts.includes(product.id)
 
                 return (
                   <article
                     key={product.id}
-                    className="card-surface overflow-hidden border border-black/8 p-5 transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_20px_50px_rgba(0,0,0,0.06)]"
+                    className="grid gap-6 rounded-[32px] border border-[#ddd6cc] bg-[linear-gradient(180deg,#fffdf8_0%,#f8f3ec_100%)] p-5 shadow-[0_24px_70px_rgba(32,24,17,0.06)] md:p-6 xl:grid-cols-[0.92fr_1.08fr]"
                   >
-                    <div className="relative aspect-[4/3] overflow-hidden rounded-[24px] bg-[#f3f3ef]">
-                      {image ? (
-                        <Image src={image.url} alt={image.alt} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-contain" />
-                      ) : null}
-                    </div>
+                    <ProductGallery product={product} colorName={selectedColor} />
 
-                    <WholesaleInfoGallery images={infoImages} productName={product.name} />
-
-                    <p className="mt-5 text-[11px] font-semibold uppercase tracking-[0.18em] text-black/46">{product.category}</p>
-                    <h3 className="mt-2 font-display text-3xl tracking-[-0.05em] text-black/90">{product.name}</h3>
-                    <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                      <div className="rounded-[20px] border border-black/8 bg-[#fafaf8] px-4 py-3">
-                        <p className="text-xs uppercase tracking-[0.16em] text-black/44">PVP</p>
-                        <p className="mt-2 text-base font-medium text-black/82">{formatPrice(product.price)}</p>
-                      </div>
-                      <div className="rounded-[20px] border border-emerald-200 bg-emerald-50 px-4 py-3">
-                        <p className="text-xs uppercase tracking-[0.16em] text-emerald-700/80">Mayorista</p>
-                        <p className="mt-2 text-base font-semibold text-emerald-900">{formatPrice(getWholesalePrice(product.price))}</p>
-                      </div>
-                    </div>
-
-                    <div className="mt-5 grid gap-4">
-                      <label className="space-y-2">
-                        <span className="text-xs uppercase tracking-[0.16em] text-black/48">Color</span>
-                        <select
-                          value={selection.colorName}
-                          onChange={(event) => {
-                            const nextColor = event.target.value
-                            const nextSize = getAvailableSizes(product, nextColor)[0]?.label ?? ''
-                            updateSelection(product.id, { colorName: nextColor, size: nextSize })
-                          }}
-                          className="w-full rounded-[18px] border border-black/10 bg-[#f7f7f4] px-4 py-3 text-sm outline-none"
-                        >
-                          {colors.map((color) => (
-                            <option key={color.name} value={color.name}>
-                              {color.name}
-                            </option>
-                          ))}
-                        </select>
-                      </label>
-
-                      <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_168px]">
-                        <label className="space-y-2">
-                          <span className="text-xs uppercase tracking-[0.16em] text-black/48">Talle</span>
-                          <select
-                            value={selection.size}
-                            onChange={(event) => updateSelection(product.id, { size: event.target.value })}
-                            className="w-full rounded-[18px] border border-black/10 bg-[#f7f7f4] px-4 py-3 text-sm outline-none"
-                          >
-                            {sizes.map((size) => (
-                              <option key={size.label} value={size.label}>
-                                {size.label}
-                              </option>
-                            ))}
-                          </select>
-                        </label>
-
-                        <label className="space-y-2">
-                          <span className="text-xs uppercase tracking-[0.16em] text-black/48">Cantidad</span>
-                          <div className="flex min-w-[168px] items-center overflow-hidden rounded-[18px] border border-black/10 bg-[#f7f7f4]">
-                            <button
-                              type="button"
-                              onClick={() =>
-                                updateSelection(product.id, {
-                                  quantity: Math.max(1, selection.quantity - 1),
-                                })
-                              }
-                              className="inline-flex h-12 w-12 shrink-0 items-center justify-center text-black/70 transition hover:bg-black/5 hover:text-black"
-                              aria-label={`Bajar cantidad de ${product.name}`}
-                            >
-                              <Minus className="h-4 w-4" />
-                            </button>
-                            <input
-                              type="text"
-                              inputMode="numeric"
-                              pattern="[0-9]*"
-                              value={selection.quantity}
-                              onKeyDown={(event) => {
-                                if (INVALID_NUMBER_KEYS.includes(event.key)) {
-                                  event.preventDefault()
-                                }
-                              }}
-                              onChange={(event) =>
-                                updateSelection(product.id, {
-                                  quantity: normalizePositiveQuantity(event.target.value, selection.quantity),
-                                })
-                              }
-                              className="h-12 min-w-[56px] flex-1 bg-transparent px-2 text-center text-sm font-medium outline-none"
-                            />
-                            <button
-                              type="button"
-                              onClick={() =>
-                                updateSelection(product.id, {
-                                  quantity: selection.quantity + 1,
-                                })
-                              }
-                              className="inline-flex h-12 w-12 shrink-0 items-center justify-center text-black/70 transition hover:bg-black/5 hover:text-black"
-                              aria-label={`Subir cantidad de ${product.name}`}
-                            >
-                              <Plus className="h-4 w-4" />
-                            </button>
+                    <div className="flex flex-col justify-between">
+                      <div>
+                        <div className="flex flex-wrap items-start justify-between gap-3">
+                          <div>
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-black/45">{product.category}</p>
+                            <h3 className="mt-2 font-display text-4xl tracking-[-0.06em] text-black/90 md:text-5xl">
+                              {product.name}
+                            </h3>
                           </div>
-                        </label>
+                          <div className="rounded-[22px] border border-emerald-200 bg-emerald-50 px-4 py-3 text-right">
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-700/75">Referencia mayorista</p>
+                            <p className="mt-2 text-xl font-semibold tracking-[-0.04em] text-emerald-950">
+                              {formatPrice(getWholesalePrice(product.price))}
+                            </p>
+                          </div>
+                        </div>
+
+                        <p className="mt-4 text-base leading-8 text-black/64">{product.shortDescription || product.description}</p>
+
+                        <div className="mt-6 grid gap-5">
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <Palette className="h-4 w-4 text-black/55" />
+                              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-black/45">Colores</p>
+                            </div>
+                            <div className="mt-3 flex flex-wrap gap-2">
+                              {colors.map((color) => {
+                                const isActive = color.name === selectedColor
+                                return (
+                                  <button
+                                    key={color.name}
+                                    type="button"
+                                    onClick={() => setSelectedColors((current) => ({ ...current, [product.id]: color.name }))}
+                                    className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm transition ${
+                                      isActive ? 'border-black bg-black text-white' : 'border-black/12 bg-white text-black/72 hover:bg-black/4'
+                                    }`}
+                                    aria-pressed={isActive}
+                                  >
+                                    <span
+                                      className="h-3 w-3 rounded-full border border-black/10"
+                                      style={{ backgroundColor: color.hex || '#d6d3d1' }}
+                                    />
+                                    {color.name}
+                                  </button>
+                                )
+                              })}
+                            </div>
+                          </div>
+
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <Ruler className="h-4 w-4 text-black/55" />
+                              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-black/45">Talles</p>
+                            </div>
+                            <div className="mt-3 flex flex-wrap gap-2">
+                              {sizes.map((size) => (
+                                <span
+                                  key={`${product.id}-${selectedColor}-${size.label}`}
+                                  className={`inline-flex rounded-full border px-3 py-2 text-sm ${
+                                    size.inStock
+                                      ? 'border-black/12 bg-white text-black/78'
+                                      : 'border-black/8 bg-black/4 text-black/36 line-through'
+                                  }`}
+                                >
+                                  {size.label}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+
+                          {product.featureTags.length > 0 ? (
+                            <div>
+                              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-black/45">Beneficios del producto</p>
+                              <div className="mt-3 flex flex-wrap gap-2">
+                                {product.featureTags.slice(0, 6).map((tag) => (
+                                  <span
+                                    key={tag}
+                                    className="inline-flex rounded-full border border-black/10 bg-[#f1ece5] px-3 py-2 text-sm text-black/70"
+                                  >
+                                    {tag}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          ) : null}
+                        </div>
                       </div>
 
-                      <div className="flex items-center justify-between gap-4 text-sm text-black/58">
-                        <span>Stock sujeto a confirmación</span>
-                        <span>Total variante: {formatPrice((variant ? getWholesalePrice(product.price) : 0) * selection.quantity)}</span>
+                      <div className="mt-6 flex flex-wrap gap-3">
+                        <button
+                          type="button"
+                          onClick={() => toggleProduct(product.id)}
+                          className={isSelected ? 'button-primary' : 'button-secondary bg-white'}
+                        >
+                          {isSelected ? 'Producto agregado al formulario' : 'Sumar al formulario'}
+                        </button>
+                        <Link href={whatsappHref} target="_blank" rel="noreferrer" className="button-secondary">
+                          Consultar este modelo
+                        </Link>
                       </div>
-
-                      <button
-                        type="button"
-                        onClick={() => addWholesaleItem(product)}
-                        disabled={!variant}
-                        className={`button-primary w-full justify-center ${!variant ? 'cursor-not-allowed opacity-60' : ''}`}
-                      >
-                        {!variant ? 'Elegí una variante' : 'Agregar al pedido mayorista'}
-                      </button>
                     </div>
                   </article>
                 )
@@ -558,179 +406,115 @@ export function WholesalePageClient({
           </div>
 
           <aside className="space-y-6 xl:sticky xl:top-28 xl:self-start">
-            <div className="card-surface p-6 md:p-7">
-              <p className="eyebrow">Pedido mayorista</p>
-              <h2 className="mt-4 font-display text-3xl tracking-[-0.05em] text-black">Resumen del canal</h2>
-              <div className="mt-6 space-y-4">
-                <div className="rounded-[22px] border border-black/8 bg-[#fafaf8] px-4 py-4">
-                  <p className="text-xs uppercase tracking-[0.16em] text-black/44">Unidades cargadas</p>
-                  <p className="mt-2 text-3xl font-semibold text-black/88">{validation.totalUnits}</p>
+            <div className="card-surface border-[#d7d6cf] bg-[linear-gradient(180deg,#ffffff_0%,#f6f3ee_100%)] p-6 md:p-7">
+              <p className="eyebrow">Cómo comprar</p>
+              <h2 className="mt-4 font-display text-3xl tracking-[-0.05em] text-black">Una dinámica simple para mayoristas</h2>
+              <div className="mt-6 space-y-3">
+                {BUYING_STEPS.map((step, index) => (
+                  <div key={step} className="rounded-[22px] border border-black/8 bg-white/75 p-4">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-black/42">Paso {index + 1}</p>
+                    <p className="mt-2 text-sm leading-7 text-black/66">{step}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="card-surface border-[#cbded1] bg-[linear-gradient(180deg,#eef8f1_0%,#dfeee3_100%)] p-6 md:p-7">
+              <p className="eyebrow">Beneficios</p>
+              <div className="mt-5 space-y-4 text-sm leading-7 text-black/68">
+                <div className="flex items-start gap-3 rounded-[20px] bg-white/72 p-4">
+                  <Check className="mt-1 h-4 w-4 shrink-0 text-emerald-700" />
+                  <p>Ideal para compartir por link y mostrar desde cualquier celular.</p>
                 </div>
-                <div className="rounded-[22px] border border-black/8 bg-[#fafaf8] px-4 py-4">
-                  <p className="text-xs uppercase tracking-[0.16em] text-black/44">Subtotal mayorista</p>
-                  <p className="mt-2 text-3xl font-semibold text-black/88">{formatPrice(subtotal)}</p>
+                <div className="flex items-start gap-3 rounded-[20px] bg-white/72 p-4">
+                  <Store className="mt-1 h-4 w-4 shrink-0 text-emerald-700" />
+                  <p>Los productos se actualizan desde la tienda, sin rehacer catálogos externos.</p>
+                </div>
+                <div className="flex items-start gap-3 rounded-[20px] bg-white/72 p-4">
+                  <Truck className="mt-1 h-4 w-4 shrink-0 text-emerald-700" />
+                  <p>La confirmación final de stock, cantidades y envío se cierra por WhatsApp.</p>
                 </div>
               </div>
+            </div>
 
-              <div className="mt-6 space-y-3 text-sm leading-7 text-black/62">
-                <div className={`rounded-[20px] border px-4 py-3 ${validation.missingUnits > 0 ? 'border-amber-200 bg-amber-50 text-amber-900' : 'border-emerald-200 bg-emerald-50 text-emerald-900'}`}>
-                  {validation.missingUnits > 0
-                    ? `Te faltan ${validation.missingUnits} unidades para alcanzar el mínimo mayorista de ${WHOLESALE_MIN_UNITS}.`
-                    : `Ya alcanzaste el mínimo de ${WHOLESALE_MIN_UNITS} unidades.`}
-                </div>
+            <div id="pedido" className="card-surface overflow-hidden border-[#17231d] bg-[linear-gradient(145deg,#0f1714_0%,#1d3026_44%,#2d4a3d_100%)] p-6 text-white md:p-7">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.26em] text-white/58">Formulario de pedido</p>
+              <h2 className="mt-4 font-display text-4xl tracking-[-0.06em] text-white">Armá la consulta y enviala.</h2>
+              <p className="mt-4 text-sm leading-7 text-white/72">
+                Este formulario no cobra ni agrega al carrito. Solo prepara un mensaje mayorista claro para continuar la conversación.
+              </p>
 
-                <div className={`rounded-[20px] border px-4 py-3 ${validation.invalidColorGroups.length > 0 ? 'border-amber-200 bg-amber-50 text-amber-900' : 'border-emerald-200 bg-emerald-50 text-emerald-900'}`}>
-                  {validation.invalidColorGroups.length > 0 ? (
-                    <div>
-                      <p className="font-medium">Todavía hay combinaciones por debajo de {WHOLESALE_MIN_UNITS_PER_MODEL_COLOR} unidades:</p>
-                      <ul className="mt-2 space-y-1">
-                        {validation.invalidColorGroups.map((group) => (
-                          <li key={`${group.productId}-${group.colorName}`}>
-                            {group.productName} · {group.colorName}: {group.quantity} unidad{group.quantity > 1 ? 'es' : ''}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
+              <div className="mt-6 space-y-3">
+                <input
+                  type="text"
+                  value={form.name}
+                  onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))}
+                  placeholder="Nombre y apellido"
+                  className="w-full rounded-[18px] border border-white/12 bg-white/10 px-4 py-3 text-sm text-white outline-none placeholder:text-white/42"
+                />
+                <input
+                  type="text"
+                  value={form.businessName}
+                  onChange={(event) => setForm((current) => ({ ...current, businessName: event.target.value }))}
+                  placeholder="Local / emprendimiento"
+                  className="w-full rounded-[18px] border border-white/12 bg-white/10 px-4 py-3 text-sm text-white outline-none placeholder:text-white/42"
+                />
+                <input
+                  type="text"
+                  value={form.city}
+                  onChange={(event) => setForm((current) => ({ ...current, city: event.target.value }))}
+                  placeholder="Ciudad o zona"
+                  className="w-full rounded-[18px] border border-white/12 bg-white/10 px-4 py-3 text-sm text-white outline-none placeholder:text-white/42"
+                />
+                <input
+                  type="text"
+                  value={form.phone}
+                  onChange={(event) => setForm((current) => ({ ...current, phone: event.target.value }))}
+                  placeholder="Teléfono"
+                  className="w-full rounded-[18px] border border-white/12 bg-white/10 px-4 py-3 text-sm text-white outline-none placeholder:text-white/42"
+                />
+                <textarea
+                  value={form.notes}
+                  onChange={(event) => setForm((current) => ({ ...current, notes: event.target.value }))}
+                  placeholder="Contanos qué necesitás, cantidades estimadas o dudas."
+                  rows={4}
+                  className="w-full rounded-[18px] border border-white/12 bg-white/10 px-4 py-3 text-sm text-white outline-none placeholder:text-white/42"
+                />
+              </div>
+
+              <div className="mt-6 rounded-[22px] border border-white/12 bg-white/8 p-4">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/55">Productos marcados</p>
+                <div className="mt-3 space-y-2">
+                  {selectedProductCards.length > 0 ? (
+                    selectedProductCards.map((product) => (
+                      <div key={product.id} className="rounded-[16px] bg-white/8 px-3 py-3 text-sm text-white/82">
+                        {product.name} · {product.colorName}
+                      </div>
+                    ))
                   ) : (
-                    `Todas las combinaciones de modelo y color ya cumplen el mínimo de ${WHOLESALE_MIN_UNITS_PER_MODEL_COLOR} unidades.`
+                    <p className="text-sm leading-7 text-white/64">
+                      Podés enviar una consulta general aunque todavía no hayas marcado productos.
+                    </p>
                   )}
                 </div>
               </div>
 
               <div className="mt-6 space-y-3">
                 <Link
-                  href={getSiteWhatsAppHref('Hola Patagónicos, quiero consultar por un pedido mayorista y tengo algunas dudas antes de enviarlo.')}
+                  href={whatsappHref}
                   target="_blank"
                   rel="noreferrer"
-                  className="button-secondary w-full justify-center"
+                  className="inline-flex min-h-12 w-full items-center justify-center rounded-full bg-white px-6 py-3 text-center text-sm font-semibold uppercase tracking-[0.16em] text-black transition hover:bg-[#edf3ee]"
                 >
-                  Consultar por WhatsApp
+                  Enviar consulta por WhatsApp
                 </Link>
-                {items.length > 0 ? (
-                  <button
-                    type="button"
-                    onClick={clearItems}
-                    className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-black/10 px-5 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-black/72 transition hover:bg-black hover:text-white"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                    Vaciar pedido mayorista
-                  </button>
-                ) : null}
-              </div>
-            </div>
-
-            {items.length > 0 ? (
-              <div className="card-surface p-6 md:p-7">
-                <p className="eyebrow">Productos cargados</p>
-                <div className="mt-5 space-y-4">
-                  {items.map((item) => (
-                    <div key={item.id} className="rounded-[22px] border border-black/8 p-4">
-                      <div className="flex gap-4">
-                        <div className="relative h-20 w-18 shrink-0 overflow-hidden rounded-[16px] bg-[#f3f3ef]">
-                          {item.imageUrl ? (
-                            <Image src={item.imageUrl} alt={item.imageAlt ?? item.name} fill sizes="100px" className="object-contain" />
-                          ) : null}
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <p className="line-clamp-2 text-sm font-semibold text-black/86">{item.name}</p>
-                          <p className="mt-1 text-xs uppercase tracking-[0.16em] text-black/44">
-                            {item.colorName} · {item.size}
-                          </p>
-                          <p className="mt-2 text-sm font-medium text-black/72">{formatPrice(item.price)} por unidad</p>
-                        </div>
-                      </div>
-
-                      <div className="mt-4 flex items-center justify-between gap-3">
-                        <div className="flex items-center overflow-hidden rounded-full border border-black/10">
-                          <button
-                            type="button"
-                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                            className="inline-flex h-9 w-9 items-center justify-center text-black/68 transition hover:bg-black/5 hover:text-black"
-                            aria-label="Quitar unidad"
-                          >
-                            <Minus className="h-4 w-4" />
-                          </button>
-                          <input
-                            type="text"
-                            inputMode="numeric"
-                            pattern="[0-9]*"
-                            value={item.quantity}
-                            onKeyDown={(event) => {
-                              if (INVALID_NUMBER_KEYS.includes(event.key)) {
-                                event.preventDefault()
-                              }
-                            }}
-                            onChange={(event) => updateQuantity(item.id, normalizePositiveQuantity(event.target.value, item.quantity))}
-                            className="h-9 min-w-[48px] bg-transparent px-2 text-center text-sm font-medium text-black/82 outline-none"
-                            aria-label={`Cantidad de ${item.name}`}
-                          />
-                          <button
-                            type="button"
-                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                            className="inline-flex h-9 w-9 items-center justify-center text-black/68 transition hover:bg-black/5 hover:text-black"
-                            aria-label="Sumar unidad"
-                          >
-                            <Plus className="h-4 w-4" />
-                          </button>
-                        </div>
-
-                        <button
-                          type="button"
-                          onClick={() => removeItem(item.id)}
-                          className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-black/10 text-black/60 transition hover:bg-black hover:text-white"
-                          aria-label="Eliminar producto"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ) : null}
-          </aside>
-        </div>
-
-        {items.length > 0 ? (
-          <div className="card-surface overflow-hidden border border-[#cfe5d9] bg-[linear-gradient(135deg,#0f1720_0%,#18332b_45%,#2b5c46_100%)] p-7 text-white md:p-9">
-            <p className="eyebrow text-white/60">Cierre del pedido</p>
-            <h2 className="mt-4 font-display text-4xl tracking-[-0.05em] md:text-5xl">
-              Terminá tu selección y enviala directo por WhatsApp
-            </h2>
-            <p className="mt-5 max-w-3xl text-base leading-8 text-white/76">
-              Cuando cumplas el mínimo de {WHOLESALE_MIN_UNITS} unidades y el mínimo de {WHOLESALE_MIN_UNITS_PER_MODEL_COLOR}{' '}
-              por modelo/color, podés enviarnos el resumen completo del pedido para confirmar stock, logística y pasos siguientes.
-            </p>
-            <p className="mt-4 max-w-3xl text-sm leading-7 text-white/68">
-              El costo de envío lo abona el comprador y se define según el peso final del pedido y la localidad de envío.
-            </p>
-            <div className="mt-5 max-w-3xl rounded-[24px] border border-white/14 bg-white/8 p-5 text-sm leading-7 text-white/82">
-              Los pedidos mayoristas se entregan con la marca de su fabricante. En Patagónicos desarrollamos parte de la
-              colección y también trabajamos con productos importados seleccionados, por eso el canal mayorista mantiene la
-              marca de origen de cada prenda.
-            </div>
-
-            {validation.isValid ? (
-              <div className="mt-8 flex flex-wrap items-center gap-4">
-                <Link
-                  href={getSiteWhatsAppHref(wholesaleMessage)}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="button-primary inline-flex bg-white text-black hover:bg-[#f0f4ee]"
-                >
-                  Enviar pedido por WhatsApp
-                </Link>
-                <p className="text-sm leading-7 text-white/68">
-                  El mensaje incluye productos, variantes, cantidades, unidades totales y subtotal mayorista.
+                <p className="text-xs leading-6 text-white/56">
+                  El mensaje incluye tus datos y los productos que marcaste como referencia.
                 </p>
               </div>
-            ) : (
-              <div className="mt-8 rounded-[28px] border border-white/16 bg-white/8 p-6 text-sm leading-7 text-white/82">
-                Todavía no se puede enviar el pedido porque faltan condiciones mínimas del canal mayorista.
-              </div>
-            )}
-          </div>
-        ) : null}
+            </div>
+          </aside>
+        </section>
       </div>
     </section>
   )

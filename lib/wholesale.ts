@@ -1,6 +1,6 @@
 import type { CartItem } from '@/types/store'
 
-export const WHOLESALE_DISCOUNT_RATE = 0.35
+export const WHOLESALE_DISCOUNT_RATE = 0.3
 export const WHOLESALE_MULTIPLIER = 1 - WHOLESALE_DISCOUNT_RATE
 export const WHOLESALE_MIN_UNITS = 30
 export const WHOLESALE_MIN_UNITS_PER_MODEL_COLOR = 10
