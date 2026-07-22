@@ -3,7 +3,7 @@ import { PaymentMethod } from '@prisma/client'
 import { z } from 'zod'
 import { env } from '@/lib/env'
 import { createPendingPreference } from '@/lib/mercadopago'
-import { createOrderFromCheckout, syncApprovedPayment } from '@/lib/server/fulfillment'
+import { createOrderFromCheckout } from '@/lib/server/fulfillment'
 
 const salesChannelSchema = z.enum(['RETAIL', 'WHOLESALE'])
 
@@ -48,6 +48,15 @@ export async function POST(request: Request) {
 
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.flatten(), message: 'Revisá los datos del checkout.' }, { status: 400 })
+  }
+
+  if (parsed.data.paymentMethod === PaymentMethod.ONLINE && !env.MERCADOPAGO_ACCESS_TOKEN) {
+    return NextResponse.json(
+      {
+        message: 'El pago online no está disponible en este momento. Elegí transferencia o volvé a intentar en unos minutos.',
+      },
+      { status: 503 },
+    )
   }
 
   let result
@@ -122,12 +131,6 @@ export async function POST(request: Request) {
       selectedPaymentUrl: paymentUrl,
       usingSandboxFallback: paymentUrl === (preference.sandbox_init_point ?? null),
     })
-  } else if (result.order.paymentMethod === PaymentMethod.ONLINE) {
-    const approvedOrder = await syncApprovedPayment(result.order.id, 'mercadopago-not-configured')
-    confirmedOrder = {
-      ...confirmedOrder,
-      ...approvedOrder,
-    }
   }
 
   return NextResponse.json({

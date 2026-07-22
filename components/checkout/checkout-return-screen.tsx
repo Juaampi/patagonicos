@@ -23,6 +23,13 @@ type ConfirmedOrderPayload = {
   }>
 }
 
+type CheckoutConfirmationResponse = {
+  ok?: boolean
+  approved?: boolean
+  status?: string
+  order?: ConfirmedOrderPayload | null
+}
+
 type CheckoutReturnScreenProps = {
   email?: string
   orderId?: string
@@ -43,7 +50,7 @@ export function CheckoutReturnScreen({
   const router = useRouter()
   const [countdown, setCountdown] = useState(5)
   const [confirmedOrder, setConfirmedOrder] = useState<ConfirmedOrderPayload | null>(null)
-  const [confirmationStatus, setConfirmationStatus] = useState<'idle' | 'confirming' | 'confirmed' | 'failed'>(
+  const [confirmationStatus, setConfirmationStatus] = useState<'idle' | 'confirming' | 'confirmed' | 'pending' | 'failed'>(
     paymentId ? 'confirming' : 'idle',
   )
   const resolvedOrderId = confirmedOrder?.id ?? orderId
@@ -74,11 +81,22 @@ export function CheckoutReturnScreen({
             cache: 'no-store',
             keepalive: true,
           })
-          const data = (await response.json()) as { ok?: boolean; approved?: boolean; order?: ConfirmedOrderPayload | null }
+          const data = (await response.json()) as CheckoutConfirmationResponse
 
           if (!cancelled && response.ok && data.ok) {
-            setConfirmedOrder(data.order ?? null)
-            setConfirmationStatus('confirmed')
+            if (data.approved && data.order) {
+              setConfirmedOrder(data.order)
+              setConfirmationStatus('confirmed')
+              return
+            }
+
+            const paymentStatus = String(data.status ?? '').toLowerCase()
+            if (paymentStatus === 'pending' || paymentStatus === 'in_process' || paymentStatus === 'authorized') {
+              setConfirmationStatus('pending')
+              return
+            }
+
+            setConfirmationStatus('failed')
             return
           }
         } catch {
@@ -125,11 +143,7 @@ export function CheckoutReturnScreen({
   }, [confirmationStatus, confirmedOrder, resolvedOrderId, status])
 
   useEffect(() => {
-    if (status !== 'success' || !resolvedEmail || !resolvedOrderId) {
-      return
-    }
-
-    if (paymentId && confirmationStatus === 'confirming') {
+    if (status !== 'success' || confirmationStatus !== 'confirmed' || !resolvedEmail || !resolvedOrderId) {
       return
     }
 
@@ -154,7 +168,7 @@ export function CheckoutReturnScreen({
     }
   }, [confirmationStatus, paymentId, resolvedEmail, resolvedOrderId, router, status])
 
-  if (status === 'success') {
+  if (status === 'success' && confirmationStatus === 'confirmed') {
     return (
       <section className="relative min-h-[calc(100vh-120px)] overflow-hidden">
         <div className="absolute inset-0 bg-[linear-gradient(180deg,#16a34a_0%,#22c55e_48%,rgba(34,197,94,0.18)_100%)]" />
@@ -171,16 +185,6 @@ export function CheckoutReturnScreen({
                 <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-white/88 md:text-base md:leading-8">
                   Recibimos la confirmación de Mercado Pago y ya dejamos listo el acceso para seguir el estado de tu pedido.
                 </p>
-                {paymentId && confirmationStatus === 'confirming' ? (
-                  <p className="mx-auto mt-4 max-w-2xl text-xs font-semibold uppercase tracking-[0.18em] text-white/72">
-                    Confirmando pago en el sistema…
-                  </p>
-                ) : null}
-                {paymentId && confirmationStatus === 'failed' ? (
-                  <p className="mx-auto mt-4 max-w-2xl text-xs font-semibold uppercase tracking-[0.18em] text-white/72">
-                    El pago fue aprobado. Si la cuenta tarda en actualizar, refrescá en unos segundos.
-                  </p>
-                ) : null}
               </div>
             </div>
 
@@ -264,7 +268,26 @@ export function CheckoutReturnScreen({
     )
   }
 
-  const isPending = status === 'pending'
+  if (status === 'success' && (confirmationStatus === 'idle' || confirmationStatus === 'confirming')) {
+    return (
+      <section className="shell pb-12 pt-32">
+        <div className="card-surface mx-auto max-w-3xl p-8 text-center">
+          <div className="mx-auto flex h-18 w-18 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
+            <Clock3 className="h-8 w-8" />
+          </div>
+          <p className="eyebrow mt-6">Confirmando pago</p>
+          <h1 className="mt-4 font-display text-4xl tracking-[-0.05em]">
+            Estamos validando la acreditación con Mercado Pago
+          </h1>
+          <p className="mt-4 text-sm leading-7 text-black/60">
+            Apenas recibimos la confirmación real, registramos la compra y actualizamos tu pedido.
+          </p>
+        </div>
+      </section>
+    )
+  }
+
+  const isPending = status === 'pending' || confirmationStatus === 'pending'
 
   return (
     <section className="shell pb-12 pt-32">

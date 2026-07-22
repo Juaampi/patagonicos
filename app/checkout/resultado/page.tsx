@@ -26,7 +26,9 @@ export default async function CheckoutResultPage({
   const params = searchParams ? await searchParams : undefined
   const requestedStatus = pickFirstParam(params?.status)
   const status: 'success' | 'pending' | 'failure' =
-    requestedStatus === 'pending' || requestedStatus === 'failure' ? requestedStatus : 'success'
+    requestedStatus === 'success' || requestedStatus === 'pending' || requestedStatus === 'failure'
+      ? requestedStatus
+      : 'failure'
 
   return (
     <CheckoutReturnScreen

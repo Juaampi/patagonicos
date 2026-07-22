@@ -31,9 +31,14 @@ export default async function AdminProductsPage({
               Alta, edicion y control de stock del catalogo sin mezclarlo con pedidos o reparto.
             </p>
           </div>
-          <Link href="/admin/productos/nuevo" className="button-primary">
-            Agregar producto
-          </Link>
+          <div className="flex flex-wrap gap-3">
+            <Link href="/admin/productos/mercadolibre-export" className="button-secondary">
+              Descargar .xls Mercado Libre
+            </Link>
+            <Link href="/admin/productos/nuevo" className="button-primary">
+              Agregar producto
+            </Link>
+          </div>
         </div>
         {savedMessage ? (
           <div className="mt-6 rounded-[24px] border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm text-emerald-800">
