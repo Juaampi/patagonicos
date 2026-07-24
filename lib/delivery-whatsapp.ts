@@ -79,6 +79,46 @@ export function buildWhatsAppDeliveryMessage(order: WhatsAppOrderLike) {
   ].join('\n')
 }
 
+export function buildWhatsAppVisitTodayMessage(order: WhatsAppOrderLike) {
+  const displayNumber = order.shortCode ?? order.orderNumber
+
+  return [
+    `Hola ${order.customerName}! 👋`,
+    'Hoy vamos a estar visitándote para entregar tu pedido de Patagónicos 🚚🐶',
+    '',
+    `Pedido: #${displayNumber}`,
+    `Productos: ${summarizeProducts(order.items)}`,
+    `Total: ${formatPrice(order.total)}`,
+    `Pago: ${buildPaymentCopy(order)}`,
+    `Direccion: ${order.deliveryAddress}`,
+    '',
+    'Te avisamos por acá cuando estemos cerca.',
+    'Si necesitás darnos una referencia extra para encontrar el domicilio, respondé este mensaje.',
+    '',
+    'Muchas gracias 🏔️',
+  ].join('\n')
+}
+
+export function buildWhatsAppOutsideMessage(order: WhatsAppOrderLike) {
+  const displayNumber = order.shortCode ?? order.orderNumber
+
+  return [
+    `Hola ${order.customerName}! 👋`,
+    'Ya estamos afuera con tu pedido de Patagónicos 🚚',
+    '',
+    `Pedido: #${displayNumber}`,
+    `Productos: ${summarizeProducts(order.items)}`,
+    `Total: ${formatPrice(order.total)}`,
+    `Pago: ${buildPaymentCopy(order)}`,
+    `Direccion: ${order.deliveryAddress}`,
+    '',
+    'Cuando puedas, salí así hacemos la entrega.',
+    'Si necesitás que esperemos unos minutos, avisanos por este medio.',
+    '',
+    'Muchas gracias 🏔️',
+  ].join('\n')
+}
+
 export function buildWhatsAppUrl(phone: string, message: string) {
   const normalizedPhone = normalizeArgentinaPhone(phone)
 

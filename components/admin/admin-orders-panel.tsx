@@ -20,6 +20,8 @@ type AdminOrdersPanelProps = {
     city?: string
     trackingNumber?: string
     pinUrl?: string
+    whatsappVisitTodayUrl?: string
+    whatsappOutsideUrl?: string
     printJobs: Array<{ id: string; status: string; type: string }>
   }>
 }
@@ -89,6 +91,26 @@ export function AdminOrdersPanel({ orders }: AdminOrdersPanelProps) {
                         className="rounded-full border border-black/10 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-black/72 transition hover:bg-black hover:text-white"
                       >
                         Ver pin
+                      </Link>
+                    ) : null}
+                    {order.whatsappVisitTodayUrl ? (
+                      <Link
+                        href={order.whatsappVisitTodayUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-emerald-800 transition hover:bg-emerald-600 hover:text-white"
+                      >
+                        WPP hoy
+                      </Link>
+                    ) : null}
+                    {order.whatsappOutsideUrl ? (
+                      <Link
+                        href={order.whatsappOutsideUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="rounded-full border border-amber-200 bg-amber-50 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-amber-800 transition hover:bg-amber-500 hover:text-white"
+                      >
+                        WPP afuera
                       </Link>
                     ) : null}
                     {order.paymentStatus !== 'PAID' ? (
