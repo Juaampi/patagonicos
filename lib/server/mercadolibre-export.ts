@@ -130,7 +130,9 @@ function booleanLabel(value: boolean) {
 }
 
 function getHeaderMap(worksheet: ExcelJS.Worksheet) {
-  const headers = worksheet.getRow(4).values.slice(1).map((value) => String(value ?? '').trim())
+  const rowValues = worksheet.getRow(4).values
+  const values = Array.isArray(rowValues) ? rowValues : []
+  const headers = values.slice(1).map((value) => String(value ?? '').trim())
   return new Map(headers.map((header, index) => [header, index + 1]))
 }
 
