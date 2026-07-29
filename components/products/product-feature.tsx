@@ -161,6 +161,11 @@ export function ProductFeature({ product }: { product: Product }) {
                 ) : null}
                 <p className="text-[11px] uppercase tracking-[0.2em] text-black/45">{product.category}</p>
                 <h2 className="mt-2 font-display text-3xl tracking-[-0.06em] md:text-4xl">{product.name}</h2>
+                {product.comboArmable ? (
+                  <div className="mt-4 inline-flex rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-emerald-800">
+                    2x1 armable: llevás 2 y el 2do es gratis
+                  </div>
+                ) : null}
               </div>
               <p className="text-lg font-semibold md:text-right md:text-2xl">{formatPrice(product.price)}</p>
             </div>

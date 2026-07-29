@@ -8,6 +8,7 @@ import { AddressPinPicker } from '@/components/checkout/address-pin-picker'
 import { SearchableSelect } from '@/components/checkout/searchable-select'
 import { BarilocheDeliveryCountdown } from '@/components/marketing/bariloche-delivery-countdown'
 import { mapCartItemToAnalyticsItem, trackBeginCheckout } from '@/lib/client/analytics'
+import { buildComboPricingSummary } from '@/lib/combo-pricing'
 import {
   argentinaProvinces,
   getCanonicalProvince,
@@ -90,7 +91,9 @@ export function CheckoutForm({
   const cityRef = useRef<HTMLInputElement>(null)
   const postalCodeRef = useRef<HTMLInputElement>(null)
   const pinRef = useRef<HTMLDivElement>(null)
-  const subtotal = items.reduce((total, item) => total + item.price * item.quantity, 0)
+  const comboSummary = useMemo(() => buildComboPricingSummary(items), [items])
+  const subtotal = comboSummary.payableSubtotal
+  const comboDiscountAmount = comboSummary.comboDiscount
   const [form, setForm] = useState({
     fullName: '',
     lastName: '',
@@ -425,6 +428,7 @@ export function CheckoutForm({
         size: item.size,
         quantity: item.quantity,
         unitPrice: item.price,
+        comboArmable: item.comboArmable ?? false,
       })),
     }
 
@@ -1286,8 +1290,13 @@ export function CheckoutForm({
                   <p className="mt-1 text-xs uppercase tracking-[0.12em] text-black/52">
                     {item.colorName} · {item.size} · x{item.quantity}
                   </p>
+                  {(comboSummary.freeUnitsByItemId.get(item.id) ?? 0) > 0 ? (
+                    <p className="mt-1 text-xs font-semibold uppercase tracking-[0.12em] text-emerald-700">
+                      {(comboSummary.freeUnitsByItemId.get(item.id) ?? 0)} gratis por promo 2x1
+                    </p>
+                  ) : null}
                 </div>
-                <p className="font-semibold">{formatPrice(item.price * item.quantity)}</p>
+                <p className="font-semibold">{formatPrice(comboSummary.lineTotalsByItemId.get(item.id) ?? item.price * item.quantity)}</p>
               </div>
             ))}
           </div>
@@ -1296,6 +1305,12 @@ export function CheckoutForm({
               <span>Subtotal</span>
               <span>{formatPrice(subtotal)}</span>
             </div>
+            {comboDiscountAmount > 0 ? (
+              <div className="flex justify-between text-emerald-700">
+                <span>Promo 2x1</span>
+                <span>-{formatPrice(comboDiscountAmount)}</span>
+              </div>
+            ) : null}
             {shippingPreview.barilocheDiscountAmount > 0 ? (
               <div className="flex justify-between text-emerald-700">
                 <span>Descuento Bariloche ({shippingPreview.barilocheDiscountPercent}%)</span>

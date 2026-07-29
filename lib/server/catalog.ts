@@ -157,6 +157,7 @@ function mapDbProduct(
     materials: product.materials,
     careInstructions: product.careInstructions,
     freeShippingUpsell: product.freeShippingUpsell,
+    comboArmable: product.comboArmable,
     colors: Array.from(colorMap.values()),
     sizes: Array.from(sizeMap.values()),
     variants: product.variants.map((variant) => ({
@@ -615,6 +616,7 @@ export async function saveProductAction(
           status: statusValue === 'INACTIVE' ? ProductStatus.INACTIVE : ProductStatus.ACTIVE,
           featured: Boolean(formData.get('featured')),
           freeShippingUpsell: Boolean(formData.get('freeShippingUpsell')),
+          comboArmable: Boolean(formData.get('comboArmable')),
           productStar: Boolean(formData.get('productStar')),
           useTags,
           featureTags,
@@ -653,6 +655,7 @@ export async function saveProductAction(
           status: statusValue === 'INACTIVE' ? ProductStatus.INACTIVE : ProductStatus.ACTIVE,
           featured: Boolean(formData.get('featured')),
           freeShippingUpsell: Boolean(formData.get('freeShippingUpsell')),
+          comboArmable: Boolean(formData.get('comboArmable')),
           productStar: Boolean(formData.get('productStar')),
           useTags,
           featureTags,

@@ -57,6 +57,7 @@ export default async function HomePage() {
   const starProduct = await getStarProduct('DOG')
   const dogProducts = await getProductsByAnimal('DOG')
   const catProducts = await getProductsByAnimal('CAT')
+  const comboProducts = [...dogProducts, ...catProducts].filter((product) => product.comboArmable)
   const adoptionPets = await getPublicAdoptionPets()
   const hasCatProducts = catProducts.length > 0
 
@@ -65,6 +66,21 @@ export default async function HomePage() {
       <HeroSlider />
 
       <ProductFeature product={starProduct} />
+
+      {comboProducts.length > 0 ? (
+        <section className="shell mt-20">
+          <SectionHeading
+            eyebrow="Productos 2x1"
+            title="Llevás 2 y el segundo va gratis"
+            description="Selección marcada con promo armable para que la veas rápido apenas entrás al sitio."
+          />
+          <div className="mt-8 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            {comboProducts.slice(0, 6).map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       <section className="shell mt-20">
         <SectionHeading

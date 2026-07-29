@@ -20,6 +20,7 @@ import { sendMetaPurchaseEventSafely } from '@/lib/server/meta-conversions'
 import { getCheckoutPreview, getCouponRestrictionReason } from '@/lib/store-settings'
 import { formatPrice } from '@/lib/utils'
 import type { SalesChannel } from '@/types/store'
+import { buildComboPricingSummary } from '@/lib/combo-pricing'
 import {
   getWholesalePrice,
   WHOLESALE_MIN_UNITS,
@@ -416,6 +417,7 @@ export type CheckoutOrderItemInput = {
   size: string
   quantity: number
   unitPrice: number
+  comboArmable?: boolean
 }
 
 export async function createOrderFromCheckout(input: {
@@ -506,7 +508,48 @@ export async function createOrderFromCheckout(input: {
     })
   }
 
-  const subtotal = normalizedItems.reduce((total, item) => total + item.unitPrice * item.quantity, 0)
+  if (input.salesChannel !== 'WHOLESALE') {
+    const productIds = Array.from(new Set(input.items.map((item) => item.productId)))
+    const products = await prisma.product.findMany({
+      where: {
+        id: {
+          in: productIds,
+        },
+      },
+      select: {
+        id: true,
+        name: true,
+        price: true,
+        comboArmable: true,
+      },
+    })
+    const productMap = new Map(products.map((product) => [product.id, product]))
+
+    normalizedItems = input.items.map((item) => {
+      const product = productMap.get(item.productId)
+      if (!product) {
+        return item
+      }
+
+      return {
+        ...item,
+        productName: product.name,
+        unitPrice: product.price,
+        comboArmable: product.comboArmable,
+      }
+    })
+  }
+
+  const comboSummary = buildComboPricingSummary(
+    normalizedItems.map((item, index) => ({
+      id: `${item.productId}:${item.colorName}:${item.size}:${index}`,
+      productId: item.productId,
+      price: item.unitPrice,
+      quantity: item.quantity,
+      comboArmable: item.comboArmable,
+    })),
+  )
+  const subtotal = comboSummary.payableSubtotal
   const settings = await ensureStoreSettings()
   const basePreview = getCheckoutPreview(subtotal, input.city, input.province, settings, input.paymentMethod)
   const couponResult = input.couponCode
@@ -639,14 +682,16 @@ export async function createOrderFromCheckout(input: {
       internalQrUrl: buildInternalQrUrl(shortCode),
       internalQrImage: buildInternalQrImage(shortCode),
       items: {
-        create: normalizedItems.map((item) => ({
+        create: normalizedItems.map((item, index) => ({
           productId: item.productId,
           productName: item.productName,
           colorName: item.colorName,
           size: item.size,
           quantity: item.quantity,
           unitPrice: item.unitPrice,
-          totalPrice: item.unitPrice * item.quantity,
+          totalPrice:
+            comboSummary.lineTotalsByItemId.get(`${item.productId}:${item.colorName}:${item.size}:${index}`) ??
+            item.unitPrice * item.quantity,
         })),
       },
     },

@@ -27,6 +27,7 @@ type EditProduct = {
   careInstructions: string[]
   featured: boolean
   freeShippingUpsell: boolean
+  comboArmable: boolean
   productStar: boolean
   variants: Array<{ colorName: string; colorHex: string; size: string; stock: number; sku: string }>
   images: Array<{ id: string; url: string; alt: string; colorName?: string; type: 'MAIN' | 'COLOR' | 'INFO' | 'LIFESTYLE'; sortOrder: number }>

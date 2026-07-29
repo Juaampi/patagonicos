@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { ArrowRight, Minus, Plus, Sparkles, Trash2 } from 'lucide-react'
 import { CheckoutForm } from '@/components/checkout/checkout-form'
 import { useCart } from '@/components/cart/cart-provider'
+import { buildComboPricingSummary } from '@/lib/combo-pricing'
 import { TRANSFER_DISCOUNT_PERCENT, type StoreSettingsSnapshot } from '@/lib/store-settings'
 import type { Product } from '@/types/store'
 import { formatPrice } from '@/lib/utils'
@@ -17,6 +18,8 @@ export function CartPageClient({
   freeShippingUpsellProduct: Product | null
 }) {
   const { isHydrated, items, subtotal, updateQuantity, removeItem, addItem } = useCart()
+  const comboSummary = buildComboPricingSummary(items)
+  const comboDiscountAmount = comboSummary.comboDiscount
   const freeShippingDifference = Math.max(settings.localDeliveryFreeThreshold - subtotal, 0)
   const suggestedVariant =
     freeShippingUpsellProduct?.variants.find((variant) => variant.stock > 0) ?? null
@@ -81,6 +84,9 @@ export function CartPageClient({
             <div className="rounded-[22px] border border-black/8 px-5 py-4">
               <p className="text-xs uppercase tracking-[0.18em] text-black/46">Subtotal actual</p>
               <p className="mt-2 text-2xl font-semibold text-black/84">{formatPrice(subtotal)}</p>
+              {comboDiscountAmount > 0 ? (
+                <p className="mt-2 text-sm leading-6 text-emerald-700">Incluye {formatPrice(comboDiscountAmount)} de ahorro por promo 2x1.</p>
+              ) : null}
               <p className="mt-2 text-sm leading-6 text-amber-700">
                 {TRANSFER_DISCOUNT_PERCENT}% off por transferencia.
               </p>
@@ -89,6 +95,14 @@ export function CartPageClient({
         </div>
 
         <div className="card-surface p-7">
+          {comboDiscountAmount > 0 ? (
+            <div className="mb-5 rounded-[24px] border border-emerald-200 bg-[linear-gradient(135deg,#f5fbf7_0%,#edf7f1_52%,#e2f3ea_100%)] px-5 py-4">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-800">Promo 2x1 activa</p>
+              <p className="mt-2 text-sm leading-7 text-emerald-950">
+                Ya se descontaron <strong>{formatPrice(comboDiscountAmount)}</strong> por las unidades gratis de tus productos promocionados.
+              </p>
+            </div>
+          ) : null}
           <div className="space-y-4">
             {items.map((item) => (
               <div key={item.id} className="flex flex-col gap-4 rounded-[26px] border border-black/8 p-4 md:flex-row md:items-center md:justify-between">
@@ -107,6 +121,18 @@ export function CartPageClient({
                       {item.colorName} · {item.size}
                     </p>
                     <p className="mt-2 font-semibold text-black/84">{formatPrice(item.price)}</p>
+                    {item.comboArmable ? (
+                      <p className="mt-2 inline-flex rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-emerald-800">
+                        2x1 armable
+                      </p>
+                    ) : null}
+                    {(comboSummary.freeUnitsByItemId.get(item.id) ?? 0) > 0 ? (
+                      <p className="mt-2 text-sm font-medium text-emerald-700">
+                        Ya tenés {(comboSummary.freeUnitsByItemId.get(item.id) ?? 0)} unidad gratis aplicada.
+                      </p>
+                    ) : item.comboArmable ? (
+                      <p className="mt-2 text-sm font-medium text-emerald-700">Sumando una más de este producto, la segunda te queda gratis.</p>
+                    ) : null}
                   </div>
                 </div>
 
@@ -130,7 +156,9 @@ export function CartPageClient({
                       <Plus className="h-4 w-4" />
                     </button>
                   </div>
-                  <p className="min-w-24 text-right font-semibold text-black/84">{formatPrice(item.price * item.quantity)}</p>
+                  <p className="min-w-24 text-right font-semibold text-black/84">
+                    {formatPrice(comboSummary.lineTotalsByItemId.get(item.id) ?? item.price * item.quantity)}
+                  </p>
                   <button
                     type="button"
                     onClick={() => removeItem(item.id)}
@@ -172,6 +200,7 @@ export function CartPageClient({
                         category: freeShippingUpsellProduct.category,
                         price: freeShippingUpsellProduct.price,
                         compareAtPrice: freeShippingUpsellProduct.compareAtPrice,
+                        comboArmable: freeShippingUpsellProduct.comboArmable,
                         imageUrl: suggestedImage?.url ?? freeShippingUpsellProduct.mainImageUrl,
                         imageAlt: suggestedImage?.alt ?? freeShippingUpsellProduct.name,
                         colorName: suggestedVariant.colorName,

@@ -153,12 +153,24 @@ export function ProductCard({ product }: { product: Product }) {
             <Link href={`/productos/${product.slug}`} scroll className="mt-2 block font-display text-2xl tracking-[-0.04em] text-black transition hover:text-black/72">
               {product.name}
             </Link>
+            {product.comboArmable ? (
+              <p className="mt-3 inline-flex rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-emerald-800">
+                2x1 armable
+              </p>
+            ) : null}
           </div>
           <div className="text-right">
             <p className="text-lg font-semibold">{formatPrice(product.price)}</p>
             <p className="mt-1 text-[11px] uppercase tracking-[0.16em] text-black/44">3 cuotas sin interés</p>
           </div>
         </div>
+
+        {product.comboArmable ? (
+          <div className="rounded-[22px] border border-emerald-200 bg-[linear-gradient(135deg,#f5fbf7_0%,#eef8f2_100%)] px-4 py-3">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-emerald-800">Llevando 2</p>
+            <p className="mt-1 text-sm leading-6 text-emerald-950">El 2do te queda gratis.</p>
+          </div>
+        ) : null}
 
         <div className="rounded-[22px] border border-black/8 bg-[#f7f7f4] px-4 py-3">
           <p className="text-[12px] leading-5 text-black/58">Mismo precio en 3 cuotas de</p>

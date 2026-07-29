@@ -38,6 +38,7 @@ const checkoutSchema = z.object({
       size: z.string().min(1),
       quantity: z.number().int().positive(),
       unitPrice: z.number().int().positive(),
+      comboArmable: z.boolean().optional(),
     }),
   ).min(1),
 })
@@ -77,7 +78,10 @@ export async function POST(request: Request) {
   let paymentUrl: string | null = null
 
   if (result.order.paymentMethod === PaymentMethod.ONLINE && env.MERCADOPAGO_ACCESS_TOKEN) {
-    const hasCheckoutDiscounts = result.order.discountAmount > 0 || result.order.couponDiscountAmount > 0
+    const hasCheckoutDiscounts =
+      result.order.discountAmount > 0 ||
+      result.order.couponDiscountAmount > 0 ||
+      result.order.items.some((item) => item.totalPrice !== item.unitPrice * item.quantity)
     const preferenceItems = hasCheckoutDiscounts
       ? [
           {

@@ -151,6 +151,7 @@ model Product {
   compareAtPrice    Int?
   featured          Boolean          @default(false)
   freeShippingUpsell Boolean         @default(false)
+  comboArmable      Boolean          @default(false)
   productStar       Boolean          @default(false)
   useTags           String[]
   featureTags       String[]
