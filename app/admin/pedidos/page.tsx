@@ -1,5 +1,10 @@
 import { AdminOrdersPanel } from '@/components/admin/admin-orders-panel'
-import { buildWhatsAppOutsideMessage, buildWhatsAppUrl, buildWhatsAppVisitTodayMessage } from '@/lib/delivery-whatsapp'
+import {
+  buildWhatsAppCancelForStockMessage,
+  buildWhatsAppOutsideMessage,
+  buildWhatsAppUrl,
+  buildWhatsAppVisitTodayMessage,
+} from '@/lib/delivery-whatsapp'
 import { buildGoogleMapsPinUrl, getAdminFulfillmentSnapshot } from '@/lib/server/fulfillment'
 
 export const dynamic = 'force-dynamic'
@@ -56,6 +61,33 @@ export default async function AdminOrdersPage() {
           ? buildWhatsAppUrl(
               order.customer.phone,
               buildWhatsAppOutsideMessage({
+                customerName: order.customer.fullName ?? order.customer.email,
+                orderNumber: order.orderNumber,
+                shortCode: order.shortCode,
+                total: order.total,
+                amountToCollect: order.amountToCollect,
+                paymentMethod: order.paymentMethod,
+                paymentStatus: order.paymentStatus,
+                deliveryAddress: [
+                  order.address?.line1,
+                  order.address?.line2,
+                  order.address?.city,
+                  order.address?.province,
+                  order.address?.postalCode,
+                ]
+                  .filter(Boolean)
+                  .join(', ') || 'Sin direccion cargada',
+                items: order.items.map((item) => ({
+                  productName: item.productName,
+                  quantity: item.quantity,
+                })),
+              }),
+            ) || undefined
+          : undefined,
+        whatsappCancelUrl: order.customer.phone
+          ? buildWhatsAppUrl(
+              order.customer.phone,
+              buildWhatsAppCancelForStockMessage({
                 customerName: order.customer.fullName ?? order.customer.email,
                 orderNumber: order.orderNumber,
                 shortCode: order.shortCode,

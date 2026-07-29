@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
-import { getCheckoutPreview } from '@/lib/store-settings'
+import { getCheckoutPreview, getCouponRestrictionReason } from '@/lib/store-settings'
 import { ensureStoreSettings } from '@/lib/server/fulfillment'
 import { validateCouponCode } from '@/lib/server/coupons'
 
@@ -33,6 +33,7 @@ export async function POST(request: Request) {
     code: parsed.data.code,
     subtotal: parsed.data.subtotal,
     existingDiscountAmount: basePreview.discountAmount,
+    restrictionReason: getCouponRestrictionReason(basePreview.qualifiesForFreeShipping, parsed.data.paymentMethod),
   })
 
   if (!result.ok || !result.coupon) {

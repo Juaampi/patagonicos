@@ -23,6 +23,7 @@ type DeliveryStopsTableProps = {
     ticketUrl: string
     phoneUrl: string | null
     routeWhatsappUrl: string
+    cancelWhatsappUrl: string
     pinUrl: string
   }>
 }
@@ -88,6 +89,7 @@ export function DeliveryStopsTable({ stops }: DeliveryStopsTableProps) {
                       mapsUrl={stop.mapsUrl}
                       phoneUrl={stop.phoneUrl}
                       defaultWhatsappUrl={stop.routeWhatsappUrl}
+                      cancelWhatsappUrl={stop.cancelWhatsappUrl}
                       pinUrl={stop.pinUrl}
                       compact
                     />

@@ -72,7 +72,7 @@ export async function POST(request: Request) {
     )
   }
 
-  let confirmedOrder = result.order
+  const confirmedOrder = result.order
 
   let paymentUrl: string | null = null
 

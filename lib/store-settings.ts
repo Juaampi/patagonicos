@@ -14,6 +14,25 @@ export type StoreSettingsSnapshot = {
 export const TRANSFER_PAYMENT_ALIAS = 'patagonicos.ok'
 export const TRANSFER_DISCOUNT_PERCENT = 10
 
+export function getCouponRestrictionReason(
+  qualifiesForFreeShipping: boolean,
+  paymentMethod: 'ONLINE' | 'CASH_ON_DELIVERY' | 'TRANSFER',
+) {
+  if (qualifiesForFreeShipping && paymentMethod === 'TRANSFER') {
+    return 'No se puede usar cupón con envío gratis ni con pago por transferencia.'
+  }
+
+  if (qualifiesForFreeShipping) {
+    return 'No se puede usar cupón cuando la compra ya tiene envío gratis.'
+  }
+
+  if (paymentMethod === 'TRANSFER') {
+    return 'No se puede usar cupón con el descuento por transferencia.'
+  }
+
+  return null
+}
+
 export function normalizeCity(value: string) {
   return value
     .normalize('NFD')

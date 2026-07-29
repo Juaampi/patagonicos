@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { formatPrice } from '@/lib/utils'
 import { getOrderStateLabel, getShippingMethodLabel, isCancelledStatus, isDeliveredStatus } from '@/lib/server/fulfillment'
-import { markOrderPaidAction, updateOrderStatusAction } from '@/lib/server/fulfillment-actions'
+import { markOrderPaidAction, markOrderUnpaidAction, updateOrderStatusAction } from '@/lib/server/fulfillment-actions'
 
 type AdminOrdersPanelProps = {
   orders: Array<{
@@ -22,6 +22,7 @@ type AdminOrdersPanelProps = {
     pinUrl?: string
     whatsappVisitTodayUrl?: string
     whatsappOutsideUrl?: string
+    whatsappCancelUrl?: string
     printJobs: Array<{ id: string; status: string; type: string }>
   }>
 }
@@ -113,11 +114,29 @@ export function AdminOrdersPanel({ orders }: AdminOrdersPanelProps) {
                         WPP afuera
                       </Link>
                     ) : null}
+                    {order.whatsappCancelUrl ? (
+                      <Link
+                        href={order.whatsappCancelUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="rounded-full border border-red-200 bg-red-50 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-red-700 transition hover:bg-red-600 hover:text-white"
+                      >
+                        Cancelar stock
+                      </Link>
+                    ) : null}
                     {order.paymentStatus !== 'PAID' ? (
                       <form action={markOrderPaidAction}>
                         <input type="hidden" name="orderId" value={order.id} />
                         <button className="rounded-full border border-black/10 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-black/72 transition hover:bg-black hover:text-white">
                           Pagado
+                        </button>
+                      </form>
+                    ) : null}
+                    {order.paymentStatus === 'PAID' ? (
+                      <form action={markOrderUnpaidAction}>
+                        <input type="hidden" name="orderId" value={order.id} />
+                        <button className="rounded-full border border-red-200 bg-red-50 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-red-700 transition hover:bg-red-600 hover:text-white">
+                          Volver pendiente
                         </button>
                       </form>
                     ) : null}

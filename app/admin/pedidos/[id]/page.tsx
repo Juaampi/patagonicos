@@ -6,6 +6,7 @@ import { buildGoogleMapsPinUrl, getOrderForTicket, getOrderStateLabel, getShippi
 import {
   createReplacementOrderFromExchangeAction,
   markOrderPaidAction,
+  markOrderUnpaidAction,
   markOrderShippedWithTrackingAction,
   updateOrderStatusAction,
 } from '@/lib/server/fulfillment-actions'
@@ -77,6 +78,14 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
                 <input type="hidden" name="orderId" value={order.id} />
                 <button className="rounded-full border border-black/10 px-4 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-black/72 transition hover:bg-black hover:text-white">
                   Marcar pagado
+                </button>
+              </form>
+            ) : null}
+            {order.paymentStatus === 'PAID' ? (
+              <form action={markOrderUnpaidAction}>
+                <input type="hidden" name="orderId" value={order.id} />
+                <button className="rounded-full border border-red-200 bg-red-50 px-4 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-red-700 transition hover:bg-red-600 hover:text-white">
+                  Volver a pendiente
                 </button>
               </form>
             ) : null}

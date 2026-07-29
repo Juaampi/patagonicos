@@ -1,6 +1,6 @@
 import { DeliveryRouteStatus, DeliveryStatus, PaymentMethod, PaymentStatus, ShippingMethod, ShippingStatus, OrderStatus } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
-import { buildWhatsAppDeliveryMessage, buildWhatsAppUrl } from '@/lib/delivery-whatsapp'
+import { buildWhatsAppCancelForStockMessage, buildWhatsAppDeliveryMessage, buildWhatsAppUrl } from '@/lib/delivery-whatsapp'
 import { buildGoogleMapsPinUrl } from '@/lib/server/fulfillment'
 
 export const DELIVERY_ORIGIN_ADDRESS = 'Villa Lago Gutierrez, San Carlos de Bariloche, Rio Negro, Argentina'
@@ -510,6 +510,25 @@ export async function getDeliveriesPageSnapshot(selectedDateInput?: string) {
         ? buildWhatsAppUrl(
             stop.phone,
             buildWhatsAppDeliveryMessage({
+              customerName: stop.customerName,
+              orderNumber: order.orderNumber,
+              shortCode: order.shortCode,
+              total: order.total,
+              amountToCollect: stop.amountToCollect,
+              paymentMethod: stop.paymentMethod,
+              paymentStatus: stop.paymentStatus,
+              deliveryAddress: stop.address,
+              items: order.items.map((item) => ({
+                productName: item.productName,
+                quantity: item.quantity,
+              })),
+            }),
+          )
+        : '',
+      cancelWhatsappUrl: stop.phone
+        ? buildWhatsAppUrl(
+            stop.phone,
+            buildWhatsAppCancelForStockMessage({
               customerName: stop.customerName,
               orderNumber: order.orderNumber,
               shortCode: order.shortCode,

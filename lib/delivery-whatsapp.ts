@@ -119,6 +119,21 @@ export function buildWhatsAppOutsideMessage(order: WhatsAppOrderLike) {
   ].join('\n')
 }
 
+export function buildWhatsAppCancelForStockMessage(order: WhatsAppOrderLike) {
+  const displayNumber = order.shortCode ?? order.orderNumber
+
+  return [
+    `Hola ${order.customerName}!`,
+    '',
+    `Te escribimos por tu pedido #${displayNumber} de Patagónicos.`,
+    'Tuvimos que cancelarlo por falta de stock.',
+    '',
+    'Para coordinar la devolución del dinero, por favor comunicate con nosotros por WhatsApp respondiendo este mensaje.',
+    '',
+    'Disculpá las molestias.',
+  ].join('\n')
+}
+
 export function buildWhatsAppUrl(phone: string, message: string) {
   const normalizedPhone = normalizeArgentinaPhone(phone)
 

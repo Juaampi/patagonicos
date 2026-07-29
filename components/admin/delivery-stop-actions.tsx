@@ -20,6 +20,7 @@ type DeliveryStopActionsProps = {
   pinUrl: string
   phoneUrl: string | null
   defaultWhatsappUrl: string
+  cancelWhatsappUrl?: string
   compact?: boolean
 }
 
@@ -31,6 +32,7 @@ export function DeliveryStopActions({
   pinUrl,
   phoneUrl,
   defaultWhatsappUrl,
+  cancelWhatsappUrl,
   compact = false,
 }: DeliveryStopActionsProps) {
   const router = useRouter()
@@ -110,6 +112,16 @@ export function DeliveryStopActions({
         >
           Enviar WhatsApp
         </button>
+        {cancelWhatsappUrl ? (
+          <Link
+            href={cancelWhatsappUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="rounded-full border border-red-200 bg-red-50 px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-red-800 transition hover:bg-red-100"
+          >
+            Cancelar stock
+          </Link>
+        ) : null}
         <button
           type="button"
           disabled={isPending}

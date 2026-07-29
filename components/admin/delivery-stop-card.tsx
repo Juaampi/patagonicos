@@ -31,6 +31,7 @@ type DeliveryStopCardProps = {
     ticketUrl: string
     phoneUrl: string | null
     routeWhatsappUrl: string
+    cancelWhatsappUrl: string
   }
 }
 
@@ -103,6 +104,7 @@ export function DeliveryStopCard({ stop }: DeliveryStopCardProps) {
           pinUrl={stop.pinUrl}
           phoneUrl={stop.phoneUrl}
           defaultWhatsappUrl={stop.routeWhatsappUrl}
+          cancelWhatsappUrl={stop.cancelWhatsappUrl}
         />
       </div>
     </article>

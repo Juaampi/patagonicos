@@ -17,7 +17,7 @@ import { sendOrderCreatedNotifications, sendOrderPaidNotification } from '@/lib/
 import { prisma } from '@/lib/prisma'
 import { validateCouponCode } from '@/lib/server/coupons'
 import { sendMetaPurchaseEventSafely } from '@/lib/server/meta-conversions'
-import { getCheckoutPreview } from '@/lib/store-settings'
+import { getCheckoutPreview, getCouponRestrictionReason } from '@/lib/store-settings'
 import { formatPrice } from '@/lib/utils'
 import type { SalesChannel } from '@/types/store'
 import {
@@ -156,6 +156,7 @@ export async function calculateShippingForCheckout(
         code: couponCode,
         subtotal,
         existingDiscountAmount: basePreview.discountAmount,
+        restrictionReason: getCouponRestrictionReason(basePreview.qualifiesForFreeShipping, paymentMethod),
       })
     : null
   const preview = getCheckoutPreview(
@@ -513,6 +514,7 @@ export async function createOrderFromCheckout(input: {
         code: input.couponCode,
         subtotal,
         existingDiscountAmount: basePreview.discountAmount,
+        restrictionReason: getCouponRestrictionReason(basePreview.qualifiesForFreeShipping, input.paymentMethod),
       })
     : null
   if (input.couponCode && couponResult && !couponResult.ok) {

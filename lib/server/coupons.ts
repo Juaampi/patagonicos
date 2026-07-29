@@ -7,6 +7,7 @@ type CouponValidationInput = {
   code: string
   subtotal: number
   existingDiscountAmount?: number
+  restrictionReason?: string | null
 }
 
 export const getAdminCouponsSnapshot = cache(async function getAdminCouponsSnapshot() {
@@ -44,6 +45,7 @@ export async function validateCouponCode({
   code,
   subtotal,
   existingDiscountAmount = 0,
+  restrictionReason = null,
 }: CouponValidationInput) {
   const normalizedCode = normalizeCouponCode(code)
 
@@ -51,6 +53,15 @@ export async function validateCouponCode({
     return {
       ok: false as const,
       message: 'Ingresá un código de cupón.',
+      coupon: null,
+      discountAmount: 0,
+    }
+  }
+
+  if (restrictionReason) {
+    return {
+      ok: false as const,
+      message: restrictionReason,
       coupon: null,
       discountAmount: 0,
     }

@@ -16,6 +16,7 @@ import {
 } from '@/lib/argentina-data'
 import {
   getCheckoutPreview,
+  getCouponRestrictionReason,
   isBarilocheLocation,
   TRANSFER_DISCOUNT_PERCENT,
   type StoreSettingsSnapshot,
@@ -145,6 +146,7 @@ export function CheckoutForm({
     return getCheckoutPreview(subtotal, form.city, form.province, settings, paymentMethod, appliedCoupon)
   }, [appliedCoupon, form.city, form.province, paymentMethod, settings, subtotal])
   const shouldRequirePin = shippingPreview.isBariloche
+  const couponRestrictionReason = getCouponRestrictionReason(shippingPreview.qualifiesForFreeShipping, paymentMethod)
   const selectedProvince = getCanonicalProvince(form.province)
   const selectedCity = cityOptions.find((city) => normalizeProvinceName(city) === normalizeProvinceName(form.city))
   const hasValidProvince = Boolean(selectedProvince)
@@ -170,6 +172,22 @@ export function CheckoutForm({
   const couponDiscountAmount = useMemo(() => {
     return getCouponDiscountAmount(subtotal, shippingPreview.discountAmount, appliedCoupon)
   }, [appliedCoupon, shippingPreview.discountAmount, subtotal])
+
+  useEffect(() => {
+    if (!appliedCoupon || !couponRestrictionReason) {
+      return
+    }
+
+    const timeout = window.setTimeout(() => {
+      setAppliedCoupon(null)
+      setCouponFeedback({
+        status: 'error',
+        message: couponRestrictionReason,
+      })
+    }, 0)
+
+    return () => window.clearTimeout(timeout)
+  }, [appliedCoupon, couponRestrictionReason])
 
   useEffect(() => {
     if (!selectedProvince) {
@@ -464,6 +482,15 @@ export function CheckoutForm({
 
   async function handleApplyCoupon() {
     const rawCode = couponInput.trim()
+
+    if (couponRestrictionReason) {
+      setAppliedCoupon(null)
+      setCouponFeedback({
+        status: 'error',
+        message: couponRestrictionReason,
+      })
+      return
+    }
 
     if (!rawCode) {
       setCouponFeedback({
@@ -1096,7 +1123,8 @@ export function CheckoutForm({
                       value={couponInput}
                       onChange={(event) => setCouponInput(event.target.value.toUpperCase())}
                       placeholder="Ej: PATI10"
-                      className="min-w-0 flex-1 rounded-[18px] border border-black/10 bg-[#f7f7f4] px-4 py-3 text-sm uppercase outline-none"
+                      disabled={Boolean(couponRestrictionReason) && !appliedCoupon}
+                      className="min-w-0 flex-1 rounded-[18px] border border-black/10 bg-[#f7f7f4] px-4 py-3 text-sm uppercase outline-none disabled:cursor-not-allowed disabled:opacity-55"
                     />
                     {appliedCoupon ? (
                       <button
@@ -1110,7 +1138,7 @@ export function CheckoutForm({
                       <button
                         type="button"
                         onClick={handleApplyCoupon}
-                        disabled={isApplyingCoupon}
+                        disabled={isApplyingCoupon || Boolean(couponRestrictionReason)}
                         className="rounded-full bg-black px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-white transition hover:bg-black/88 disabled:cursor-wait disabled:bg-black/70"
                       >
                         {isApplyingCoupon ? 'Aplicando…' : 'Aplicar'}
@@ -1127,6 +1155,11 @@ export function CheckoutForm({
                     }`}
                   >
                     {couponFeedback.message}
+                  </div>
+                ) : null}
+                {couponFeedback.status === 'idle' && couponRestrictionReason ? (
+                  <div className="mt-3 rounded-[18px] border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+                    {couponRestrictionReason}
                   </div>
                 ) : null}
                 {appliedCoupon ? (

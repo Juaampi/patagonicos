@@ -1,6 +1,6 @@
 'use server'
 
-import { DeliveryStatus, ExchangeRequestStatus, OrderStatus, PaymentStatus, PrintJobStatus, ShippingStatus } from '@prisma/client'
+import { DeliveryStatus, ExchangeRequestStatus, OrderStatus, PaymentMethod, PaymentStatus, PrintJobStatus, ShippingStatus } from '@prisma/client'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import {
@@ -156,6 +156,92 @@ export async function markOrderPaidAction(formData: FormData) {
 
   await syncApprovedPayment(orderId)
   revalidateAdminPaths(orderId)
+}
+
+export async function markOrderUnpaidAction(formData: FormData) {
+  const orderId = String(formData.get('orderId') ?? '').trim()
+  if (!orderId) {
+    throw new Error('Orden inválida.')
+  }
+
+  const order = await prisma.$transaction(async (tx) => {
+    const currentOrder = await tx.order.findUniqueOrThrow({
+      where: { id: orderId },
+      include: {
+        items: true,
+      },
+    })
+
+    if (currentOrder.paymentStatus !== PaymentStatus.PAID) {
+      throw new Error('El pedido ya figura como pendiente.')
+    }
+
+    const blockedStatuses = new Set<OrderStatus>([
+      OrderStatus.SHIPPED,
+      OrderStatus.DELIVERED,
+      OrderStatus.OUT_FOR_DELIVERY,
+      OrderStatus.ENVIADO,
+      OrderStatus.ENTREGADO,
+      OrderStatus.PREPARANDO,
+    ])
+
+    if (blockedStatuses.has(currentOrder.status)) {
+      throw new Error('No se puede volver atrás un pago de un pedido que ya fue preparado, despachado o entregado.')
+    }
+
+    if (currentOrder.stockAppliedAt) {
+      for (const item of currentOrder.items) {
+        await tx.productVariant.updateMany({
+          where: {
+            productId: item.productId,
+            colorName: item.colorName,
+            size: item.size,
+          },
+          data: {
+            stock: {
+              increment: item.quantity,
+            },
+          },
+        })
+      }
+    }
+
+    await tx.printJob.deleteMany({
+      where: {
+        orderId,
+        status: PrintJobStatus.PENDING,
+      },
+    })
+
+    const nextStatus =
+      currentOrder.paymentMethod === PaymentMethod.CASH_ON_DELIVERY
+        ? OrderStatus.AWAITING_PAYMENT_ON_DELIVERY
+        : OrderStatus.PENDING_PAYMENT
+    const nextPaymentStatus =
+      currentOrder.paymentMethod === PaymentMethod.CASH_ON_DELIVERY
+        ? PaymentStatus.PENDING_ON_DELIVERY
+        : PaymentStatus.PENDING
+
+    return tx.order.update({
+      where: { id: orderId },
+      data: {
+        paymentStatus: nextPaymentStatus,
+        status: nextStatus,
+        shippingStatus: ShippingStatus.PENDIENTE,
+        deliveryStatus:
+          currentOrder.shippingMethod === 'LOCAL_DELIVERY' || currentOrder.shippingMethod === 'BARILOCHE_SAME_DAY'
+            ? DeliveryStatus.PENDING_DELIVERY
+            : currentOrder.deliveryStatus,
+        amountToCollect: currentOrder.paymentMethod === PaymentMethod.CASH_ON_DELIVERY ? currentOrder.total : 0,
+        stockAppliedAt: null,
+        mercadopagoRef: null,
+        inRouteAt: null,
+        deliveredAt: null,
+      },
+    })
+  })
+
+  revalidateAdminPaths(order.id)
 }
 
 export async function markOrderShippedWithTrackingAction(formData: FormData) {
