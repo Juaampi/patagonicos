@@ -62,6 +62,14 @@ function getShippingMethodLabel(method: string) {
 }
 
 function getEmailStatusTone(status: string) {
+  if (status === 'CANCELLED' || status === 'CANCELADO' || status === 'REJECTED') {
+    return {
+      background: '#fee2e2',
+      text: '#991b1b',
+      border: '#fecaca',
+    }
+  }
+
   if (status === 'PAID' || status === 'READY_FOR_LOCAL_DELIVERY' || status === 'READY_FOR_NATIONAL_SHIPPING') {
     return {
       background: '#dcfce7',
@@ -537,6 +545,54 @@ function buildCustomerShipmentStatusHtml(order: OrderEmailRecord) {
   )
 }
 
+function buildCustomerOrderCancelledHtml(order: OrderEmailRecord) {
+  const displayCode = order.shortCode ?? order.orderNumber
+
+  return buildEmailShell(
+    `Cancelamos tu pedido ${displayCode}`,
+    'Pedido cancelado',
+    `
+      <p style="margin:0;font-size:15px;line-height:1.8;color:#334155;">
+        Hola ${order.customer.fullName ?? ''}, tuvimos que cancelar tu pedido por <strong>falta de stock</strong>.
+      </p>
+
+      <div style="margin-top:22px;border:1px solid #fecaca;border-radius:28px;background:linear-gradient(180deg,#fff7f7 0%,#fff1f2 100%);padding:24px;">
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#b91c1c;">Pedido ${displayCode}</div>
+        <div style="margin-top:12px;font-size:32px;line-height:1.05;font-weight:700;letter-spacing:-0.05em;color:#111827;">Cancelado</div>
+        <div style="margin-top:12px;">${buildEmailStatusBadge('Cancelado', 'CANCELLED')}</div>
+        <p style="margin:16px 0 0;font-size:15px;line-height:1.8;color:#7f1d1d;">
+          Si ya habías abonado, vamos a gestionar la devolución del dinero. Para coordinarlo más rápido, podés responder este mail o escribirnos por WhatsApp.
+        </p>
+      </div>
+
+      <div style="margin-top:18px;border:1px solid #e5e7eb;border-radius:24px;background:#ffffff;padding:20px 24px;">
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#6b7280;">Resumen del pedido cancelado</div>
+        ${buildOrderSummaryMarkup(order)}
+      </div>
+
+      <div style="margin-top:24px;">
+        <a href="${buildProfileUrl(order)}" style="display:inline-block;padding:14px 22px;border-radius:999px;background:#111827;color:#ffffff;text-decoration:none;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;font-size:12px;">Ver mi pedido</a>
+      </div>
+    `,
+  )
+}
+
+function buildAdminOrderCancelledHtml(order: OrderEmailRecord) {
+  return buildEmailShell(
+    'Pedido cancelado por falta de stock',
+    'Cancelación',
+    `
+      <p style="margin:0 0 14px;font-size:15px;line-height:1.7;">Se canceló el pedido de <strong>${order.customer.fullName ?? order.customer.email}</strong> por falta de stock.</p>
+      <p style="margin:0 0 14px;font-size:15px;line-height:1.7;">Pedido: <strong>${order.shortCode ?? order.orderNumber}</strong> · Estado del pago: <strong>${getOrderStateLabel(order.paymentStatus)}</strong> · Método de pago: <strong>${getOrderStateLabel(order.paymentMethod)}</strong>.</p>
+      <p style="margin:0 0 14px;font-size:15px;line-height:1.7;">Email: ${order.customer.email}${order.customer.phone ? ` · Teléfono: ${order.customer.phone}` : ''}</p>
+      ${buildOrderSummaryMarkup(order)}
+      <div style="margin-top:24px;">
+        <a href="${env.SITE_URL}/admin/pedidos/${order.id}" style="display:inline-block;padding:14px 22px;border-radius:999px;background:#111827;color:#ffffff;text-decoration:none;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;font-size:12px;">Abrir pedido</a>
+      </div>
+    `,
+  )
+}
+
 function buildAdminShipmentStatusHtml(order: OrderEmailRecord) {
   const trackingUrl = order.trackingNumber?.trim() ? getAndreaniTrackingUrl(order.trackingNumber) : null
 
@@ -782,6 +838,29 @@ export async function sendOrderPaidNotification(orderId: string) {
       to: env.ADMIN_EMAIL,
       subject: `[ADMIN] Pago confirmado - ${order.shortCode ?? order.orderNumber} - ${order.customer.fullName ?? order.customer.email}`,
       html: buildAdminOrderCreatedHtml(order),
+    }),
+  ])
+
+  return true
+}
+
+export async function sendOrderCancelledNotification(orderId: string) {
+  const order = await getOrderEmailRecord(orderId)
+
+  if (!order) {
+    return false
+  }
+
+  await Promise.all([
+    sendTrackedEmail({
+      to: order.customer.email,
+      subject: `Pedido cancelado: ${order.shortCode ?? order.orderNumber}`,
+      html: buildCustomerOrderCancelledHtml(order),
+    }),
+    sendTrackedEmail({
+      to: env.ADMIN_EMAIL,
+      subject: `[ADMIN] Pedido cancelado - ${order.shortCode ?? order.orderNumber} - ${order.customer.fullName ?? order.customer.email}`,
+      html: buildAdminOrderCancelledHtml(order),
     }),
   ])
 

@@ -6,6 +6,7 @@ import { redirect } from 'next/navigation'
 import {
   sendExchangeRequestCreatedNotifications,
   sendExchangeShipmentConfirmedNotifications,
+  sendOrderCancelledNotification,
   sendOrderStatusChangedNotification,
   sendReplacementOrderCreatedNotifications,
 } from '@/lib/order-email-notifications'
@@ -241,6 +242,82 @@ export async function markOrderUnpaidAction(formData: FormData) {
     })
   })
 
+  revalidateAdminPaths(order.id)
+}
+
+export async function markOrderCancelledAction(formData: FormData) {
+  const orderId = String(formData.get('orderId') ?? '').trim()
+  if (!orderId) {
+    throw new Error('Orden inválida.')
+  }
+
+  const order = await prisma.$transaction(async (tx) => {
+    const currentOrder = await tx.order.findUniqueOrThrow({
+      where: { id: orderId },
+      include: {
+        items: true,
+      },
+    })
+
+    if (currentOrder.status === OrderStatus.CANCELLED || currentOrder.status === OrderStatus.CANCELADO) {
+      throw new Error('El pedido ya está cancelado.')
+    }
+
+    if (currentOrder.status === OrderStatus.DELIVERED || currentOrder.status === OrderStatus.ENTREGADO) {
+      throw new Error('No se puede cancelar un pedido que ya fue entregado.')
+    }
+
+    if (currentOrder.stockAppliedAt) {
+      for (const item of currentOrder.items) {
+        await tx.productVariant.updateMany({
+          where: {
+            productId: item.productId,
+            colorName: item.colorName,
+            size: item.size,
+          },
+          data: {
+            stock: {
+              increment: item.quantity,
+            },
+          },
+        })
+      }
+    }
+
+    await tx.printJob.deleteMany({
+      where: {
+        orderId,
+        status: PrintJobStatus.PENDING,
+      },
+    })
+
+    await tx.deliveryStop.updateMany({
+      where: { orderId },
+      data: {
+        status: DeliveryStatus.CANCELLED,
+        deliveredAt: null,
+      },
+    })
+
+    return tx.order.update({
+      where: { id: orderId },
+      data: {
+        status: OrderStatus.CANCELLED,
+        shippingStatus: ShippingStatus.CANCELADO,
+        deliveryStatus: DeliveryStatus.CANCELLED,
+        paymentStatus:
+          currentOrder.paymentStatus === PaymentStatus.PAID ? PaymentStatus.REJECTED : currentOrder.paymentStatus,
+        amountToCollect: 0,
+        stockAppliedAt: null,
+        inRouteAt: null,
+        deliveredAt: null,
+      },
+    })
+  })
+
+  await sendOrderCancelledNotification(order.id)
+  revalidatePath('/perfil')
+  revalidatePath('/seguimiento')
   revalidateAdminPaths(order.id)
 }
 

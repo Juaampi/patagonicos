@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { formatPrice } from '@/lib/utils'
 import { getOrderStateLabel, getShippingMethodLabel, isCancelledStatus, isDeliveredStatus } from '@/lib/server/fulfillment'
-import { markOrderPaidAction, markOrderUnpaidAction, updateOrderStatusAction } from '@/lib/server/fulfillment-actions'
+import { markOrderCancelledAction, markOrderPaidAction, markOrderUnpaidAction, updateOrderStatusAction } from '@/lib/server/fulfillment-actions'
 
 type AdminOrdersPanelProps = {
   orders: Array<{
@@ -123,6 +123,14 @@ export function AdminOrdersPanel({ orders }: AdminOrdersPanelProps) {
                       >
                         Cancelar stock
                       </Link>
+                    ) : null}
+                    {!isCancelledStatus(order.status) ? (
+                      <form action={markOrderCancelledAction}>
+                        <input type="hidden" name="orderId" value={order.id} />
+                        <button className="rounded-full border border-red-200 bg-red-50 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-red-700 transition hover:bg-red-600 hover:text-white">
+                          Cancelar
+                        </button>
+                      </form>
                     ) : null}
                     {order.paymentStatus !== 'PAID' ? (
                       <form action={markOrderPaidAction}>

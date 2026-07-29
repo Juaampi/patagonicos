@@ -5,6 +5,7 @@ import { getAndreaniTrackingUrl } from '@/lib/server/andreani'
 import { buildGoogleMapsPinUrl, getOrderForTicket, getOrderStateLabel, getShippingMethodLabel } from '@/lib/server/fulfillment'
 import {
   createReplacementOrderFromExchangeAction,
+  markOrderCancelledAction,
   markOrderPaidAction,
   markOrderUnpaidAction,
   markOrderShippedWithTrackingAction,
@@ -86,6 +87,14 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
                 <input type="hidden" name="orderId" value={order.id} />
                 <button className="rounded-full border border-red-200 bg-red-50 px-4 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-red-700 transition hover:bg-red-600 hover:text-white">
                   Volver a pendiente
+                </button>
+              </form>
+            ) : null}
+            {order.status !== 'CANCELLED' && order.status !== 'CANCELADO' ? (
+              <form action={markOrderCancelledAction}>
+                <input type="hidden" name="orderId" value={order.id} />
+                <button className="rounded-full border border-red-200 bg-red-50 px-4 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-red-700 transition hover:bg-red-600 hover:text-white">
+                  Cancelar pedido
                 </button>
               </form>
             ) : null}
