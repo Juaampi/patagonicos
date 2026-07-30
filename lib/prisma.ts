@@ -1,6 +1,5 @@
-import { PrismaPg } from '@prisma/adapter-pg'
 import { PrismaClient } from '@prisma/client'
-import { DEFAULT_DATABASE_SCHEMA, ensureDatabaseUrlSchema } from './database-url'
+import { ensureDatabaseUrlSchema } from './database-url'
 import { env } from './env'
 
 const globalForPrisma = globalThis as unknown as {
@@ -13,17 +12,13 @@ function createPrismaClient() {
   }
 
   const connectionString = ensureDatabaseUrlSchema(env.DATABASE_URL)
-  const adapter = new PrismaPg(
-    {
-      connectionString,
-    },
-    {
-      schema: DEFAULT_DATABASE_SCHEMA,
-    },
-  )
 
   return new PrismaClient({
-    adapter,
+    datasources: {
+      db: {
+        url: connectionString,
+      },
+    },
     log: ['error'],
   })
 }
