@@ -84,18 +84,31 @@ export const defaultStoreSettings = {
 } as const
 
 export const ensureStoreSettings = cache(async function ensureStoreSettings() {
-  await prisma.storeSettings.upsert({
-    where: { id: 'default' },
-    update: {},
-    create: {
+  try {
+    await prisma.storeSettings.upsert({
+      where: { id: 'default' },
+      update: {},
+      create: {
+        id: 'default',
+        ...defaultStoreSettings,
+      },
+    })
+
+    return prisma.storeSettings.findUniqueOrThrow({
+      where: { id: 'default' },
+    })
+  } catch (error) {
+    if (!isMissingSchemaError(error)) {
+      throw error
+    }
+
+    return {
       id: 'default',
       ...defaultStoreSettings,
-    },
-  })
-
-  return prisma.storeSettings.findUniqueOrThrow({
-    where: { id: 'default' },
-  })
+      createdAt: new Date(0),
+      updatedAt: new Date(0),
+    }
+  }
 })
 
 export function normalizeCity(value: string) {

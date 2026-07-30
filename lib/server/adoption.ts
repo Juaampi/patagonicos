@@ -43,16 +43,27 @@ export async function ensureAdoptionPetsSeeded() {
 export async function getAdoptionPets() {
   await ensureAdoptionPetsSeeded()
 
-  const pets = await prisma.adoptionPet.findMany({
-    include: {
-      images: {
-        orderBy: { sortOrder: 'asc' },
+  try {
+    const pets = await prisma.adoptionPet.findMany({
+      include: {
+        images: {
+          orderBy: { sortOrder: 'asc' },
+        },
       },
-    },
-    orderBy: [{ status: 'asc' }, { createdAt: 'desc' }],
-  })
+      orderBy: [{ status: 'asc' }, { createdAt: 'desc' }],
+    })
 
-  return pets.map(mapAdoptionPet)
+    return pets.map(mapAdoptionPet)
+  } catch (error) {
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      /does not exist in the current database/i.test(error.message)
+    ) {
+      return []
+    }
+
+    throw error
+  }
 }
 
 export async function getPublicAdoptionPets() {
