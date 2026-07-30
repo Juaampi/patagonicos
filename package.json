@@ -10,6 +10,7 @@
     "start": "next start",
     "lint": "eslint",
     "migrate:cloudinary-to-local": "tsx scripts/migrate-cloudinary-to-local.ts",
+    "migrate:local-to-cloudinary": "tsx scripts/migrate-local-to-cloudinary.ts",
     "prisma:generate": "prisma generate",
     "prisma:push": "prisma db push",
     "prisma:studio": "prisma studio",
