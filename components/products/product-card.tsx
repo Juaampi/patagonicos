@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useCart } from '@/components/cart/cart-provider'
+import { getComboDiscountedPrice, getComboSavings, getTwoForOnePricing } from '@/lib/combo-pricing'
 import { getGalleryForColor, getMainImage, getProductColors, isColorOutOfStock } from '@/lib/variant-utils'
 import type { Product, ProductImage } from '@/types/store'
 import { formatPrice } from '@/lib/utils'
@@ -34,6 +35,10 @@ export function ProductCard({ product }: { product: Product }) {
   const activeComboTrigger = product.comboEligibleFrom?.find((combo) =>
     items.some((item) => item.productId === combo.productId),
   )
+  const comboDiscountPercent = activeComboTrigger?.discountPercent ?? 25
+  const comboDiscountedPrice = getComboDiscountedPrice(product.price, comboDiscountPercent)
+  const comboSavings = getComboSavings(product.price, comboDiscountPercent)
+  const twoForOnePricing = getTwoForOnePricing(product.price)
 
   const gallery = useMemo(() => {
     return getGalleryForColor(product, selectedColor)
@@ -179,6 +184,11 @@ export function ProductCard({ product }: { product: Product }) {
           <div className="rounded-[22px] border border-emerald-200 bg-[linear-gradient(135deg,#f5fbf7_0%,#eef8f2_100%)] px-4 py-3">
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-emerald-800">Llevando 2</p>
             <p className="mt-1 text-sm leading-6 text-emerald-950">El 2do te queda gratis.</p>
+            <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+              <span className="text-black/38 line-through">{formatPrice(twoForOnePricing.originalTotal)}</span>
+              <span className="font-semibold text-emerald-900">{formatPrice(twoForOnePricing.discountedTotal)}</span>
+              <span className="text-emerald-700">Ahorrás {formatPrice(twoForOnePricing.savings)}</span>
+            </div>
           </div>
         ) : null}
 
@@ -186,6 +196,11 @@ export function ProductCard({ product }: { product: Product }) {
           <div className="rounded-[22px] border border-sky-200 bg-[linear-gradient(135deg,#f2f8ff_0%,#ebf5ff_100%)] px-4 py-3">
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-sky-800">Prenda combo</p>
             <p className="mt-1 text-sm leading-6 text-sky-950">Agregá esta prenda con 25% off por pertenecer al combo.</p>
+            <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+              <span className="text-black/38 line-through">{formatPrice(product.price)}</span>
+              <span className="font-semibold text-sky-900">{formatPrice(comboDiscountedPrice)}</span>
+              <span className="text-sky-700">Ahorrás {formatPrice(comboSavings)}</span>
+            </div>
           </div>
         ) : null}
 

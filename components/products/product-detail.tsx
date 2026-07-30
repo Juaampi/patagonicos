@@ -9,7 +9,7 @@ import { CashOnDeliveryInfo } from '@/components/marketing/cash-on-delivery-info
 import { BarilocheDeliveryCountdown } from '@/components/marketing/bariloche-delivery-countdown'
 import { ProductImageWatermark } from '@/components/products/product-image-watermark'
 import { trackViewItem } from '@/lib/client/analytics'
-import { getFreeUnitsForQuantity } from '@/lib/combo-pricing'
+import { getComboDiscountedPrice, getComboSavings, getFreeUnitsForQuantity, getTwoForOnePricing } from '@/lib/combo-pricing'
 import { getFeatureChips } from '@/lib/product-display'
 import { TRANSFER_DISCOUNT_PERCENT } from '@/lib/store-settings'
 import type { StoreSettingsSnapshot } from '@/lib/store-settings'
@@ -252,6 +252,10 @@ export function ProductDetail({
     items.some((item) => item.productId === combo.productId),
   )
   const comboSuggestions = product.comboSuggestions ?? []
+  const comboDiscountPercent = activeComboTrigger?.discountPercent ?? 25
+  const comboDiscountedPrice = getComboDiscountedPrice(product.price, comboDiscountPercent)
+  const comboSavings = getComboSavings(product.price, comboDiscountPercent)
+  const twoForOnePricing = getTwoForOnePricing(product.price)
   const [cartFeedback, setCartFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
   const [isAddingToCart, setIsAddingToCart] = useState(false)
   const [mobileButtonInView, setMobileButtonInView] = useState(false)
@@ -512,12 +516,22 @@ export function ProductDetail({
             <div className="mt-4 rounded-[24px] border border-emerald-200 bg-[linear-gradient(135deg,#f5fbf7_0%,#edf7f1_52%,#e2f3ea_100%)] px-4 py-4">
               <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-emerald-800">Promo 2x1 armable</p>
               <p className="mt-2 text-sm leading-7 text-emerald-950">Llevando 2 de este producto, el 2do te queda gratis.</p>
+              <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+                <span className="text-black/38 line-through">{formatPrice(twoForOnePricing.originalTotal)}</span>
+                <span className="font-semibold text-emerald-900">{formatPrice(twoForOnePricing.discountedTotal)}</span>
+                <span className="text-emerald-700">Ahorrás {formatPrice(twoForOnePricing.savings)}</span>
+              </div>
             </div>
           ) : null}
           {activeComboTrigger ? (
             <div className="mt-4 rounded-[24px] border border-sky-200 bg-[linear-gradient(135deg,#f2f8ff_0%,#ebf5ff_100%)] px-4 py-4">
               <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-sky-800">Combo activo</p>
               <p className="mt-2 text-sm leading-7 text-sky-950">Si sumás esta prenda, entra con 25% de descuento por pertenecer al combo.</p>
+              <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+                <span className="text-black/38 line-through">{formatPrice(product.price)}</span>
+                <span className="font-semibold text-sky-900">{formatPrice(comboDiscountedPrice)}</span>
+                <span className="text-sky-700">Ahorrás {formatPrice(comboSavings)}</span>
+              </div>
             </div>
           ) : null}
           <p className="mt-4 max-w-[28rem] whitespace-pre-line text-sm leading-7 text-black/62">{product.shortDescription}</p>
@@ -776,8 +790,19 @@ export function ProductDetail({
                         <span className="mt-1 block text-xs uppercase tracking-[0.12em] text-sky-700">
                           {comboProduct.discountPercent}% off por combo
                         </span>
+                        <span className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs">
+                          <span className="text-black/38 line-through">{formatPrice(comboProduct.price)}</span>
+                          <span className="font-semibold text-sky-900">
+                            {formatPrice(getComboDiscountedPrice(comboProduct.price, comboProduct.discountPercent))}
+                          </span>
+                          <span className="text-sky-700">
+                            Ahorrás {formatPrice(getComboSavings(comboProduct.price, comboProduct.discountPercent))}
+                          </span>
+                        </span>
                       </span>
-                      <span className="text-sm font-semibold">{formatPrice(comboProduct.price)}</span>
+                      <span className="text-sm font-semibold text-sky-900">
+                        {formatPrice(getComboDiscountedPrice(comboProduct.price, comboProduct.discountPercent))}
+                      </span>
                     </Link>
                   ))}
                 </div>
@@ -893,9 +918,17 @@ export function ProductDetail({
               ) : null}
             </div>
             <div className="text-right">
-              <p className="text-2xl font-semibold">{formatPrice(product.price)}</p>
+              {activeComboTrigger ? (
+                <p className="text-sm text-black/40 line-through">{formatPrice(product.price)}</p>
+              ) : null}
+              <p className="text-2xl font-semibold">
+                {formatPrice(activeComboTrigger ? comboDiscountedPrice : product.price)}
+              </p>
               {product.compareAtPrice ? (
                 <p className="mt-1 text-sm text-black/40 line-through">{formatPrice(product.compareAtPrice)}</p>
+              ) : null}
+              {activeComboTrigger ? (
+                <p className="mt-1 text-sm font-medium text-sky-700">Ahorrás {formatPrice(comboSavings)}</p>
               ) : null}
               <p className="mt-2 text-sm font-medium leading-6 text-emerald-700">
                 3 cuotas de {formatPrice(installmentPrice)}
@@ -1047,8 +1080,19 @@ export function ProductDetail({
                       <span className="mt-1 block text-xs uppercase tracking-[0.12em] text-sky-700">
                         {comboProduct.discountPercent}% off por combo
                       </span>
+                      <span className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs">
+                        <span className="text-black/38 line-through">{formatPrice(comboProduct.price)}</span>
+                        <span className="font-semibold text-sky-900">
+                          {formatPrice(getComboDiscountedPrice(comboProduct.price, comboProduct.discountPercent))}
+                        </span>
+                        <span className="text-sky-700">
+                          Ahorrás {formatPrice(getComboSavings(comboProduct.price, comboProduct.discountPercent))}
+                        </span>
+                      </span>
                     </span>
-                    <span className="text-sm font-semibold">{formatPrice(comboProduct.price)}</span>
+                    <span className="text-sm font-semibold text-sky-900">
+                      {formatPrice(getComboDiscountedPrice(comboProduct.price, comboProduct.discountPercent))}
+                    </span>
                   </Link>
                 ))}
               </div>
@@ -1065,6 +1109,11 @@ export function ProductDetail({
             <div className="mt-5 rounded-[24px] border border-emerald-200 bg-[linear-gradient(135deg,#f5fbf7_0%,#edf7f1_52%,#e2f3ea_100%)] px-5 py-5">
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-800">Beneficio destacado</p>
               <p className="mt-2 text-sm leading-7 text-emerald-950">Este producto participa del 2x1: si llevás 2, el segundo va gratis.</p>
+              <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+                <span className="text-black/38 line-through">{formatPrice(twoForOnePricing.originalTotal)}</span>
+                <span className="font-semibold text-emerald-900">{formatPrice(twoForOnePricing.discountedTotal)}</span>
+                <span className="text-emerald-700">Ahorrás {formatPrice(twoForOnePricing.savings)}</span>
+              </div>
             </div>
           ) : null}
           <p className="mt-5 max-w-4xl whitespace-pre-line text-sm leading-8 text-black/62 md:text-[15px]">

@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useMemo, useRef, useState } from 'react'
 import { useCart } from '@/components/cart/cart-provider'
+import { getComboDiscountedPrice, getComboSavings, getTwoForOnePricing } from '@/lib/combo-pricing'
 import { getColorImages, getMainImage, getProductColors, isColorOutOfStock } from '@/lib/variant-utils'
 import type { Product, ProductImage } from '@/types/store'
 import { formatPrice } from '@/lib/utils'
@@ -42,6 +43,10 @@ export function ProductFeature({ product }: { product: Product }) {
   const activeComboTrigger = product.comboEligibleFrom?.find((combo) =>
     items.some((item) => item.productId === combo.productId),
   )
+  const comboDiscountPercent = activeComboTrigger?.discountPercent ?? 25
+  const comboDiscountedPrice = getComboDiscountedPrice(product.price, comboDiscountPercent)
+  const comboSavings = getComboSavings(product.price, comboDiscountPercent)
+  const twoForOnePricing = getTwoForOnePricing(product.price)
 
   const gallery = useMemo(() => {
     const items: ProductImage[] = []
@@ -177,12 +182,47 @@ export function ProductFeature({ product }: { product: Product }) {
                   </div>
                 ) : null}
               </div>
-              <p className="text-lg font-semibold md:text-right md:text-2xl">{formatPrice(product.price)}</p>
+              <div className="md:text-right">
+                {activeComboTrigger ? (
+                  <p className="text-sm text-black/38 line-through">{formatPrice(product.price)}</p>
+                ) : null}
+                <p className="text-lg font-semibold md:text-2xl">
+                  {formatPrice(activeComboTrigger ? comboDiscountedPrice : product.price)}
+                </p>
+                {activeComboTrigger ? (
+                  <p className="mt-1 text-sm font-medium text-sky-700">Ahorrás {formatPrice(comboSavings)}</p>
+                ) : null}
+              </div>
             </div>
 
             <p className="mt-4 max-w-xl text-sm leading-7 text-black/62 md:text-[15px]">
               {product.shortDescription}
             </p>
+
+            {(product.comboArmable || activeComboTrigger) ? (
+              <div className="mt-5 flex flex-wrap gap-3">
+                {product.comboArmable ? (
+                  <div className="rounded-[22px] border border-emerald-200 bg-[linear-gradient(135deg,#f5fbf7_0%,#eef8f2_100%)] px-4 py-3">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-emerald-800">2x1 visible</p>
+                    <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+                      <span className="text-black/38 line-through">{formatPrice(twoForOnePricing.originalTotal)}</span>
+                      <span className="font-semibold text-emerald-900">{formatPrice(twoForOnePricing.discountedTotal)}</span>
+                      <span className="text-emerald-700">Ahorrás {formatPrice(twoForOnePricing.savings)}</span>
+                    </div>
+                  </div>
+                ) : null}
+                {activeComboTrigger ? (
+                  <div className="rounded-[22px] border border-sky-200 bg-[linear-gradient(135deg,#f2f8ff_0%,#ebf5ff_100%)] px-4 py-3">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-sky-800">Combo activo</p>
+                    <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+                      <span className="text-black/38 line-through">{formatPrice(product.price)}</span>
+                      <span className="font-semibold text-sky-900">{formatPrice(comboDiscountedPrice)}</span>
+                      <span className="text-sky-700">Ahorrás {formatPrice(comboSavings)}</span>
+                    </div>
+                  </div>
+                ) : null}
+              </div>
+            ) : null}
 
             <div className="mt-7">
               <p className="text-xs uppercase tracking-[0.2em] text-black/50">Variantes</p>

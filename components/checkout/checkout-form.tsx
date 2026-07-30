@@ -8,7 +8,7 @@ import { AddressPinPicker } from '@/components/checkout/address-pin-picker'
 import { SearchableSelect } from '@/components/checkout/searchable-select'
 import { BarilocheDeliveryCountdown } from '@/components/marketing/bariloche-delivery-countdown'
 import { mapCartItemToAnalyticsItem, trackBeginCheckout } from '@/lib/client/analytics'
-import { buildCartPricingSummary } from '@/lib/combo-pricing'
+import { buildCartPricingSummary, getComboDiscountedPrice } from '@/lib/combo-pricing'
 import {
   argentinaProvinces,
   getCanonicalProvince,
@@ -1287,6 +1287,18 @@ export function CheckoutForm({
             {items.map((item) => (
               <div key={item.id} className="flex items-center justify-between gap-4 border-b border-black/8 pb-4">
                 <div>
+                  {(() => {
+                    const originalLineTotal = item.price * item.quantity
+                    const discountedLineTotal = comboSummary.lineTotalsByItemId.get(item.id) ?? originalLineTotal
+                    const lineSavings = Math.max(0, originalLineTotal - discountedLineTotal)
+                    const comboUnits = comboSummary.comboDiscountedUnitsByItemId.get(item.id) ?? 0
+                    const comboDiscountPercent =
+                      comboUnits > 0
+                        ? item.comboEligibleFrom?.find((combo) => items.some((cartItem) => cartItem.productId === combo.productId))?.discountPercent ?? 25
+                        : 25
+
+                    return (
+                      <>
                   <p className="font-medium">{item.name}</p>
                   <p className="mt-1 text-xs uppercase tracking-[0.12em] text-black/52">
                     {item.colorName} · {item.size} · x{item.quantity}
@@ -1301,8 +1313,36 @@ export function CheckoutForm({
                       {(comboSummary.comboDiscountedUnitsByItemId.get(item.id) ?? 0)} unidad combo al 25% off
                     </p>
                   ) : null}
+                  {comboUnits > 0 ? (
+                    <p className="mt-1 text-xs text-sky-800">
+                      Precio combo por unidad: <span className="text-black/38 line-through">{formatPrice(item.price)}</span>{' '}
+                      <span className="font-semibold">{formatPrice(getComboDiscountedPrice(item.price, comboDiscountPercent))}</span>
+                    </p>
+                  ) : null}
+                  {lineSavings > 0 ? (
+                    <p className="mt-1 text-xs font-medium text-black/70">Ahorrás {formatPrice(lineSavings)} en esta línea.</p>
+                  ) : null}
+                      </>
+                    )
+                  })()}
                 </div>
-                <p className="font-semibold">{formatPrice(comboSummary.lineTotalsByItemId.get(item.id) ?? item.price * item.quantity)}</p>
+                {(() => {
+                  const originalLineTotal = item.price * item.quantity
+                  const discountedLineTotal = comboSummary.lineTotalsByItemId.get(item.id) ?? originalLineTotal
+                  const lineSavings = Math.max(0, originalLineTotal - discountedLineTotal)
+
+                  return (
+                    <div className="text-right">
+                      {lineSavings > 0 ? (
+                        <p className="text-xs text-black/38 line-through">{formatPrice(originalLineTotal)}</p>
+                      ) : null}
+                      <p className="font-semibold">{formatPrice(discountedLineTotal)}</p>
+                      {lineSavings > 0 ? (
+                        <p className="text-xs font-medium text-emerald-700">- {formatPrice(lineSavings)}</p>
+                      ) : null}
+                    </div>
+                  )
+                })()}
               </div>
             ))}
           </div>

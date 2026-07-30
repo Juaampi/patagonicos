@@ -43,6 +43,23 @@ export type CartPricingSummary = {
 
 export const DEFAULT_PRODUCT_COMBO_DISCOUNT_PERCENT = 25
 
+export function getComboDiscountedPrice(price: number, discountPercent = DEFAULT_PRODUCT_COMBO_DISCOUNT_PERCENT) {
+  return Math.max(0, price - Math.round((price * discountPercent) / 100))
+}
+
+export function getComboSavings(price: number, discountPercent = DEFAULT_PRODUCT_COMBO_DISCOUNT_PERCENT) {
+  return Math.max(0, price - getComboDiscountedPrice(price, discountPercent))
+}
+
+export function getTwoForOnePricing(price: number) {
+  return {
+    originalTotal: price * 2,
+    discountedTotal: price,
+    savings: price,
+    effectiveUnitPrice: Math.round(price / 2),
+  }
+}
+
 export function getFreeUnitsForQuantity(quantity: number, comboArmable?: boolean) {
   if (!comboArmable || quantity <= 1) {
     return 0

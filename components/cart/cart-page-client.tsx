@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { ArrowRight, Minus, Plus, Sparkles, Trash2 } from 'lucide-react'
 import { CheckoutForm } from '@/components/checkout/checkout-form'
 import { useCart } from '@/components/cart/cart-provider'
-import { buildCartPricingSummary } from '@/lib/combo-pricing'
+import { buildCartPricingSummary, getComboDiscountedPrice, getComboSavings } from '@/lib/combo-pricing'
 import { TRANSFER_DISCOUNT_PERCENT, type StoreSettingsSnapshot } from '@/lib/store-settings'
 import type { Product } from '@/types/store'
 import { formatPrice } from '@/lib/utils'
@@ -91,7 +91,13 @@ export function CartPageClient({
             </div>
             <div className="rounded-[22px] border border-black/8 px-5 py-4">
               <p className="text-xs uppercase tracking-[0.18em] text-black/46">Subtotal actual</p>
+              <p className="mt-2 text-sm text-black/38 line-through">{formatPrice(comboSummary.grossSubtotal)}</p>
               <p className="mt-2 text-2xl font-semibold text-black/84">{formatPrice(subtotal)}</p>
+              {(comboDiscountAmount > 0 || comboLinkDiscountAmount > 0) ? (
+                <p className="mt-2 text-sm font-medium text-black/66">
+                  Ahorrás {formatPrice(comboDiscountAmount + comboLinkDiscountAmount)} antes de envío y otros descuentos.
+                </p>
+              ) : null}
               {comboDiscountAmount > 0 ? (
                 <p className="mt-2 text-sm leading-6 text-emerald-700">Incluye {formatPrice(comboDiscountAmount)} de ahorro por promo 2x1.</p>
               ) : null}
@@ -117,6 +123,18 @@ export function CartPageClient({
           <div className="space-y-4">
             {items.map((item) => (
               <div key={item.id} className="flex flex-col gap-4 rounded-[26px] border border-black/8 p-4 md:flex-row md:items-center md:justify-between">
+                {(() => {
+                  const originalLineTotal = item.price * item.quantity
+                  const discountedLineTotal = comboSummary.lineTotalsByItemId.get(item.id) ?? originalLineTotal
+                  const lineSavings = Math.max(0, originalLineTotal - discountedLineTotal)
+                  const comboUnits = comboSummary.comboDiscountedUnitsByItemId.get(item.id) ?? 0
+                  const comboDiscountPercent =
+                    comboUnits > 0
+                      ? item.comboEligibleFrom?.find((combo) => items.some((cartItem) => cartItem.productId === combo.productId))?.discountPercent ?? 25
+                      : 25
+
+                  return (
+                    <>
                 <div className="flex gap-4">
                   <div className="relative h-28 w-24 shrink-0 overflow-hidden rounded-[20px] bg-[#f3f3ef]">
                     {item.imageUrl ? (
@@ -149,6 +167,15 @@ export function CartPageClient({
                         Ya tenés {(comboSummary.comboDiscountedUnitsByItemId.get(item.id) ?? 0)} unidad combo con 25% off.
                       </p>
                     ) : null}
+                    {comboUnits > 0 ? (
+                      <p className="mt-2 text-sm text-sky-800">
+                        Precio combo por unidad: <span className="text-black/38 line-through">{formatPrice(item.price)}</span>{' '}
+                        <span className="font-semibold">{formatPrice(getComboDiscountedPrice(item.price, comboDiscountPercent))}</span>
+                      </p>
+                    ) : null}
+                    {lineSavings > 0 ? (
+                      <p className="mt-2 text-sm font-medium text-black/72">En esta línea ahorrás {formatPrice(lineSavings)}.</p>
+                    ) : null}
                   </div>
                 </div>
 
@@ -172,9 +199,15 @@ export function CartPageClient({
                       <Plus className="h-4 w-4" />
                     </button>
                   </div>
-                  <p className="min-w-24 text-right font-semibold text-black/84">
-                    {formatPrice(comboSummary.lineTotalsByItemId.get(item.id) ?? item.price * item.quantity)}
-                  </p>
+                  <div className="min-w-24 text-right">
+                    {lineSavings > 0 ? (
+                      <p className="text-xs text-black/38 line-through">{formatPrice(originalLineTotal)}</p>
+                    ) : null}
+                    <p className="font-semibold text-black/84">{formatPrice(discountedLineTotal)}</p>
+                    {lineSavings > 0 ? (
+                      <p className="text-xs font-medium text-emerald-700">- {formatPrice(lineSavings)}</p>
+                    ) : null}
+                  </div>
                   <button
                     type="button"
                     onClick={() => removeItem(item.id)}
@@ -184,6 +217,9 @@ export function CartPageClient({
                     <Trash2 className="h-4 w-4" />
                   </button>
                 </div>
+                    </>
+                  )
+                })()}
               </div>
             ))}
           </div>
@@ -209,6 +245,11 @@ export function CartPageClient({
                   <p className="mt-3 text-base font-semibold text-black/84">{product.name}</p>
                   <p className="mt-1 text-xs uppercase tracking-[0.16em] text-black/44">{product.category}</p>
                   <p className="mt-3 text-sm font-medium text-sky-800">Agregá esta prenda combo con 25% de descuento.</p>
+                  <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+                    <span className="text-black/38 line-through">{formatPrice(product.price)}</span>
+                    <span className="font-semibold text-sky-900">{formatPrice(getComboDiscountedPrice(product.price, 25))}</span>
+                    <span className="text-sky-700">Ahorrás {formatPrice(getComboSavings(product.price, 25))}</span>
+                  </div>
                   <div className="mt-4 flex gap-3">
                     <Link href={`/productos/${product.slug}`} className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-black/76 transition hover:bg-black hover:text-white">
                       Ver producto
