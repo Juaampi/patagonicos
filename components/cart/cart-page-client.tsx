@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { ArrowRight, Minus, Plus, Sparkles, Trash2 } from 'lucide-react'
 import { CheckoutForm } from '@/components/checkout/checkout-form'
 import { useCart } from '@/components/cart/cart-provider'
-import { buildComboPricingSummary } from '@/lib/combo-pricing'
+import { buildCartPricingSummary } from '@/lib/combo-pricing'
 import { TRANSFER_DISCOUNT_PERCENT, type StoreSettingsSnapshot } from '@/lib/store-settings'
 import type { Product } from '@/types/store'
 import { formatPrice } from '@/lib/utils'
@@ -13,14 +13,22 @@ import { formatPrice } from '@/lib/utils'
 export function CartPageClient({
   settings,
   freeShippingUpsellProduct,
+  products,
 }: {
   settings: StoreSettingsSnapshot
   freeShippingUpsellProduct: Product | null
+  products: Product[]
 }) {
   const { isHydrated, items, subtotal, updateQuantity, removeItem, addItem } = useCart()
-  const comboSummary = buildComboPricingSummary(items)
-  const comboDiscountAmount = comboSummary.comboDiscount
+  const comboSummary = buildCartPricingSummary(items)
+  const comboDiscountAmount = comboSummary.twoForOneDiscount
+  const comboLinkDiscountAmount = comboSummary.comboLinkDiscount
   const freeShippingDifference = Math.max(settings.localDeliveryFreeThreshold - subtotal, 0)
+  const comboSuggestions = products.filter(
+    (product) =>
+      !items.some((item) => item.productId === product.id) &&
+      product.comboEligibleFrom?.some((combo) => items.some((item) => item.productId === combo.productId)),
+  )
   const suggestedVariant =
     freeShippingUpsellProduct?.variants.find((variant) => variant.stock > 0) ?? null
   const suggestedImage =
@@ -87,6 +95,9 @@ export function CartPageClient({
               {comboDiscountAmount > 0 ? (
                 <p className="mt-2 text-sm leading-6 text-emerald-700">Incluye {formatPrice(comboDiscountAmount)} de ahorro por promo 2x1.</p>
               ) : null}
+              {comboLinkDiscountAmount > 0 ? (
+                <p className="mt-2 text-sm leading-6 text-sky-700">Incluye {formatPrice(comboLinkDiscountAmount)} de ahorro por combos entre prendas.</p>
+              ) : null}
               <p className="mt-2 text-sm leading-6 text-amber-700">
                 {TRANSFER_DISCOUNT_PERCENT}% off por transferencia.
               </p>
@@ -133,6 +144,11 @@ export function CartPageClient({
                     ) : item.comboArmable ? (
                       <p className="mt-2 text-sm font-medium text-emerald-700">Sumando una más de este producto, la segunda te queda gratis.</p>
                     ) : null}
+                    {(comboSummary.comboDiscountedUnitsByItemId.get(item.id) ?? 0) > 0 ? (
+                      <p className="mt-2 text-sm font-medium text-sky-700">
+                        Ya tenés {(comboSummary.comboDiscountedUnitsByItemId.get(item.id) ?? 0)} unidad combo con 25% off.
+                      </p>
+                    ) : null}
                   </div>
                 </div>
 
@@ -173,6 +189,37 @@ export function CartPageClient({
           </div>
         </div>
 
+        {comboSuggestions.length > 0 ? (
+          <div className="card-surface overflow-hidden border border-sky-200 bg-[linear-gradient(135deg,#f2f8ff_0%,#ebf5ff_100%)] p-7">
+            <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-sky-800">Prendas combo</p>
+                <h2 className="mt-2 font-display text-3xl tracking-[-0.05em] text-sky-950">Agregá estas prendas con 25% off</h2>
+                <p className="mt-3 max-w-3xl text-sm leading-7 text-sky-950/80">
+                  Como ya tenés una prenda que habilita combo, estas opciones quedan destacadas para completar el look con descuento.
+                </p>
+              </div>
+            </div>
+            <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {comboSuggestions.slice(0, 6).map((product) => (
+                <div key={product.id} className="rounded-[24px] border border-sky-200 bg-white/90 p-4">
+                  <p className="inline-flex rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-sky-800">
+                    Combo 25% off
+                  </p>
+                  <p className="mt-3 text-base font-semibold text-black/84">{product.name}</p>
+                  <p className="mt-1 text-xs uppercase tracking-[0.16em] text-black/44">{product.category}</p>
+                  <p className="mt-3 text-sm font-medium text-sky-800">Agregá esta prenda combo con 25% de descuento.</p>
+                  <div className="mt-4 flex gap-3">
+                    <Link href={`/productos/${product.slug}`} className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-black/76 transition hover:bg-black hover:text-white">
+                      Ver producto
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : null}
+
         {shouldShowFreeShippingUpsell && freeShippingUpsellProduct && suggestedVariant ? (
           <div className="card-surface overflow-hidden border border-emerald-200 bg-[linear-gradient(135deg,#f5fbf7_0%,#edf7f1_52%,#e3f4ea_100%)] p-7">
             <div className="grid gap-5 lg:grid-cols-[minmax(0,1.15fr)_260px] lg:items-center">
@@ -201,6 +248,10 @@ export function CartPageClient({
                         price: freeShippingUpsellProduct.price,
                         compareAtPrice: freeShippingUpsellProduct.compareAtPrice,
                         comboArmable: freeShippingUpsellProduct.comboArmable,
+                        comboEligibleFrom: freeShippingUpsellProduct.comboEligibleFrom?.map((combo) => ({
+                          productId: combo.productId,
+                          discountPercent: combo.discountPercent,
+                        })),
                         imageUrl: suggestedImage?.url ?? freeShippingUpsellProduct.mainImageUrl,
                         imageAlt: suggestedImage?.alt ?? freeShippingUpsellProduct.name,
                         colorName: suggestedVariant.colorName,

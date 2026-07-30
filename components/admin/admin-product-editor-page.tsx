@@ -7,6 +7,12 @@ type CategoryOption = {
   name: string
 }
 
+type ProductOption = {
+  id: string
+  name: string
+  categoryName: string
+}
+
 type EditProduct = {
   id: string
   name: string
@@ -29,16 +35,19 @@ type EditProduct = {
   freeShippingUpsell: boolean
   comboArmable: boolean
   productStar: boolean
+  comboProductIds: string[]
   variants: Array<{ colorName: string; colorHex: string; size: string; stock: number; sku: string }>
   images: Array<{ id: string; url: string; alt: string; colorName?: string; type: 'MAIN' | 'COLOR' | 'INFO' | 'LIFESTYLE'; sortOrder: number }>
 }
 
 export function AdminProductEditorPage({
   categories,
+  availableProducts,
   editProduct,
   mode,
 }: {
   categories: CategoryOption[]
+  availableProducts: ProductOption[]
   editProduct?: EditProduct
   mode: 'create' | 'edit'
 }) {
@@ -64,7 +73,7 @@ export function AdminProductEditorPage({
         </div>
       </div>
 
-      <AdminProductForm categories={categories} editProduct={editProduct} mode={mode} />
+      <AdminProductForm categories={categories} availableProducts={availableProducts} editProduct={editProduct} mode={mode} />
     </AdminShell>
   )
 }

@@ -20,7 +20,7 @@ import { sendMetaPurchaseEventSafely } from '@/lib/server/meta-conversions'
 import { getCheckoutPreview, getCouponRestrictionReason } from '@/lib/store-settings'
 import { formatPrice } from '@/lib/utils'
 import type { SalesChannel } from '@/types/store'
-import { buildComboPricingSummary } from '@/lib/combo-pricing'
+import { buildCartPricingSummary } from '@/lib/combo-pricing'
 import {
   getWholesalePrice,
   WHOLESALE_MIN_UNITS,
@@ -418,7 +418,31 @@ export type CheckoutOrderItemInput = {
   quantity: number
   unitPrice: number
   comboArmable?: boolean
+  comboEligibleFrom?: Array<{
+    productId: string
+    discountPercent: number
+  }>
 }
+
+const retailCheckoutProductSelect = Prisma.validator<Prisma.ProductSelect>()({
+  id: true,
+  name: true,
+  price: true,
+  comboArmable: true,
+  incomingComboLinks: {
+    where: {
+      active: true,
+    },
+    select: {
+      sourceProductId: true,
+      discountPercent: true,
+    },
+  },
+})
+
+type RetailCheckoutProductRecord = Prisma.ProductGetPayload<{
+  select: typeof retailCheckoutProductSelect
+}>
 
 export async function createOrderFromCheckout(input: {
     fullName: string
@@ -516,14 +540,11 @@ export async function createOrderFromCheckout(input: {
           in: productIds,
         },
       },
-      select: {
-        id: true,
-        name: true,
-        price: true,
-        comboArmable: true,
-      },
+      select: retailCheckoutProductSelect,
     })
-    const productMap = new Map(products.map((product) => [product.id, product]))
+    const productMap = new Map<string, RetailCheckoutProductRecord>(
+      products.map((product) => [product.id, product]),
+    )
 
     normalizedItems = input.items.map((item) => {
       const product = productMap.get(item.productId)
@@ -536,17 +557,22 @@ export async function createOrderFromCheckout(input: {
         productName: product.name,
         unitPrice: product.price,
         comboArmable: product.comboArmable,
+        comboEligibleFrom: product.incomingComboLinks.map((link) => ({
+          productId: link.sourceProductId,
+          discountPercent: link.discountPercent,
+        })),
       }
     })
   }
 
-  const comboSummary = buildComboPricingSummary(
+  const comboSummary = buildCartPricingSummary(
     normalizedItems.map((item, index) => ({
       id: `${item.productId}:${item.colorName}:${item.size}:${index}`,
       productId: item.productId,
       price: item.unitPrice,
       quantity: item.quantity,
       comboArmable: item.comboArmable,
+      comboEligibleFrom: item.comboEligibleFrom,
     })),
   )
   const subtotal = comboSummary.payableSubtotal

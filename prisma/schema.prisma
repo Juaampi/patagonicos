@@ -164,10 +164,27 @@ model Product {
   images            ProductImage[]
   reviews           ProductReview[]
   orderItems        OrderItem[]
+  outgoingComboLinks ProductCombo[]  @relation("ProductComboSource")
+  incomingComboLinks ProductCombo[]  @relation("ProductComboTarget")
   createdAt         DateTime         @default(now())
   updatedAt         DateTime         @updatedAt
 
   @@map("pa2_products")
+}
+
+model ProductCombo {
+  id             String   @id @default(cuid())
+  sourceProductId String
+  targetProductId String
+  discountPercent Int     @default(25)
+  active         Boolean  @default(true)
+  sourceProduct  Product  @relation("ProductComboSource", fields: [sourceProductId], references: [id], onDelete: Cascade)
+  targetProduct  Product  @relation("ProductComboTarget", fields: [targetProductId], references: [id], onDelete: Cascade)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([sourceProductId, targetProductId])
+  @@map("pa2_product_combos")
 }
 
 model ProductVariant {

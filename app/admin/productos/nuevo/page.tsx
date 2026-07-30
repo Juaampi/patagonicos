@@ -11,5 +11,15 @@ export default async function NewAdminProductPage() {
     notFound()
   }
 
-  return <AdminProductEditorPage categories={snapshot.categories} mode="create" />
+  return (
+    <AdminProductEditorPage
+      categories={snapshot.categories}
+      availableProducts={snapshot.products.map((product) => ({
+        id: product.id,
+        name: product.name,
+        categoryName: product.category.name,
+      }))}
+      mode="create"
+    />
+  )
 }

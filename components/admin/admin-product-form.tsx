@@ -14,6 +14,12 @@ type CategoryOption = {
   name: string
 }
 
+type ProductOption = {
+  id: string
+  name: string
+  categoryName: string
+}
+
 type EditProduct = {
   id: string
   name: string
@@ -36,6 +42,7 @@ type EditProduct = {
   freeShippingUpsell: boolean
   comboArmable: boolean
   productStar: boolean
+  comboProductIds: string[]
   variants: Array<{ colorName: string; colorHex: string; size: string; stock: number; sku: string }>
   images: Array<{ id: string; url: string; alt: string; colorName?: string; type: 'MAIN' | 'COLOR' | 'INFO' | 'LIFESTYLE'; sortOrder: number }>
 }
@@ -144,10 +151,12 @@ function getSkuBaseFromVariant(sku: string, size: string) {
 
 export function AdminProductForm({
   categories,
+  availableProducts,
   editProduct,
   mode = 'create',
 }: {
   categories: CategoryOption[]
+  availableProducts: ProductOption[]
   editProduct?: EditProduct
   mode?: 'create' | 'edit'
 }) {
@@ -820,6 +829,34 @@ export function AdminProductForm({
           placeholder="https://..."
           className="mt-4 w-full rounded-[18px] border border-black/10 bg-white px-4 py-4 text-sm outline-none"
         />
+      </div>
+
+      <div className="mt-5 rounded-[24px] border border-black/10 bg-[#fafaf7] p-5">
+        <p className="text-xs uppercase tracking-[0.18em] text-black/50">Prendas combinables</p>
+        <p className="mt-2 text-sm leading-6 text-black/58">
+          Si este producto entra al carrito, estas prendas se mostrarán como combo con 25% de descuento.
+        </p>
+        <div className="mt-4 grid gap-2 md:grid-cols-2">
+          {availableProducts
+            .filter((product) => product.id !== editProduct?.id)
+            .map((product) => (
+              <label key={product.id} className="flex items-start gap-3 rounded-[18px] border border-black/10 bg-white px-4 py-3 text-sm text-black/74">
+                <input
+                  type="checkbox"
+                  name="comboProductIds"
+                  value={product.id}
+                  defaultChecked={editProduct?.comboProductIds.includes(product.id)}
+                  className="mt-1"
+                />
+                <span>
+                  <span className="font-medium text-black/84">{product.name}</span>
+                  <span className="mt-1 block text-xs uppercase tracking-[0.12em] text-black/46">
+                    {product.categoryName} · 25% off
+                  </span>
+                </span>
+              </label>
+            ))}
+        </div>
       </div>
 
       <div className="mt-4 flex flex-wrap gap-5 text-sm text-black/68">

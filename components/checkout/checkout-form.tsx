@@ -8,7 +8,7 @@ import { AddressPinPicker } from '@/components/checkout/address-pin-picker'
 import { SearchableSelect } from '@/components/checkout/searchable-select'
 import { BarilocheDeliveryCountdown } from '@/components/marketing/bariloche-delivery-countdown'
 import { mapCartItemToAnalyticsItem, trackBeginCheckout } from '@/lib/client/analytics'
-import { buildComboPricingSummary } from '@/lib/combo-pricing'
+import { buildCartPricingSummary } from '@/lib/combo-pricing'
 import {
   argentinaProvinces,
   getCanonicalProvince,
@@ -91,9 +91,10 @@ export function CheckoutForm({
   const cityRef = useRef<HTMLInputElement>(null)
   const postalCodeRef = useRef<HTMLInputElement>(null)
   const pinRef = useRef<HTMLDivElement>(null)
-  const comboSummary = useMemo(() => buildComboPricingSummary(items), [items])
+  const comboSummary = useMemo(() => buildCartPricingSummary(items), [items])
   const subtotal = comboSummary.payableSubtotal
-  const comboDiscountAmount = comboSummary.comboDiscount
+  const twoForOneDiscountAmount = comboSummary.twoForOneDiscount
+  const comboLinkDiscountAmount = comboSummary.comboLinkDiscount
   const [form, setForm] = useState({
     fullName: '',
     lastName: '',
@@ -1295,6 +1296,11 @@ export function CheckoutForm({
                       {(comboSummary.freeUnitsByItemId.get(item.id) ?? 0)} gratis por promo 2x1
                     </p>
                   ) : null}
+                  {(comboSummary.comboDiscountedUnitsByItemId.get(item.id) ?? 0) > 0 ? (
+                    <p className="mt-1 text-xs font-semibold uppercase tracking-[0.12em] text-sky-700">
+                      {(comboSummary.comboDiscountedUnitsByItemId.get(item.id) ?? 0)} unidad combo al 25% off
+                    </p>
+                  ) : null}
                 </div>
                 <p className="font-semibold">{formatPrice(comboSummary.lineTotalsByItemId.get(item.id) ?? item.price * item.quantity)}</p>
               </div>
@@ -1303,12 +1309,18 @@ export function CheckoutForm({
           <div className="mt-6 space-y-3 text-sm text-black/62">
             <div className="flex justify-between">
               <span>Subtotal</span>
-              <span>{formatPrice(subtotal)}</span>
+              <span>{formatPrice(comboSummary.grossSubtotal)}</span>
             </div>
-            {comboDiscountAmount > 0 ? (
+            {twoForOneDiscountAmount > 0 ? (
               <div className="flex justify-between text-emerald-700">
                 <span>Promo 2x1</span>
-                <span>-{formatPrice(comboDiscountAmount)}</span>
+                <span>-{formatPrice(twoForOneDiscountAmount)}</span>
+              </div>
+            ) : null}
+            {comboLinkDiscountAmount > 0 ? (
+              <div className="flex justify-between text-sky-700">
+                <span>Combo prendas</span>
+                <span>-{formatPrice(comboLinkDiscountAmount)}</span>
               </div>
             ) : null}
             {shippingPreview.barilocheDiscountAmount > 0 ? (

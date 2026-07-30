@@ -1,6 +1,6 @@
 'use server'
 
-import { ProductStatus, Prisma } from '@prisma/client'
+import { ProductImageType, ProductStatus, Prisma } from '@prisma/client'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
@@ -9,6 +9,105 @@ import { products as fallbackProducts } from '@/lib/store-data'
 import type { Product } from '@/types/store'
 import { slugify } from '@/lib/utils'
 import { OUT_OF_STOCK_PLACEHOLDER_SIZE } from '@/lib/variant-utils'
+
+const catalogProductInclude = Prisma.validator<Prisma.ProductInclude>()({
+  category: true,
+  images: {
+    orderBy: [{ sortOrder: 'asc' }, { position: 'asc' }],
+  },
+  variants: {
+    orderBy: [{ colorName: 'asc' }, { size: 'asc' }],
+  },
+  outgoingComboLinks: {
+    include: {
+      targetProduct: {
+        include: {
+          category: true,
+        },
+      },
+    },
+  },
+  incomingComboLinks: {
+    include: {
+      sourceProduct: true,
+    },
+  },
+  reviews: true,
+  orderItems: {
+    include: {
+      order: true,
+    },
+  },
+})
+
+const adminProductInclude = Prisma.validator<Prisma.ProductInclude>()({
+  category: true,
+  variants: true,
+  images: {
+    orderBy: [{ sortOrder: 'asc' }, { position: 'asc' }],
+  },
+  reviews: {
+    orderBy: { createdAt: 'desc' },
+  },
+  outgoingComboLinks: {
+    where: {
+      active: true,
+    },
+  },
+})
+
+type CatalogDbProduct = Prisma.ProductGetPayload<{
+  include: typeof catalogProductInclude
+}>
+
+type AdminProductRecord = Prisma.ProductGetPayload<{
+  include: typeof adminProductInclude
+}>
+
+export type AdminSnapshotProduct = {
+  id: string
+  name: string
+  slug: string
+  animalType: 'DOG' | 'CAT'
+  mainImageUrl: string | null
+  videoUrl: string | null
+  price: number
+  baseSalesCount: number
+  compareAtPrice: number | null
+  shortDescription: string
+  description: string
+  categoryId: string
+  status: 'ACTIVE' | 'INACTIVE'
+  useTags: string[]
+  featureTags: string[]
+  materials: string[]
+  careInstructions: string[]
+  featured: boolean
+  freeShippingUpsell: boolean
+  comboArmable: boolean
+  productStar: boolean
+  category: {
+    name: string
+  }
+  variants: Array<{
+    colorName: string
+    colorHex: string
+    size: string
+    stock: number
+    sku: string
+  }>
+  images: Array<{
+    id: string
+    url: string
+    alt: string
+    colorName: string | null
+    type: ProductImageType
+    sortOrder: number
+  }>
+  outgoingComboLinks: Array<{
+    targetProductId: string
+  }>
+}
 
 const defaultCategories = [
   {
@@ -96,21 +195,7 @@ function parseMultiline(value: string) {
     .filter(Boolean)
 }
 
-function mapDbProduct(
-  product: Prisma.ProductGetPayload<{
-    include: {
-      category: true
-      images: true
-      variants: true
-      reviews: true
-      orderItems: {
-        include: {
-          order: true
-        }
-      }
-    }
-  }>,
-): Product {
+function mapDbProduct(product: CatalogDbProduct): Product {
   const colorMap = new Map<string, { name: string; hex: string }>()
   for (const variant of product.variants) {
     if (!colorMap.has(variant.colorName)) {
@@ -135,7 +220,7 @@ function mapDbProduct(
 
   const paidSalesCount =
     product.baseSalesCount +
-    product.orderItems.reduce((total, item) => {
+    product.orderItems.reduce((total: number, item: CatalogDbProduct['orderItems'][number]) => {
       return item.order.paymentStatus === 'PAID' ? total + item.quantity : total
     }, 0)
 
@@ -158,9 +243,28 @@ function mapDbProduct(
     careInstructions: product.careInstructions,
     freeShippingUpsell: product.freeShippingUpsell,
     comboArmable: product.comboArmable,
+    comboSuggestions: product.outgoingComboLinks
+      .filter((link: CatalogDbProduct['outgoingComboLinks'][number]) => link.active)
+      .map((link: CatalogDbProduct['outgoingComboLinks'][number]) => ({
+        productId: link.targetProductId,
+        slug: slugify(link.targetProduct.slug || link.targetProduct.name),
+        name: link.targetProduct.name,
+        category: link.targetProduct.category.name,
+        price: link.targetProduct.price,
+        mainImageUrl: link.targetProduct.mainImageUrl ?? undefined,
+        discountPercent: link.discountPercent,
+      })),
+    comboEligibleFrom: product.incomingComboLinks
+      .filter((link: CatalogDbProduct['incomingComboLinks'][number]) => link.active)
+      .map((link: CatalogDbProduct['incomingComboLinks'][number]) => ({
+        productId: link.sourceProductId,
+        slug: slugify(link.sourceProduct.slug || link.sourceProduct.name),
+        name: link.sourceProduct.name,
+        discountPercent: link.discountPercent,
+      })),
     colors: Array.from(colorMap.values()),
     sizes: Array.from(sizeMap.values()),
-    variants: product.variants.map((variant) => ({
+    variants: product.variants.map((variant: CatalogDbProduct['variants'][number]) => ({
       id: variant.id,
       colorName: variant.colorName,
       colorHex: variant.colorHex,
@@ -168,7 +272,7 @@ function mapDbProduct(
       stock: variant.stock,
       sku: variant.sku,
     })),
-    images: product.images.map((image) => ({
+    images: product.images.map((image: CatalogDbProduct['images'][number]) => ({
       id: image.id,
       type: image.type,
       colorName: image.colorName ?? undefined,
@@ -177,9 +281,12 @@ function mapDbProduct(
       sortOrder: image.sortOrder || image.position,
     })),
     reviews: product.reviews
-      .filter((review) => review.approved)
-      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
-      .map((review) => ({
+      .filter((review: CatalogDbProduct['reviews'][number]) => review.approved)
+      .sort(
+        (a: CatalogDbProduct['reviews'][number], b: CatalogDbProduct['reviews'][number]) =>
+          b.createdAt.getTime() - a.createdAt.getTime(),
+      )
+      .map((review: CatalogDbProduct['reviews'][number]) => ({
         id: review.id,
         authorName: review.authorName,
         authorLocation: review.authorLocation ?? undefined,
@@ -199,21 +306,7 @@ export async function getCatalogProducts() {
 
     const items = await prisma.product.findMany({
       where: { status: ProductStatus.ACTIVE },
-      include: {
-        category: true,
-        images: {
-          orderBy: [{ sortOrder: 'asc' }, { position: 'asc' }],
-        },
-        variants: {
-          orderBy: [{ colorName: 'asc' }, { size: 'asc' }],
-        },
-        reviews: true,
-        orderItems: {
-          include: {
-            order: true,
-          },
-        },
-      },
+      include: catalogProductInclude,
       orderBy: [{ productStar: 'desc' }, { featured: 'desc' }, { createdAt: 'desc' }],
     })
 
@@ -258,21 +351,7 @@ export async function getFreeShippingUpsellProduct() {
         status: ProductStatus.ACTIVE,
         freeShippingUpsell: true,
       },
-      include: {
-        category: true,
-        images: {
-          orderBy: [{ sortOrder: 'asc' }, { position: 'asc' }],
-        },
-        variants: {
-          orderBy: [{ colorName: 'asc' }, { size: 'asc' }],
-        },
-        reviews: true,
-        orderItems: {
-          include: {
-            order: true,
-          },
-        },
-      },
+      include: catalogProductInclude,
       orderBy: { createdAt: 'desc' },
     })
 
@@ -286,16 +365,7 @@ export async function getAdminSnapshot() {
   const categories = await ensureBaseCategories()
   const [products, orders, customers, reviews] = await Promise.all([
     prisma.product.findMany({
-      include: {
-        category: true,
-        variants: true,
-        images: {
-          orderBy: [{ sortOrder: 'asc' }, { position: 'asc' }],
-        },
-        reviews: {
-          orderBy: { createdAt: 'desc' },
-        },
-      },
+      include: adminProductInclude,
       orderBy: { createdAt: 'desc' },
     }),
     prisma.order.findMany({
@@ -319,9 +389,54 @@ export async function getAdminSnapshot() {
       },
       orderBy: { createdAt: 'desc' },
     }),
-  ])
+  ] as const)
 
-  return { categories, products, orders, customers, reviews }
+  const adminProducts: AdminSnapshotProduct[] = products.map((product: AdminProductRecord) => ({
+    id: product.id,
+    name: product.name,
+    slug: product.slug,
+    animalType: product.animalType,
+    mainImageUrl: product.mainImageUrl,
+    videoUrl: product.videoUrl,
+    price: product.price,
+    baseSalesCount: product.baseSalesCount,
+    compareAtPrice: product.compareAtPrice,
+    shortDescription: product.shortDescription,
+    description: product.description,
+    categoryId: product.categoryId,
+    status: product.status,
+    useTags: product.useTags,
+    featureTags: product.featureTags,
+    materials: product.materials,
+    careInstructions: product.careInstructions,
+    featured: product.featured,
+    freeShippingUpsell: product.freeShippingUpsell,
+    comboArmable: product.comboArmable,
+    productStar: product.productStar,
+    category: {
+      name: product.category.name,
+    },
+    variants: product.variants.map((variant) => ({
+      colorName: variant.colorName,
+      colorHex: variant.colorHex,
+      size: variant.size,
+      stock: variant.stock,
+      sku: variant.sku,
+    })),
+    images: product.images.map((image) => ({
+      id: image.id,
+      url: image.url,
+      alt: image.alt,
+      colorName: image.colorName,
+      type: image.type,
+      sortOrder: image.sortOrder,
+    })),
+    outgoingComboLinks: product.outgoingComboLinks.map((link) => ({
+      targetProductId: link.targetProductId,
+    })),
+  }))
+
+  return { categories, products: adminProducts, orders, customers, reviews }
 }
 
 export async function saveProductAction(
@@ -347,6 +462,11 @@ export async function saveProductAction(
     const featureTags = parseCsv(String(formData.get('featureTags') ?? ''))
     const materials = parseMultiline(String(formData.get('materials') ?? ''))
     const careInstructions = parseMultiline(String(formData.get('careInstructions') ?? ''))
+    const comboProductIds = formData
+      .getAll('comboProductIds')
+      .map((value) => String(value).trim())
+      .filter(Boolean)
+      .filter((value, index, values) => values.indexOf(value) === index)
     const variantsRaw = parseMultiline(String(formData.get('variants') ?? ''))
     const rawImageColorAssignments = formData
       .getAll('imageColorAssignments')
@@ -622,6 +742,16 @@ export async function saveProductAction(
           featureTags,
           materials,
           careInstructions,
+          outgoingComboLinks: {
+            deleteMany: {},
+            create: comboProductIds
+              .filter((targetProductId) => targetProductId !== productId)
+              .map((targetProductId) => ({
+                targetProductId,
+                discountPercent: 25,
+                active: true,
+              })),
+          },
           variants: {
             deleteMany: {},
             create: variants,
@@ -661,6 +791,13 @@ export async function saveProductAction(
           featureTags,
           materials,
           careInstructions,
+          outgoingComboLinks: {
+            create: comboProductIds.map((targetProductId) => ({
+              targetProductId,
+              discountPercent: 25,
+              active: true,
+            })),
+          },
           variants: {
             create: variants,
           },

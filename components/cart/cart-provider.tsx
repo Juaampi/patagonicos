@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useMemo, useState, useSyncExternalStore } from 'react'
 import { trackAddToCart } from '@/lib/client/analytics'
-import { buildComboPricingSummary } from '@/lib/combo-pricing'
+import { buildCartPricingSummary } from '@/lib/combo-pricing'
 import type { CartItem } from '@/types/store'
 
 const CART_STORAGE_KEY = 'pa2-cart'
@@ -68,7 +68,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const value = useMemo<CartContextValue>(() => {
     const itemCount = items.reduce((total, item) => total + item.quantity, 0)
-    const subtotal = buildComboPricingSummary(items).payableSubtotal
+    const subtotal = buildCartPricingSummary(items).payableSubtotal
 
     return {
       isHydrated,

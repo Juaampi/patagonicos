@@ -20,6 +20,11 @@ export default async function EditAdminProductPage({
   return (
     <AdminProductEditorPage
       categories={snapshot.categories}
+      availableProducts={snapshot.products.map((product) => ({
+        id: product.id,
+        name: product.name,
+        categoryName: product.category.name,
+      }))}
       mode="edit"
       editProduct={{
         id: editProduct.id,
@@ -43,6 +48,7 @@ export default async function EditAdminProductPage({
         freeShippingUpsell: editProduct.freeShippingUpsell,
         comboArmable: editProduct.comboArmable,
         productStar: editProduct.productStar,
+        comboProductIds: editProduct.outgoingComboLinks.map((link) => link.targetProductId),
         variants: editProduct.variants.map((variant) => ({
           colorName: variant.colorName,
           colorHex: variant.colorHex,

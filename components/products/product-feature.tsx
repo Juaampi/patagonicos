@@ -4,6 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useMemo, useRef, useState } from 'react'
+import { useCart } from '@/components/cart/cart-provider'
 import { getColorImages, getMainImage, getProductColors, isColorOutOfStock } from '@/lib/variant-utils'
 import type { Product, ProductImage } from '@/types/store'
 import { formatPrice } from '@/lib/utils'
@@ -30,6 +31,7 @@ function getSalesBadgeLabel(count?: number) {
 }
 
 export function ProductFeature({ product }: { product: Product }) {
+  const { items } = useCart()
   const colors = getProductColors(product)
   const mainImage = getMainImage(product)
   const [selectedColor, setSelectedColor] = useState(colors[0]?.name ?? '')
@@ -37,6 +39,9 @@ export function ProductFeature({ product }: { product: Product }) {
   const touchStartXRef = useRef<number | null>(null)
   const selectedColorOutOfStock = selectedColor ? isColorOutOfStock(product, selectedColor) : false
   const salesBadgeLabel = getSalesBadgeLabel(product.salesCount)
+  const activeComboTrigger = product.comboEligibleFrom?.find((combo) =>
+    items.some((item) => item.productId === combo.productId),
+  )
 
   const gallery = useMemo(() => {
     const items: ProductImage[] = []
@@ -164,6 +169,11 @@ export function ProductFeature({ product }: { product: Product }) {
                 {product.comboArmable ? (
                   <div className="mt-4 inline-flex rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-emerald-800">
                     2x1 armable: llevás 2 y el 2do es gratis
+                  </div>
+                ) : null}
+                {activeComboTrigger ? (
+                  <div className="mt-3 inline-flex rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-sky-800">
+                    Combo activo: 25% off con la prenda que ya sumaste
                   </div>
                 ) : null}
               </div>

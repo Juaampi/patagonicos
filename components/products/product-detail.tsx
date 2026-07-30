@@ -248,6 +248,10 @@ export function ProductDetail({
   const currentProductQuantityInCart = items
     .filter((item) => item.productId === product.id)
     .reduce((total, item) => total + item.quantity, 0)
+  const activeComboTrigger = product.comboEligibleFrom?.find((combo) =>
+    items.some((item) => item.productId === combo.productId),
+  )
+  const comboSuggestions = product.comboSuggestions ?? []
   const [cartFeedback, setCartFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
   const [isAddingToCart, setIsAddingToCart] = useState(false)
   const [mobileButtonInView, setMobileButtonInView] = useState(false)
@@ -395,6 +399,10 @@ export function ProductDetail({
         price: product.price,
         compareAtPrice: product.compareAtPrice,
         comboArmable: product.comboArmable,
+        comboEligibleFrom: product.comboEligibleFrom?.map((combo) => ({
+          productId: combo.productId,
+          discountPercent: combo.discountPercent,
+        })),
         imageUrl: selectedColorImage?.url ?? product.mainImageUrl,
         imageAlt: selectedColorImage?.alt ?? product.name,
         colorName: selectedVariant.colorName,
@@ -504,6 +512,12 @@ export function ProductDetail({
             <div className="mt-4 rounded-[24px] border border-emerald-200 bg-[linear-gradient(135deg,#f5fbf7_0%,#edf7f1_52%,#e2f3ea_100%)] px-4 py-4">
               <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-emerald-800">Promo 2x1 armable</p>
               <p className="mt-2 text-sm leading-7 text-emerald-950">Llevando 2 de este producto, el 2do te queda gratis.</p>
+            </div>
+          ) : null}
+          {activeComboTrigger ? (
+            <div className="mt-4 rounded-[24px] border border-sky-200 bg-[linear-gradient(135deg,#f2f8ff_0%,#ebf5ff_100%)] px-4 py-4">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-sky-800">Combo activo</p>
+              <p className="mt-2 text-sm leading-7 text-sky-950">Si sumás esta prenda, entra con 25% de descuento por pertenecer al combo.</p>
             </div>
           ) : null}
           <p className="mt-4 max-w-[28rem] whitespace-pre-line text-sm leading-7 text-black/62">{product.shortDescription}</p>
@@ -751,6 +765,24 @@ export function ProductDetail({
               </span>
             </button>
             <AddToCartFeedback feedback={cartFeedback} />
+            {comboSuggestions.length > 0 ? (
+              <div className="mt-4 rounded-[24px] border border-sky-200 bg-[linear-gradient(135deg,#f2f8ff_0%,#ebf5ff_100%)] px-4 py-4">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-sky-800">Combiná esta prenda</p>
+                <div className="mt-3 space-y-3">
+                  {comboSuggestions.slice(0, 3).map((comboProduct) => (
+                    <Link key={comboProduct.productId} href={`/productos/${comboProduct.slug}`} className="flex items-center justify-between rounded-[18px] border border-sky-200 bg-white px-4 py-3 text-sm text-black/82 transition hover:border-black hover:bg-white">
+                      <span className="min-w-0">
+                        <span className="block font-medium">{comboProduct.name}</span>
+                        <span className="mt-1 block text-xs uppercase tracking-[0.12em] text-sky-700">
+                          {comboProduct.discountPercent}% off por combo
+                        </span>
+                      </span>
+                      <span className="text-sm font-semibold">{formatPrice(comboProduct.price)}</span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            ) : null}
           </div>
         </div>
       </div>
@@ -852,6 +884,11 @@ export function ProductDetail({
               {product.comboArmable ? (
                 <div className="mt-5 inline-flex rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-emerald-800">
                   2x1 armable: llevás 2 y el 2do es gratis
+                </div>
+              ) : null}
+              {activeComboTrigger ? (
+                <div className="mt-3 inline-flex rounded-full border border-sky-200 bg-sky-50 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-sky-800">
+                  Combo activo: esta prenda entra con 25% off
                 </div>
               ) : null}
             </div>
@@ -999,6 +1036,24 @@ export function ProductDetail({
             </span>
           </button>
           <AddToCartFeedback feedback={cartFeedback} />
+          {comboSuggestions.length > 0 ? (
+            <div className="mt-4 rounded-[24px] border border-sky-200 bg-[linear-gradient(135deg,#f2f8ff_0%,#ebf5ff_100%)] px-5 py-5">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-sky-800">Combiná esta prenda</p>
+              <div className="mt-4 grid gap-3">
+                {comboSuggestions.slice(0, 3).map((comboProduct) => (
+                  <Link key={comboProduct.productId} href={`/productos/${comboProduct.slug}`} className="flex items-center justify-between rounded-[18px] border border-sky-200 bg-white px-4 py-3 text-sm text-black/82 transition hover:border-black hover:bg-white">
+                    <span className="min-w-0">
+                      <span className="block font-medium">{comboProduct.name}</span>
+                      <span className="mt-1 block text-xs uppercase tracking-[0.12em] text-sky-700">
+                        {comboProduct.discountPercent}% off por combo
+                      </span>
+                    </span>
+                    <span className="text-sm font-semibold">{formatPrice(comboProduct.price)}</span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          ) : null}
 
         </div>
       </div>

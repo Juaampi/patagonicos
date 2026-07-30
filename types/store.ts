@@ -58,6 +58,21 @@ export type Product = {
   careInstructions: string[]
   freeShippingUpsell?: boolean
   comboArmable?: boolean
+  comboSuggestions?: Array<{
+    productId: string
+    slug: string
+    name: string
+    category: string
+    price: number
+    mainImageUrl?: string
+    discountPercent: number
+  }>
+  comboEligibleFrom?: Array<{
+    productId: string
+    slug: string
+    name: string
+    discountPercent: number
+  }>
   colors: ProductColor[]
   sizes: ProductSize[]
   variants: ProductVariant[]
@@ -86,6 +101,10 @@ export type CartItem = {
   salesChannel?: SalesChannel
   compareAtPrice?: number
   comboArmable?: boolean
+  comboEligibleFrom?: Array<{
+    productId: string
+    discountPercent: number
+  }>
   imageUrl?: string
   imageAlt?: string
   colorName: string
