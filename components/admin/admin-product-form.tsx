@@ -4,10 +4,15 @@ import Link from 'next/link'
 import { LoaderCircle, Plus, Trash2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useActionState, useEffect, useMemo, useState } from 'react'
-import { uploadProductImageFromBrowser, type UploadedCloudinaryAsset } from '@/lib/client/cloudinary-upload'
 import { saveProductAction } from '@/lib/server/catalog'
 import { OUT_OF_STOCK_PLACEHOLDER_SIZE } from '@/lib/variant-utils'
 import { AdminProductSubmit } from './admin-product-submit'
+
+type UploadedCloudinaryAsset = {
+  url: string
+  publicId: string
+  originalName: string
+}
 
 type CategoryOption = {
   id: string
@@ -271,108 +276,56 @@ export function AdminProductForm({
     )
   }
 
-  const uploadMainImage = async (file: File) => {
+  const markMainImageAsSelected = (file: File) => {
     setMainImage({
       fileName: file.name,
-      uploadedImage: null,
-      isUploading: true,
+      uploadedImage: {
+        url: '',
+        publicId: '',
+        originalName: file.name,
+      },
+      isUploading: false,
       uploadError: '',
     })
-
-    try {
-      const uploadedImage = await uploadProductImageFromBrowser(file)
-      setMainImage({
-        fileName: file.name,
-        uploadedImage,
-        isUploading: false,
-        uploadError: '',
-      })
-    } catch (error) {
-      setMainImage({
-        fileName: file.name,
-        uploadedImage: null,
-        isUploading: false,
-        uploadError: error instanceof Error ? error.message : 'No se pudo subir la imagen principal.',
-      })
-    }
   }
 
-  const uploadVariantImage = async (variantId: string, file: File) => {
+  const markVariantImageAsSelected = (variantId: string, file: File) => {
     setVariants((current) =>
       current.map((variant) =>
         variant.id === variantId
           ? {
               ...variant,
               newImageName: file.name,
-              uploadedImage: null,
-              isUploading: true,
+              uploadedImage: {
+                url: '',
+                publicId: '',
+                originalName: file.name,
+              },
+              isUploading: false,
               uploadError: '',
             }
           : variant,
       ),
     )
-
-    try {
-      const uploadedImage = await uploadProductImageFromBrowser(file)
-      setVariants((current) =>
-        current.map((variant) =>
-          variant.id === variantId
-            ? {
-                ...variant,
-                newImageName: file.name,
-                uploadedImage,
-                isUploading: false,
-                uploadError: '',
-              }
-            : variant,
-        ),
-      )
-    } catch (error) {
-      setVariants((current) =>
-        current.map((variant) =>
-          variant.id === variantId
-            ? {
-                ...variant,
-                newImageName: file.name,
-                uploadedImage: null,
-                isUploading: false,
-                uploadError: error instanceof Error ? error.message : 'No se pudo subir la imagen de la variante.',
-              }
-            : variant,
-        ),
-      )
-    }
   }
 
-  const uploadInfoImage = async (draftId: string, file: File) => {
-    try {
-      const uploadedImage = await uploadProductImageFromBrowser(file)
-      setInfoImages((current) =>
-        current.map((image) =>
-          image.id === draftId
-            ? {
-                ...image,
-                uploadedImage,
-                isUploading: false,
-                uploadError: '',
-              }
-            : image,
-        ),
-      )
-    } catch (error) {
-      setInfoImages((current) =>
-        current.map((image) =>
-          image.id === draftId
-            ? {
-                ...image,
-                uploadedImage: null,
-                isUploading: false,
-                uploadError: error instanceof Error ? error.message : 'No se pudo subir la imagen informativa.',
-              }
-            : image,
-        ),
-      )
-    }
+  const markInfoImageAsSelected = (draftId: string, file: File) => {
+    setInfoImages((current) =>
+      current.map((image) =>
+        image.id === draftId
+          ? {
+              ...image,
+              uploadedImage: {
+                url: '',
+                publicId: '',
+                originalName: file.name,
+              },
+              isUploading: false,
+              uploadError: '',
+            }
+          : image,
+      ),
+    )
   }
 
   const hasUploadingAssets =
@@ -469,6 +422,7 @@ export function AdminProductForm({
           Esta es la imagen global del producto. Se usa en cards, home, destacados y como primera imagen del detalle.
         </p>
         <input
+          name="mainImage"
           type="file"
           accept="image/*"
           className="mt-4 block w-full text-sm"
@@ -479,7 +433,7 @@ export function AdminProductForm({
               return
             }
 
-            void uploadMainImage(file)
+            markMainImageAsSelected(file)
           }}
         />
         {mainImage.fileName ? (
@@ -489,7 +443,7 @@ export function AdminProductForm({
               <span>{mainImage.fileName}</span>
             </div>
             {mainImage.uploadError ? <p className="mt-2 text-xs text-red-600">{mainImage.uploadError}</p> : null}
-            {mainImage.uploadedImage ? <p className="mt-2 text-xs text-emerald-700">Imagen subida y lista para guardar.</p> : null}
+            {mainImage.uploadedImage ? <p className="mt-2 text-xs text-emerald-700">Imagen seleccionada y lista para guardar.</p> : null}
           </div>
         ) : null}
         {editProduct?.mainImageUrl ? (
@@ -635,6 +589,7 @@ export function AdminProductForm({
                   <input type="hidden" name="uploadedVariantImageUrls" value={variant.uploadedImage?.url ?? ''} />
                   <input type="hidden" name="uploadedVariantImagePublicIds" value={variant.uploadedImage?.publicId ?? ''} />
                   <input
+                    name="images"
                     type="file"
                     accept="image/*"
                     className="mt-4 block w-full text-sm"
@@ -651,7 +606,7 @@ export function AdminProductForm({
                         return
                       }
 
-                      void uploadVariantImage(variant.id, file)
+                      markVariantImageAsSelected(variant.id, file)
                     }}
                   />
 
@@ -662,7 +617,7 @@ export function AdminProductForm({
                         <span>{variant.newImageName}</span>
                       </div>
                       {variant.uploadError ? <p className="mt-2 text-xs text-red-600">{variant.uploadError}</p> : null}
-                      {variant.uploadedImage ? <p className="mt-2 text-xs text-emerald-700">Imagen subida y lista para guardar.</p> : null}
+                      {variant.uploadedImage ? <p className="mt-2 text-xs text-emerald-700">Imagen seleccionada y lista para guardar.</p> : null}
                     </div>
                   ) : null}
 
@@ -714,6 +669,7 @@ export function AdminProductForm({
         </div>
 
         <input
+          name="infoImages"
           type="file"
           accept="image/*"
           multiple
@@ -733,7 +689,7 @@ export function AdminProductForm({
             drafts.forEach((draft, index) => {
               const file = files[index]
               if (!file) return
-              void uploadInfoImage(draft.id, file)
+              markInfoImageAsSelected(draft.id, file)
             })
           }}
         />
@@ -755,7 +711,7 @@ export function AdminProductForm({
                         <span>{image.fileName}</span>
                       </div>
                       {image.uploadError ? <p className="mt-2 text-xs text-red-600">{image.uploadError}</p> : null}
-                      {image.uploadedImage ? <p className="mt-2 text-xs text-emerald-700">Imagen subida y lista para guardar.</p> : null}
+                      {image.uploadedImage ? <p className="mt-2 text-xs text-emerald-700">Imagen seleccionada y lista para guardar.</p> : null}
                     </div>
                   </div>
                   <div>

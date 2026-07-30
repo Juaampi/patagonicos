@@ -15,7 +15,7 @@ Tienda online premium para indumentaria outdoor para perros en Bariloche, con es
 - Next.js + React
 - Tailwind CSS
 - Prisma + Neon Postgres
-- Cloudinary
+- Cloudinary opcional / almacenamiento local en `public/uploads`
 - Mercado Pago preparado
 - Emails transaccionales preparados
 - Deploy en Netlify
@@ -61,4 +61,5 @@ npm run seed
 - Carrito/checkout listo para crear orden pendiente.
 - Perfil con ingreso por email/magic link preparado.
 - Admin básico funcional para productos, órdenes y clientes.
-- Cloudinary, Mercado Pago y emails listos para conectar con credenciales reales.
+- Si configurás Cloudinary, las imágenes se suben ahí. Si no configurás esas credenciales, el admin guarda imágenes locales en `public/uploads`.
+- Mercado Pago y emails listos para conectar con credenciales reales.
