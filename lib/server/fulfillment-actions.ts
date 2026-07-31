@@ -13,6 +13,7 @@ import {
 import { prisma } from '@/lib/prisma'
 import { getOrderWhatsAppDeliveryInfo, updateDeliveryState } from '@/lib/server/delivery'
 import { generateOrderNumber, generateShortCode, queuePrintJobForOrder, syncApprovedPayment } from '@/lib/server/fulfillment'
+import { getEquivalentSizeLabels } from '@/lib/variant-utils'
 
 function revalidateAdminPaths(orderId?: string) {
   revalidatePath('/admin')
@@ -196,7 +197,9 @@ export async function markOrderUnpaidAction(formData: FormData) {
           where: {
             productId: item.productId,
             colorName: item.colorName,
-            size: item.size,
+            size: {
+              in: getEquivalentSizeLabels(item.size),
+            },
           },
           data: {
             stock: {
@@ -273,7 +276,9 @@ export async function markOrderCancelledAction(formData: FormData) {
           where: {
             productId: item.productId,
             colorName: item.colorName,
-            size: item.size,
+            size: {
+              in: getEquivalentSizeLabels(item.size),
+            },
           },
           data: {
             stock: {

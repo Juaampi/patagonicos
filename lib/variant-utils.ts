@@ -3,6 +3,11 @@ import type { Product, ProductColor, ProductImage, ProductVariant } from '@/type
 export const OUT_OF_STOCK_PLACEHOLDER_SIZE = '__OUT_OF_STOCK__'
 
 const SIZE_PRIORITY = ['XXXS', 'XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL', 'XXXXL']
+const SIZE_ALIAS_GROUPS = [
+  ['XXL', '2XL'],
+  ['XXXL', '3XL'],
+  ['XXXXL', '4XL'],
+] as const
 
 export type ProductGalleryItem =
   | { kind: 'image'; id: string; image: ProductImage }
@@ -16,11 +21,28 @@ function compareStockPriority(leftInStock: boolean, rightInStock: boolean) {
   return leftInStock ? -1 : 1
 }
 
-function normalizeSizeLabel(value: string) {
-  return value
+export function normalizeSizeLabel(value: string) {
+  const normalized = value
     .trim()
     .toUpperCase()
     .replace(/\s+/g, '')
+
+  const aliasGroup = SIZE_ALIAS_GROUPS.find((group) => group.includes(normalized as (typeof group)[number]))
+  return aliasGroup?.[0] ?? normalized
+}
+
+export function getEquivalentSizeLabels(value: string) {
+  const normalized = value
+    .trim()
+    .toUpperCase()
+    .replace(/\s+/g, '')
+  const aliasGroup = SIZE_ALIAS_GROUPS.find((group) => group.includes(normalized as (typeof group)[number]))
+
+  if (!aliasGroup) {
+    return [normalized]
+  }
+
+  return Array.from(new Set([aliasGroup[0], ...aliasGroup]))
 }
 
 export function compareProductSizes(left: string, right: string) {

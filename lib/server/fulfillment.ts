@@ -26,6 +26,7 @@ import {
   WHOLESALE_MIN_UNITS,
   WHOLESALE_MIN_UNITS_PER_MODEL_COLOR,
 } from '@/lib/wholesale'
+import { getEquivalentSizeLabels } from '@/lib/variant-utils'
 
 const PAYMENT_EMAIL_SENT_MARKER = '[system] payment-email-sent'
 
@@ -214,6 +215,12 @@ function getReadyStatusForPaidOrder(shippingMethod: ShippingMethod) {
     : OrderStatus.READY_FOR_NATIONAL_SHIPPING
 }
 
+function buildVariantSizeWhere(size: string) {
+  return {
+    in: getEquivalentSizeLabels(size),
+  }
+}
+
 export async function queuePrintJobForOrder(orderId: string) {
   const order = await prisma.order.findUnique({
     where: { id: orderId },
@@ -292,7 +299,7 @@ export async function syncApprovedPayment(
           where: {
             productId: item.productId,
             colorName: item.colorName,
-            size: item.size,
+            size: buildVariantSizeWhere(item.size),
             stock: {
               gte: item.quantity,
             },
@@ -526,7 +533,8 @@ export async function createOrderFromCheckout(input: {
       }
 
       const variant = product.variants.find(
-        (candidate) => candidate.colorName === item.colorName && candidate.size === item.size,
+        (candidate) =>
+          candidate.colorName === item.colorName && getEquivalentSizeLabels(item.size).includes(candidate.size),
       )
 
       if (!variant) {
