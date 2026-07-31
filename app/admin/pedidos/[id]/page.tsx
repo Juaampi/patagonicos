@@ -25,6 +25,36 @@ function getExchangeStatusLabel(status: string) {
   return labels[status] ?? status
 }
 
+function splitFullName(fullName?: string | null) {
+  const normalized = (fullName ?? '').trim().replace(/\s+/g, ' ')
+  if (!normalized) {
+    return { firstName: '', lastName: '' }
+  }
+
+  const parts = normalized.split(' ')
+  if (parts.length === 1) {
+    return { firstName: parts[0], lastName: '' }
+  }
+
+  return {
+    firstName: parts.slice(0, -1).join(' '),
+    lastName: parts.slice(-1).join(' '),
+  }
+}
+
+function parseStreetAddress(line1?: string | null) {
+  const raw = (line1 ?? '').trim()
+  if (!raw) {
+    return { streetName: '', streetNumber: '' }
+  }
+
+  const match = raw.match(/^(.*?)(?:\s+(\d+[A-Za-z0-9/-]*))?$/)
+  return {
+    streetName: (match?.[1] ?? raw).trim(),
+    streetNumber: (match?.[2] ?? '').trim(),
+  }
+}
+
 export default async function AdminOrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const order = await getOrderForTicket(id)
@@ -36,6 +66,25 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
   const pinUrl = buildGoogleMapsPinUrl(order.address?.latitude, order.address?.longitude)
   const andreaniTrackerUrl = getAndreaniTrackingUrl()
   const replacementContext = order.replacementExchangeRequests?.[0]
+  const derivedName = splitFullName(order.customer.fullName)
+  const derivedStreet = parseStreetAddress(order.address?.line1)
+  const andreaniFirstName = order.address?.recipientFirstName?.trim() || derivedName.firstName
+  const andreaniLastName = order.address?.recipientLastName?.trim() || derivedName.lastName
+  const andreaniStreetName = order.address?.streetName?.trim() || derivedStreet.streetName
+  const andreaniStreetNumber = order.address?.streetNumber?.trim() || derivedStreet.streetNumber
+  const andreaniMissingFields = [
+    !andreaniFirstName ? 'Nombre' : null,
+    !andreaniLastName ? 'Apellido' : null,
+    !order.address?.recipientDni?.trim() ? 'DNI' : null,
+    !order.customer.email?.trim() ? 'Email' : null,
+    !order.address?.phoneAreaCode?.trim() ? 'Código celular' : null,
+    !order.address?.phoneNumber?.trim() ? 'Número celular' : null,
+    !andreaniStreetName ? 'Calle' : null,
+    !andreaniStreetNumber ? 'Número' : null,
+    !order.address?.province?.trim() ? 'Provincia' : null,
+    !order.address?.city?.trim() ? 'Localidad' : null,
+    !order.address?.postalCode?.trim() ? 'Código postal' : null,
+  ].filter(Boolean) as string[]
 
   return (
     <AdminShell>
@@ -280,6 +329,95 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
                     Abrir Andreani
                   </Link>
                 </div>
+              </div>
+            </div>
+
+            <div className="rounded-[24px] border border-black/8 p-5">
+              <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                <div>
+                  <h2 className="text-lg font-semibold text-black/82">Para Andreani</h2>
+                  <p className="mt-1 text-sm text-black/56">Datos del destinatario y domicilio tal como los necesita el despacho.</p>
+                </div>
+                {andreaniMissingFields.length > 0 ? (
+                  <div className="rounded-[18px] border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                    Faltan: {andreaniMissingFields.join(', ')}
+                  </div>
+                ) : (
+                  <div className="rounded-[18px] border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
+                    Completo para despachar
+                  </div>
+                )}
+              </div>
+
+              <div className="mt-4 grid gap-3 md:grid-cols-2">
+                <div className="rounded-[18px] border border-black/8 bg-[#faf8f5] px-4 py-3">
+                  <p className="text-[11px] uppercase tracking-[0.16em] text-black/42">Nombre</p>
+                  <p className="mt-2 text-sm font-medium text-black/82">{andreaniFirstName || 'Falta completar'}</p>
+                </div>
+                <div className="rounded-[18px] border border-black/8 bg-[#faf8f5] px-4 py-3">
+                  <p className="text-[11px] uppercase tracking-[0.16em] text-black/42">Apellido</p>
+                  <p className="mt-2 text-sm font-medium text-black/82">{andreaniLastName || 'Falta completar'}</p>
+                </div>
+                <div className="rounded-[18px] border border-black/8 bg-[#faf8f5] px-4 py-3">
+                  <p className="text-[11px] uppercase tracking-[0.16em] text-black/42">DNI</p>
+                  <p className="mt-2 text-sm font-medium text-black/82">{order.address?.recipientDni ?? 'Falta completar'}</p>
+                </div>
+                <div className="rounded-[18px] border border-black/8 bg-[#faf8f5] px-4 py-3">
+                  <p className="text-[11px] uppercase tracking-[0.16em] text-black/42">Email</p>
+                  <p className="mt-2 text-sm font-medium text-black/82">{order.customer.email || 'Falta completar'}</p>
+                </div>
+                <div className="rounded-[18px] border border-black/8 bg-[#faf8f5] px-4 py-3">
+                  <p className="text-[11px] uppercase tracking-[0.16em] text-black/42">Celular código</p>
+                  <p className="mt-2 text-sm font-medium text-black/82">{order.address?.phoneAreaCode ?? 'Falta completar'}</p>
+                </div>
+                <div className="rounded-[18px] border border-black/8 bg-[#faf8f5] px-4 py-3">
+                  <p className="text-[11px] uppercase tracking-[0.16em] text-black/42">Celular número</p>
+                  <p className="mt-2 text-sm font-medium text-black/82">{order.address?.phoneNumber ?? 'Falta completar'}</p>
+                </div>
+                <div className="rounded-[18px] border border-black/8 bg-[#faf8f5] px-4 py-3">
+                  <p className="text-[11px] uppercase tracking-[0.16em] text-black/42">Calle</p>
+                  <p className="mt-2 text-sm font-medium text-black/82">{andreaniStreetName || 'Falta completar'}</p>
+                </div>
+                <div className="rounded-[18px] border border-black/8 bg-[#faf8f5] px-4 py-3">
+                  <p className="text-[11px] uppercase tracking-[0.16em] text-black/42">Número</p>
+                  <p className="mt-2 text-sm font-medium text-black/82">{andreaniStreetNumber || 'Falta completar'}</p>
+                </div>
+                <div className="rounded-[18px] border border-black/8 bg-[#faf8f5] px-4 py-3">
+                  <p className="text-[11px] uppercase tracking-[0.16em] text-black/42">Piso</p>
+                  <p className="mt-2 text-sm font-medium text-black/82">{order.address?.floor ?? 'Sin piso'}</p>
+                </div>
+                <div className="rounded-[18px] border border-black/8 bg-[#faf8f5] px-4 py-3">
+                  <p className="text-[11px] uppercase tracking-[0.16em] text-black/42">Departamento</p>
+                  <p className="mt-2 text-sm font-medium text-black/82">{order.address?.apartment ?? 'Sin departamento'}</p>
+                </div>
+                <div className="rounded-[18px] border border-black/8 bg-[#faf8f5] px-4 py-3">
+                  <p className="text-[11px] uppercase tracking-[0.16em] text-black/42">Provincia</p>
+                  <p className="mt-2 text-sm font-medium text-black/82">{order.address?.province ?? 'Falta completar'}</p>
+                </div>
+                <div className="rounded-[18px] border border-black/8 bg-[#faf8f5] px-4 py-3">
+                  <p className="text-[11px] uppercase tracking-[0.16em] text-black/42">Localidad</p>
+                  <p className="mt-2 text-sm font-medium text-black/82">{order.address?.city ?? 'Falta completar'}</p>
+                </div>
+                <div className="rounded-[18px] border border-black/8 bg-[#faf8f5] px-4 py-3">
+                  <p className="text-[11px] uppercase tracking-[0.16em] text-black/42">Código postal</p>
+                  <p className="mt-2 text-sm font-medium text-black/82">{order.address?.postalCode ?? 'Falta completar'}</p>
+                </div>
+                <div className="rounded-[18px] border border-black/8 bg-[#faf8f5] px-4 py-3">
+                  <p className="text-[11px] uppercase tracking-[0.16em] text-black/42">Interno</p>
+                  <p className="mt-2 text-sm font-medium text-black/82">{order.shortCode ?? order.orderNumber}</p>
+                </div>
+              </div>
+
+              <div className="mt-3 rounded-[18px] border border-black/8 bg-[#faf8f5] px-4 py-3">
+                <p className="text-[11px] uppercase tracking-[0.16em] text-black/42">Provincia / Localidad / CP</p>
+                <p className="mt-2 text-sm font-medium text-black/82">
+                  {[order.address?.province, order.address?.city, order.address?.postalCode].filter(Boolean).join(' / ') || 'Falta completar'}
+                </p>
+              </div>
+
+              <div className="mt-3 rounded-[18px] border border-black/8 bg-[#faf8f5] px-4 py-3">
+                <p className="text-[11px] uppercase tracking-[0.16em] text-black/42">Observaciones</p>
+                <p className="mt-2 text-sm font-medium text-black/82">{order.notes?.trim() || 'Sin observaciones'}</p>
               </div>
             </div>
 
