@@ -9,6 +9,10 @@ const SIZE_ALIAS_GROUPS = [
   ['XXXXL', '4XL'],
 ] as const
 
+function findAliasGroup(normalized: string) {
+  return SIZE_ALIAS_GROUPS.find((group) => group.some((alias) => alias === normalized))
+}
+
 export type ProductGalleryItem =
   | { kind: 'image'; id: string; image: ProductImage }
   | { kind: 'video'; id: string; url: string }
@@ -27,7 +31,7 @@ export function normalizeSizeLabel(value: string) {
     .toUpperCase()
     .replace(/\s+/g, '')
 
-  const aliasGroup = SIZE_ALIAS_GROUPS.find((group) => group.includes(normalized as (typeof group)[number]))
+  const aliasGroup = findAliasGroup(normalized)
   return aliasGroup?.[0] ?? normalized
 }
 
@@ -36,7 +40,7 @@ export function getEquivalentSizeLabels(value: string) {
     .trim()
     .toUpperCase()
     .replace(/\s+/g, '')
-  const aliasGroup = SIZE_ALIAS_GROUPS.find((group) => group.includes(normalized as (typeof group)[number]))
+  const aliasGroup = findAliasGroup(normalized)
 
   if (!aliasGroup) {
     return [normalized]
