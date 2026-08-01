@@ -3,7 +3,7 @@ import { BarilocheDeliveryCountdown } from '@/components/marketing/bariloche-del
 import { Logo } from '@/components/brand/logo'
 import type { StoreSettingsSnapshot } from '@/lib/store-settings'
 
-const instagramUrl = 'https://www.instagram.com/patagonicos.ok/'
+const instagramUrl = 'https://www.instagram.com/patagonicos.tienda/'
 
 function InstagramGlyph({ className = 'h-4 w-4' }: { className?: string }) {
   return (
@@ -31,7 +31,7 @@ export function SiteFooter({ settings }: { settings: StoreSettingsSnapshot }) {
             className="mt-5 inline-flex items-center gap-2 rounded-full border border-black/10 bg-[#fafaf8] px-4 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-black/76 transition hover:bg-black hover:text-white"
           >
             <InstagramGlyph className="h-4 w-4" />
-            @patagonicos.ok
+            @patagonicos.tienda
           </Link>
         </div>
         <div>
