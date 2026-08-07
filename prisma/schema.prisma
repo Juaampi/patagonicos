@@ -161,6 +161,7 @@ model Product {
   categoryId        String
   category          Category         @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   variants          ProductVariant[]
+  sizeGuides        ProductSizeGuide[]
   images            ProductImage[]
   reviews           ProductReview[]
   orderItems        OrderItem[]
@@ -201,6 +202,27 @@ model ProductVariant {
   updatedAt   DateTime @updatedAt
 
   @@map("pa2_product_variants")
+}
+
+model ProductSizeGuide {
+  id          String   @id @default(cuid())
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  sizeLabel   String
+  chestMin    Int?
+  chestMax    Int?
+  backMin     Int?
+  backMax     Int?
+  neckMin     Int?
+  neckMax     Int?
+  weightMinKg Int?
+  weightMaxKg Int?
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([productId, sizeLabel])
+  @@map("pa2_product_size_guides")
 }
 
 model ProductImage {
@@ -387,6 +409,7 @@ model StoreSettings {
   barilocheCutoffMinute      Int      @default(30)
   barilocheEnabled           Boolean  @default(false)
   barilocheDiscountPercent   Int      @default(10)
+  petSizeFinderEnabled       Boolean  @default(false)
   createdAt                  DateTime @default(now())
   updatedAt                  DateTime @updatedAt
 

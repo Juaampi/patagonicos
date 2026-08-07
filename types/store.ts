@@ -7,6 +7,8 @@ export type ProductSize = {
   label: string
   chest: string
   length: string
+  neck?: string
+  weight?: string
 }
 
 export type ProductImage = {
@@ -75,6 +77,17 @@ export type Product = {
   }>
   colors: ProductColor[]
   sizes: ProductSize[]
+  sizeGuides?: Array<{
+    sizeLabel: string
+    chestMin?: number
+    chestMax?: number
+    backMin?: number
+    backMax?: number
+    neckMin?: number
+    neckMax?: number
+    weightMinKg?: number
+    weightMaxKg?: number
+  }>
   variants: ProductVariant[]
   images: ProductImage[]
   reviews: ProductReview[]

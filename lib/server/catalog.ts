@@ -18,6 +18,9 @@ const catalogProductInclude = Prisma.validator<Prisma.ProductInclude>()({
   variants: {
     orderBy: [{ colorName: 'asc' }, { size: 'asc' }],
   },
+  sizeGuides: {
+    orderBy: [{ sortOrder: 'asc' }, { sizeLabel: 'asc' }],
+  },
   outgoingComboLinks: {
     include: {
       targetProduct: {
@@ -43,6 +46,9 @@ const catalogProductInclude = Prisma.validator<Prisma.ProductInclude>()({
 const adminProductInclude = Prisma.validator<Prisma.ProductInclude>()({
   category: true,
   variants: true,
+  sizeGuides: {
+    orderBy: [{ sortOrder: 'asc' }, { sizeLabel: 'asc' }],
+  },
   images: {
     orderBy: [{ sortOrder: 'asc' }, { position: 'asc' }],
   },
@@ -95,6 +101,18 @@ export type AdminSnapshotProduct = {
     size: string
     stock: number
     sku: string
+  }>
+  sizeGuides: Array<{
+    sizeLabel: string
+    chestMin: number | null
+    chestMax: number | null
+    backMin: number | null
+    backMax: number | null
+    neckMin: number | null
+    neckMax: number | null
+    weightMinKg: number | null
+    weightMaxKg: number | null
+    sortOrder: number
   }>
   images: Array<{
     id: string
@@ -195,6 +213,36 @@ function parseMultiline(value: string) {
     .filter(Boolean)
 }
 
+function parseOptionalInt(value: string) {
+  const normalized = value.trim()
+  if (!normalized) {
+    return null
+  }
+
+  const parsed = Number(normalized)
+  if (!Number.isFinite(parsed) || parsed < 0) {
+    throw new Error(`Valor inválido en guía de talles: ${value}`)
+  }
+
+  return Math.round(parsed)
+}
+
+function formatRange(min?: number | null, max?: number | null, unit = 'cm') {
+  if (min == null && max == null) {
+    return '-'
+  }
+
+  if (min != null && max != null) {
+    return min === max ? `${min} ${unit}` : `${min}-${max} ${unit}`
+  }
+
+  if (min != null) {
+    return `Desde ${min} ${unit}`
+  }
+
+  return `Hasta ${max} ${unit}`
+}
+
 function mapDbProduct(product: CatalogDbProduct): Product {
   const colorMap = new Map<string, { name: string; hex: string }>()
   for (const variant of product.variants) {
@@ -206,16 +254,28 @@ function mapDbProduct(product: CatalogDbProduct): Product {
     }
   }
 
-  const sizeMap = new Map<string, { label: string; chest: string; length: string }>()
+  const sizeMap = new Map<string, { label: string; chest: string; length: string; neck?: string; weight?: string }>()
+  for (const guide of product.sizeGuides) {
+    sizeMap.set(guide.sizeLabel, {
+      label: guide.sizeLabel,
+      chest: formatRange(guide.chestMin, guide.chestMax),
+      length: formatRange(guide.backMin, guide.backMax),
+      neck: formatRange(guide.neckMin, guide.neckMax),
+      weight: formatRange(guide.weightMinKg, guide.weightMaxKg, 'kg'),
+    })
+  }
+
   for (const variant of product.variants) {
     if (variant.size === OUT_OF_STOCK_PLACEHOLDER_SIZE) {
       continue
     }
-    sizeMap.set(variant.size, {
-      label: variant.size,
-      chest: '-',
-      length: '-',
-    })
+    if (!sizeMap.has(variant.size)) {
+      sizeMap.set(variant.size, {
+        label: variant.size,
+        chest: '-',
+        length: '-',
+      })
+    }
   }
 
   const paidSalesCount =
@@ -264,6 +324,17 @@ function mapDbProduct(product: CatalogDbProduct): Product {
       })),
     colors: Array.from(colorMap.values()),
     sizes: Array.from(sizeMap.values()),
+    sizeGuides: product.sizeGuides.map((guide: CatalogDbProduct['sizeGuides'][number]) => ({
+      sizeLabel: guide.sizeLabel,
+      chestMin: guide.chestMin ?? undefined,
+      chestMax: guide.chestMax ?? undefined,
+      backMin: guide.backMin ?? undefined,
+      backMax: guide.backMax ?? undefined,
+      neckMin: guide.neckMin ?? undefined,
+      neckMax: guide.neckMax ?? undefined,
+      weightMinKg: guide.weightMinKg ?? undefined,
+      weightMaxKg: guide.weightMaxKg ?? undefined,
+    })),
     variants: product.variants.map((variant: CatalogDbProduct['variants'][number]) => ({
       id: variant.id,
       colorName: variant.colorName,
@@ -423,6 +494,18 @@ export async function getAdminSnapshot() {
       stock: variant.stock,
       sku: variant.sku,
     })),
+    sizeGuides: product.sizeGuides.map((guide) => ({
+      sizeLabel: guide.sizeLabel,
+      chestMin: guide.chestMin,
+      chestMax: guide.chestMax,
+      backMin: guide.backMin,
+      backMax: guide.backMax,
+      neckMin: guide.neckMin,
+      neckMax: guide.neckMax,
+      weightMinKg: guide.weightMinKg,
+      weightMaxKg: guide.weightMaxKg,
+      sortOrder: guide.sortOrder,
+    })),
     images: product.images.map((image) => ({
       id: image.id,
       url: image.url,
@@ -462,6 +545,7 @@ export async function saveProductAction(
     const featureTags = parseCsv(String(formData.get('featureTags') ?? ''))
     const materials = parseMultiline(String(formData.get('materials') ?? ''))
     const careInstructions = parseMultiline(String(formData.get('careInstructions') ?? ''))
+    const sizeGuidesRaw = parseMultiline(String(formData.get('sizeGuides') ?? ''))
     const comboProductIds = formData
       .getAll('comboProductIds')
       .map((value) => String(value).trim())
@@ -607,6 +691,29 @@ export async function saveProductAction(
           `${slug}-${colorName}-${size === OUT_OF_STOCK_PLACEHOLDER_SIZE ? 'sin-stock' : size}`
             .toLowerCase()
             .replace(/\s+/g, '-'),
+      }
+    })
+
+    const sizeGuides = sizeGuidesRaw.map((line, index) => {
+      const [sizeLabel, chestMin, chestMax, backMin, backMax, neckMin, neckMax, weightMinKg, weightMaxKg, sortOrderValue] = line
+        .split('|')
+        .map((item) => item.trim())
+
+      if (!sizeLabel) {
+        throw new Error(`La fila ${index + 1} de medidas no tiene talle.`)
+      }
+
+      return {
+        sizeLabel,
+        chestMin: parseOptionalInt(chestMin),
+        chestMax: parseOptionalInt(chestMax),
+        backMin: parseOptionalInt(backMin),
+        backMax: parseOptionalInt(backMax),
+        neckMin: parseOptionalInt(neckMin),
+        neckMax: parseOptionalInt(neckMax),
+        weightMinKg: parseOptionalInt(weightMinKg),
+        weightMaxKg: parseOptionalInt(weightMaxKg),
+        sortOrder: parseOptionalInt(sortOrderValue) ?? index,
       }
     })
 
@@ -756,6 +863,10 @@ export async function saveProductAction(
             deleteMany: {},
             create: variants,
           },
+          sizeGuides: {
+            deleteMany: {},
+            create: sizeGuides,
+          },
           images: {
             ...(replaceImages
               ? { deleteMany: {} }
@@ -800,6 +911,9 @@ export async function saveProductAction(
           },
           variants: {
             create: variants,
+          },
+          sizeGuides: {
+            create: sizeGuides,
           },
           images: {
             create: [...imageUploads, ...infoImageUploads],

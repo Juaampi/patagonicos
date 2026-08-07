@@ -58,6 +58,7 @@ export async function updateStoreSettingsAction(
         barilocheCutoffMinute: readIntField(formData, 'barilocheCutoffMinute'),
         barilocheDiscountPercent: readIntField(formData, 'barilocheDiscountPercent'),
         barilocheEnabled: formData.get('barilocheEnabled') === 'on',
+        petSizeFinderEnabled: String(formData.get('petSizeFinderEnabled') ?? 'false') === 'true',
       },
       create: {
         id: 'default',
@@ -68,6 +69,7 @@ export async function updateStoreSettingsAction(
         barilocheCutoffMinute: readIntField(formData, 'barilocheCutoffMinute'),
         barilocheDiscountPercent: readIntField(formData, 'barilocheDiscountPercent'),
         barilocheEnabled: formData.get('barilocheEnabled') === 'on',
+        petSizeFinderEnabled: String(formData.get('petSizeFinderEnabled') ?? 'false') === 'true',
       },
     })
   } catch (error) {
@@ -83,6 +85,7 @@ export async function updateStoreSettingsAction(
   revalidatePath('/admin')
   revalidatePath('/admin/configuracion')
   revalidatePath('/productos')
+  revalidatePath('/productos/[slug]', 'page')
 
   return {
     status: 'success',

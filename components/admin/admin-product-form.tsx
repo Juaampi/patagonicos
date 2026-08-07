@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 import { useActionState, useEffect, useMemo, useState } from 'react'
 import { uploadProductImageFromBrowser, type UploadedCloudinaryAsset } from '@/lib/client/cloudinary-upload'
 import { saveProductAction } from '@/lib/server/catalog'
-import { OUT_OF_STOCK_PLACEHOLDER_SIZE } from '@/lib/variant-utils'
+import { compareProductSizes, OUT_OF_STOCK_PLACEHOLDER_SIZE } from '@/lib/variant-utils'
 import { AdminProductSubmit } from './admin-product-submit'
 
 type CategoryOption = {
@@ -44,6 +44,18 @@ type EditProduct = {
   productStar: boolean
   comboProductIds: string[]
   variants: Array<{ colorName: string; colorHex: string; size: string; stock: number; sku: string }>
+  sizeGuides: Array<{
+    sizeLabel: string
+    chestMin?: number | null
+    chestMax?: number | null
+    backMin?: number | null
+    backMax?: number | null
+    neckMin?: number | null
+    neckMax?: number | null
+    weightMinKg?: number | null
+    weightMaxKg?: number | null
+    sortOrder: number
+  }>
   images: Array<{ id: string; url: string; alt: string; colorName?: string; type: 'MAIN' | 'COLOR' | 'INFO' | 'LIFESTYLE'; sortOrder: number }>
 }
 
@@ -74,6 +86,20 @@ type MainImageDraft = {
   uploadedImage: UploadedCloudinaryAsset | null
   isUploading: boolean
   uploadError: string
+}
+
+type SizeGuideDraft = {
+  id: string
+  sizeLabel: string
+  chestMin: string
+  chestMax: string
+  backMin: string
+  backMax: string
+  neckMin: string
+  neckMax: string
+  weightMinKg: string
+  weightMaxKg: string
+  sortOrder: string
 }
 
 const initialState = {
@@ -149,6 +175,22 @@ function getSkuBaseFromVariant(sku: string, size: string) {
   return sku.endsWith(`-${normalizedSizeSuffix}`) ? sku.slice(0, -(normalizedSizeSuffix.length + 1)) : sku
 }
 
+function createSizeGuideDraft(sizeLabel = '', sortOrder = 0): SizeGuideDraft {
+  return {
+    id: crypto.randomUUID(),
+    sizeLabel,
+    chestMin: '',
+    chestMax: '',
+    backMin: '',
+    backMax: '',
+    neckMin: '',
+    neckMax: '',
+    weightMinKg: '',
+    weightMaxKg: '',
+    sortOrder: String(sortOrder),
+  }
+}
+
 export function AdminProductForm({
   categories,
   availableProducts,
@@ -213,6 +255,23 @@ export function AdminProductForm({
     isUploading: false,
     uploadError: '',
   })
+  const [sizeGuides, setSizeGuides] = useState<SizeGuideDraft[]>(
+    editProduct?.sizeGuides.length
+      ? editProduct.sizeGuides.map((guide, index) => ({
+          id: `${guide.sizeLabel}-${index}`,
+          sizeLabel: guide.sizeLabel,
+          chestMin: guide.chestMin?.toString() ?? '',
+          chestMax: guide.chestMax?.toString() ?? '',
+          backMin: guide.backMin?.toString() ?? '',
+          backMax: guide.backMax?.toString() ?? '',
+          neckMin: guide.neckMin?.toString() ?? '',
+          neckMax: guide.neckMax?.toString() ?? '',
+          weightMinKg: guide.weightMinKg?.toString() ?? '',
+          weightMaxKg: guide.weightMaxKg?.toString() ?? '',
+          sortOrder: String(guide.sortOrder ?? index),
+        }))
+      : [],
+  )
   const [removedImageIds, setRemovedImageIds] = useState<string[]>([])
   const [infoImages, setInfoImages] = useState<InfoImageDraft[]>([])
 
@@ -264,11 +323,32 @@ export function AdminProductForm({
       )
     })
     .join('\n')
+  const sizeGuidePayload = sizeGuides
+    .map((guide) =>
+      [
+        normalizeSize(guide.sizeLabel),
+        guide.chestMin.trim(),
+        guide.chestMax.trim(),
+        guide.backMin.trim(),
+        guide.backMax.trim(),
+        guide.neckMin.trim(),
+        guide.neckMax.trim(),
+        guide.weightMinKg.trim(),
+        guide.weightMaxKg.trim(),
+        guide.sortOrder.trim(),
+      ].join('|'),
+    )
+    .filter((line) => line.split('|')[0])
+    .join('\n')
 
   const updateVariant = (id: string, field: keyof VariantDraft, value: string) => {
     setVariants((current) =>
       current.map((variant) => (variant.id === id ? { ...variant, [field]: value } : variant)),
     )
+  }
+
+  const updateSizeGuide = (id: string, field: keyof SizeGuideDraft, value: string) => {
+    setSizeGuides((current) => current.map((guide) => (guide.id === id ? { ...guide, [field]: value } : guide)))
   }
 
   const uploadMainImage = async (file: File) => {
@@ -381,6 +461,32 @@ export function AdminProductForm({
     infoImages.some((image) => image.isUploading)
 
   useEffect(() => {
+    const sizeSet = new Set<string>()
+    for (const variant of variants) {
+      for (const entry of parseSizeStockInput(variant.sizeStocks)) {
+        sizeSet.add(normalizeSize(entry.size))
+      }
+    }
+
+    const normalizedSizes = Array.from(sizeSet).sort(compareProductSizes)
+    if (normalizedSizes.length === 0) {
+      return
+    }
+
+    setSizeGuides((current) => {
+      const existingSizes = new Set(current.map((guide) => normalizeSize(guide.sizeLabel)).filter(Boolean))
+      const missingSizes = normalizedSizes.filter((size) => !existingSizes.has(size))
+
+      if (missingSizes.length === 0) {
+        return current
+      }
+
+      const startIndex = current.length
+      return [...current, ...missingSizes.map((size, index) => createSizeGuideDraft(size, startIndex + index))]
+    })
+  }, [variants])
+
+  useEffect(() => {
     if (state.status === 'success' && state.redirectTo) {
       router.push(state.redirectTo)
       router.refresh()
@@ -403,6 +509,7 @@ export function AdminProductForm({
       ) : null}
       {editProduct ? <input type="hidden" name="productId" value={editProduct.id} /> : null}
       <input type="hidden" name="variants" value={variantPayload} />
+      <input type="hidden" name="sizeGuides" value={sizeGuidePayload} />
       <input type="hidden" name="uploadedMainImageUrl" value={mainImage.uploadedImage?.url ?? ''} />
       <input type="hidden" name="uploadedMainImagePublicId" value={mainImage.uploadedImage?.publicId ?? ''} />
       {removedImageIds.map((imageId) => (
@@ -699,6 +806,145 @@ export function AdminProductForm({
               </div>
             )
           })}
+        </div>
+      </div>
+
+      <div className="mt-5 rounded-[24px] border border-black/10 bg-[#fafaf7] p-5">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className="text-xs uppercase tracking-[0.18em] text-black/50">Medidas por talle para buscador</p>
+            <p className="mt-2 text-sm leading-6 text-black/58">
+              Esta guía es aparte del stock actual. Te deja cargar pecho, lomo, cuello y peso sugerido para después recomendar talle por perro o por medidas.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setSizeGuides((current) => [...current, createSizeGuideDraft('', current.length)])}
+            className="inline-flex shrink-0 items-center gap-2 rounded-full border border-black/10 bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-black/76 transition hover:bg-black hover:text-white"
+          >
+            <Plus className="h-4 w-4" />
+            Agregar guía
+          </button>
+        </div>
+
+        <div className="mt-5 space-y-4">
+          {sizeGuides.length === 0 ? (
+            <div className="rounded-[18px] border border-dashed border-black/12 bg-white px-4 py-4 text-sm text-black/54">
+              Todavía no hay medidas cargadas. Cuando agregás talles en variantes, el sistema te sugiere filas para completarlas.
+            </div>
+          ) : (
+            sizeGuides.map((guide, index) => (
+              <div key={guide.id} className="rounded-[24px] border border-black/10 bg-white p-5">
+                <div className="flex items-center justify-between gap-4">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-black/50">Talle guía {index + 1}</p>
+                  <button
+                    type="button"
+                    onClick={() => setSizeGuides((current) => current.filter((item) => item.id !== guide.id))}
+                    className="inline-flex items-center gap-2 rounded-full border border-black/10 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-black/58 transition hover:bg-black hover:text-white"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                    Eliminar
+                  </button>
+                </div>
+
+                <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+                  <div>
+                    <p className="text-[11px] uppercase tracking-[0.16em] text-black/45">Talle</p>
+                    <input
+                      value={guide.sizeLabel}
+                      onChange={(event) => updateSizeGuide(guide.id, 'sizeLabel', event.target.value)}
+                      placeholder="L"
+                      className="mt-2 w-full rounded-[14px] border border-black/10 bg-[#f7f7f4] px-3 py-3 text-sm outline-none"
+                    />
+                  </div>
+                  <div>
+                    <p className="text-[11px] uppercase tracking-[0.16em] text-black/45">Pecho desde</p>
+                    <input
+                      value={guide.chestMin}
+                      onChange={(event) => updateSizeGuide(guide.id, 'chestMin', event.target.value)}
+                      placeholder="56"
+                      className="mt-2 w-full rounded-[14px] border border-black/10 bg-[#f7f7f4] px-3 py-3 text-sm outline-none"
+                    />
+                  </div>
+                  <div>
+                    <p className="text-[11px] uppercase tracking-[0.16em] text-black/45">Pecho hasta</p>
+                    <input
+                      value={guide.chestMax}
+                      onChange={(event) => updateSizeGuide(guide.id, 'chestMax', event.target.value)}
+                      placeholder="62"
+                      className="mt-2 w-full rounded-[14px] border border-black/10 bg-[#f7f7f4] px-3 py-3 text-sm outline-none"
+                    />
+                  </div>
+                  <div>
+                    <p className="text-[11px] uppercase tracking-[0.16em] text-black/45">Lomo desde</p>
+                    <input
+                      value={guide.backMin}
+                      onChange={(event) => updateSizeGuide(guide.id, 'backMin', event.target.value)}
+                      placeholder="38"
+                      className="mt-2 w-full rounded-[14px] border border-black/10 bg-[#f7f7f4] px-3 py-3 text-sm outline-none"
+                    />
+                  </div>
+                  <div>
+                    <p className="text-[11px] uppercase tracking-[0.16em] text-black/45">Lomo hasta</p>
+                    <input
+                      value={guide.backMax}
+                      onChange={(event) => updateSizeGuide(guide.id, 'backMax', event.target.value)}
+                      placeholder="42"
+                      className="mt-2 w-full rounded-[14px] border border-black/10 bg-[#f7f7f4] px-3 py-3 text-sm outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+                  <div>
+                    <p className="text-[11px] uppercase tracking-[0.16em] text-black/45">Cuello desde</p>
+                    <input
+                      value={guide.neckMin}
+                      onChange={(event) => updateSizeGuide(guide.id, 'neckMin', event.target.value)}
+                      placeholder="34"
+                      className="mt-2 w-full rounded-[14px] border border-black/10 bg-[#f7f7f4] px-3 py-3 text-sm outline-none"
+                    />
+                  </div>
+                  <div>
+                    <p className="text-[11px] uppercase tracking-[0.16em] text-black/45">Cuello hasta</p>
+                    <input
+                      value={guide.neckMax}
+                      onChange={(event) => updateSizeGuide(guide.id, 'neckMax', event.target.value)}
+                      placeholder="38"
+                      className="mt-2 w-full rounded-[14px] border border-black/10 bg-[#f7f7f4] px-3 py-3 text-sm outline-none"
+                    />
+                  </div>
+                  <div>
+                    <p className="text-[11px] uppercase tracking-[0.16em] text-black/45">Peso desde kg</p>
+                    <input
+                      value={guide.weightMinKg}
+                      onChange={(event) => updateSizeGuide(guide.id, 'weightMinKg', event.target.value)}
+                      placeholder="18"
+                      className="mt-2 w-full rounded-[14px] border border-black/10 bg-[#f7f7f4] px-3 py-3 text-sm outline-none"
+                    />
+                  </div>
+                  <div>
+                    <p className="text-[11px] uppercase tracking-[0.16em] text-black/45">Peso hasta kg</p>
+                    <input
+                      value={guide.weightMaxKg}
+                      onChange={(event) => updateSizeGuide(guide.id, 'weightMaxKg', event.target.value)}
+                      placeholder="24"
+                      className="mt-2 w-full rounded-[14px] border border-black/10 bg-[#f7f7f4] px-3 py-3 text-sm outline-none"
+                    />
+                  </div>
+                  <div>
+                    <p className="text-[11px] uppercase tracking-[0.16em] text-black/45">Orden</p>
+                    <input
+                      value={guide.sortOrder}
+                      onChange={(event) => updateSizeGuide(guide.id, 'sortOrder', event.target.value)}
+                      placeholder={String(index)}
+                      className="mt-2 w-full rounded-[14px] border border-black/10 bg-[#f7f7f4] px-3 py-3 text-sm outline-none"
+                    />
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </div>
 

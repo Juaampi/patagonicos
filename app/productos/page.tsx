@@ -1,7 +1,10 @@
 import Link from 'next/link'
 import { ChevronRight, SlidersHorizontal } from 'lucide-react'
+import { PetSizeFinderCard } from '@/components/marketing/pet-size-finder-card'
 import { SectionHeading } from '@/components/marketing/section-heading'
 import { ProductCard } from '@/components/products/product-card'
+import { getProductSizeRecommendation, hasPetFinderCriteria, resolvePetFinderInput } from '@/lib/pet-size-finder'
+import { ensureStoreSettings } from '@/lib/server/fulfillment'
 import { getAllProducts, groupProductsByCategory } from '@/lib/store'
 import type { Product } from '@/types/store'
 
@@ -29,7 +32,21 @@ const sortOptions = [
 
 type SortValue = (typeof sortOptions)[number]['value']
 
-function buildProductsHref(animal: Product['animalType'] | null, category: string | null, sort: SortValue) {
+type FinderParams = {
+  breed?: string
+  dogName?: string
+  chest?: string
+  back?: string
+  neck?: string
+  weightKg?: string
+}
+
+function buildProductsHref(
+  animal: Product['animalType'] | null,
+  category: string | null,
+  sort: SortValue,
+  finderParams: FinderParams,
+) {
   const params = new URLSearchParams()
 
   if (animal) {
@@ -43,6 +60,12 @@ function buildProductsHref(animal: Product['animalType'] | null, category: strin
   if (sort !== 'featured') {
     params.set('sort', sort)
   }
+
+  Object.entries(finderParams).forEach(([key, value]) => {
+    if (value?.trim()) {
+      params.set(key, value.trim())
+    }
+  })
 
   const query = params.toString()
   return query ? `/productos?${query}` : '/productos'
@@ -83,8 +106,9 @@ function sortProducts(items: Product[], sort: SortValue) {
 export default async function ProductsPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ animal?: string; category?: string; sort?: string }>
+  searchParams?: Promise<{ animal?: string; category?: string; sort?: string; breed?: string; dogName?: string; chest?: string; back?: string; neck?: string; weightKg?: string }>
 }) {
+  const settings = await ensureStoreSettings()
   const params = searchParams ? await searchParams : undefined
   const products = await getAllProducts()
   const hasDogProducts = products.some((product) => product.animalType === 'DOG')
@@ -99,12 +123,43 @@ export default async function ProductsPage({
   const selectedSort = sortOptions.some((option) => option.value === params?.sort)
     ? (params?.sort as SortValue)
     : 'featured'
+  const finderParams = settings.petSizeFinderEnabled
+    ? {
+    breed: params?.breed?.trim() ?? '',
+    dogName: params?.dogName?.trim() ?? '',
+    chest: params?.chest?.trim() ?? '',
+    back: params?.back?.trim() ?? '',
+    neck: params?.neck?.trim() ?? '',
+    weightKg: params?.weightKg?.trim() ?? '',
+      }
+    : {
+        breed: '',
+        dogName: '',
+        chest: '',
+        back: '',
+        neck: '',
+        weightKg: '',
+      }
+  const finderInput = settings.petSizeFinderEnabled
+    ? resolvePetFinderInput({
+        breed: finderParams.breed,
+        dogName: finderParams.dogName,
+        chest: finderParams.chest ? Number(finderParams.chest) : null,
+        back: finderParams.back ? Number(finderParams.back) : null,
+        neck: finderParams.neck ? Number(finderParams.neck) : null,
+        weightKg: finderParams.weightKg ? Number(finderParams.weightKg) : null,
+      })
+    : resolvePetFinderInput({})
+  const finderActive = settings.petSizeFinderEnabled && hasPetFinderCriteria(finderInput)
   const filteredByAnimal = selectedAnimal ? products.filter((product) => product.animalType === selectedAnimal) : products
   const allCategories = Array.from(new Set(filteredByAnimal.map((product) => product.category)))
   const normalizedCategory = selectedCategory && allCategories.includes(selectedCategory) ? selectedCategory : null
-  const filteredProducts = normalizedCategory
-    ? filteredByAnimal.filter((product) => product.category === normalizedCategory)
+  const finderMatchedProducts = finderActive
+    ? filteredByAnimal.filter((product) => getProductSizeRecommendation(product, finderInput))
     : filteredByAnimal
+  const filteredProducts = normalizedCategory
+    ? finderMatchedProducts.filter((product) => product.category === normalizedCategory)
+    : finderMatchedProducts
   const sortedProducts = sortProducts(filteredProducts, selectedSort)
   const grouped = Array.from(groupProductsByCategory(sortedProducts).entries())
 
@@ -124,6 +179,28 @@ export default async function ProductsPage({
         </div>
 
         <div className="mt-8 space-y-5">
+          {finderActive ? (
+            <div className="rounded-[24px] border border-sky-200 bg-[linear-gradient(135deg,#f2f8ff_0%,#ebf5ff_100%)] p-5">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-sky-800">Búsqueda activa</p>
+              <p className="mt-2 text-sm leading-7 text-sky-950">
+                {finderInput.dogName ? `${finderInput.dogName}: ` : ''}
+                te estamos mostrando las prendas compatibles y el talle recomendado según pecho, lomo, cuello y peso cargados.
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2 text-xs uppercase tracking-[0.14em] text-sky-800">
+                {finderInput.preset ? <span className="rounded-full border border-sky-200 bg-white px-3 py-1">{finderInput.preset.label}</span> : null}
+                {finderInput.chest ? <span className="rounded-full border border-sky-200 bg-white px-3 py-1">Pecho {finderInput.chest} cm</span> : null}
+                {finderInput.back ? <span className="rounded-full border border-sky-200 bg-white px-3 py-1">Lomo {finderInput.back} cm</span> : null}
+                {finderInput.neck ? <span className="rounded-full border border-sky-200 bg-white px-3 py-1">Cuello {finderInput.neck} cm</span> : null}
+                {finderInput.weightKg ? <span className="rounded-full border border-sky-200 bg-white px-3 py-1">Peso {finderInput.weightKg} kg</span> : null}
+              </div>
+              <div className="mt-4">
+                <Link href="/productos" className="inline-flex rounded-full border border-sky-200 bg-white px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-sky-800 transition hover:bg-sky-700 hover:text-white">
+                  Limpiar búsqueda
+                </Link>
+              </div>
+            </div>
+          ) : null}
+
           <div>
             <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-black/48">
               <SlidersHorizontal className="h-4 w-4" />
@@ -131,14 +208,14 @@ export default async function ProductsPage({
             </div>
             <div className="mt-3 flex flex-wrap gap-3">
               <Link
-                href={buildProductsHref(null, normalizedCategory, selectedSort)}
+                href={buildProductsHref(null, normalizedCategory, selectedSort, finderParams)}
                 className={`rounded-full border px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.16em] transition ${getFilterChipClass(selectedAnimal === null)}`}
               >
                 Todo
               </Link>
               {hasDogProducts ? (
                 <Link
-                  href={buildProductsHref('DOG', normalizedCategory, selectedSort)}
+                  href={buildProductsHref('DOG', normalizedCategory, selectedSort, finderParams)}
                   className={`rounded-full border px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.16em] transition ${getFilterChipClass(selectedAnimal === 'DOG')}`}
                 >
                   Perros
@@ -146,7 +223,7 @@ export default async function ProductsPage({
               ) : null}
               {hasCatProducts ? (
                 <Link
-                  href={buildProductsHref('CAT', normalizedCategory, selectedSort)}
+                  href={buildProductsHref('CAT', normalizedCategory, selectedSort, finderParams)}
                   className={`rounded-full border px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.16em] transition ${getFilterChipClass(selectedAnimal === 'CAT')}`}
                 >
                   Gatos
@@ -159,7 +236,7 @@ export default async function ProductsPage({
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-black/48">Categorías</p>
             <div className="mt-3 flex flex-wrap gap-3">
               <Link
-                href={buildProductsHref(selectedAnimal, null, selectedSort)}
+                href={buildProductsHref(selectedAnimal, null, selectedSort, finderParams)}
                 className={`rounded-full border px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.16em] transition ${getFilterChipClass(normalizedCategory === null)}`}
               >
                 Todas
@@ -167,7 +244,7 @@ export default async function ProductsPage({
               {allCategories.map((category) => (
                 <Link
                   key={category}
-                  href={buildProductsHref(selectedAnimal, category, selectedSort)}
+                  href={buildProductsHref(selectedAnimal, category, selectedSort, finderParams)}
                   className={`rounded-full border px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.16em] transition ${getFilterChipClass(normalizedCategory === category)}`}
                 >
                   {category}
@@ -182,7 +259,7 @@ export default async function ProductsPage({
               {sortOptions.map((option) => (
                 <Link
                   key={option.value}
-                  href={buildProductsHref(selectedAnimal, normalizedCategory, option.value)}
+                  href={buildProductsHref(selectedAnimal, normalizedCategory, option.value, finderParams)}
                   className={`rounded-full border px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.16em] transition ${getFilterChipClass(selectedSort === option.value)}`}
                 >
                   {option.label}
@@ -195,6 +272,13 @@ export default async function ProductsPage({
 
       <div className="mt-8 grid gap-8 xl:grid-cols-[300px_1fr]">
         <aside className="space-y-4">
+          {settings.petSizeFinderEnabled ? (
+            <PetSizeFinderCard
+              compact
+              initialValues={finderParams}
+            />
+          ) : null}
+
           <div className="card-surface p-6">
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-black/48">Cómo recorrer</p>
             <div className="mt-4 space-y-3 text-sm leading-7 text-black/62">
@@ -213,7 +297,7 @@ export default async function ProductsPage({
                 return (
                   <Link
                     key={category}
-                    href={buildProductsHref(selectedAnimal, category, selectedSort)}
+                    href={buildProductsHref(selectedAnimal, category, selectedSort, finderParams)}
                     className={`flex items-center justify-between rounded-[18px] border px-4 py-3 text-sm transition ${
                       normalizedCategory === category
                         ? 'border-black bg-black !text-white shadow-[0_10px_24px_rgba(0,0,0,0.12)]'
@@ -245,7 +329,15 @@ export default async function ProductsPage({
                 </div>
                 <div className="mt-6 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
                   {items.map((product) => (
-                    <ProductCard key={product.id} product={product} />
+                    <ProductCard
+                      key={product.id}
+                      product={product}
+                      recommendedSize={
+                        settings.petSizeFinderEnabled
+                          ? getProductSizeRecommendation(product, finderInput)?.sizeLabel
+                          : undefined
+                      }
+                    />
                   ))}
                 </div>
               </section>

@@ -81,6 +81,50 @@ export function AdminSettingsPanel({ settings }: { settings: StoreSettingsSnapsh
         </div>
       </div>
 
+      <div className="mt-6 rounded-[24px] border border-black/8 bg-[#fafaf8] p-5">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <p className="text-xs uppercase tracking-[0.16em] text-black/42">Buscador por medidas</p>
+            <p className="mt-2 text-lg font-semibold text-black/84">
+              {settings.petSizeFinderEnabled ? 'Visible en la tienda' : 'Oculto por ahora'}
+            </p>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-black/58">
+              Controla si aparece la ayuda para buscar prendas por raza o medidas en el home y en el catálogo.
+            </p>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label className="flex cursor-pointer items-center gap-3 rounded-[18px] border border-black/10 bg-white px-4 py-3 text-sm text-black/78 transition hover:border-black/18">
+              <input
+                type="radio"
+                name="petSizeFinderEnabled"
+                value="false"
+                defaultChecked={!settings.petSizeFinderEnabled}
+                className="h-4 w-4 accent-black"
+              />
+              <span>
+                <strong className="font-semibold text-black">Desactivado</strong>
+                <span className="mt-1 block text-xs leading-5 text-black/52">Queda escondido en toda la web.</span>
+              </span>
+            </label>
+
+            <label className="flex cursor-pointer items-center gap-3 rounded-[18px] border border-black/10 bg-white px-4 py-3 text-sm text-black/78 transition hover:border-black/18">
+              <input
+                type="radio"
+                name="petSizeFinderEnabled"
+                value="true"
+                defaultChecked={settings.petSizeFinderEnabled}
+                className="h-4 w-4 accent-black"
+              />
+              <span>
+                <strong className="font-semibold text-black">Activado</strong>
+                <span className="mt-1 block text-xs leading-5 text-black/52">Muestra el buscador y las sugerencias.</span>
+              </span>
+            </label>
+          </div>
+        </div>
+      </div>
+
       <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         <Field
           label="Gratis Bariloche"

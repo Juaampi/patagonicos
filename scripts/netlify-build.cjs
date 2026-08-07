@@ -3,6 +3,14 @@ const { execSync } = require('node:child_process')
 const fs = require('node:fs')
 const path = require('node:path')
 
+function removeIfExists(targetPath) {
+  if (!fs.existsSync(targetPath)) {
+    return
+  }
+
+  fs.rmSync(targetPath, { recursive: true, force: true })
+}
+
 function ensureDatabaseUrlSchema(databaseUrl) {
   const parsedUrl = new URL(databaseUrl)
 
@@ -47,6 +55,8 @@ if (!process.env.DATABASE_URL) {
 }
 
 process.env.DATABASE_URL = ensureDatabaseUrlSchema(process.env.DATABASE_URL)
+
+removeIfExists(path.join(process.cwd(), '.next', 'dev', 'types'))
 
 console.info(
   '[netlify-build] using DATABASE_URL with schema',

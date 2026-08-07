@@ -9,6 +9,7 @@ export type StoreSettingsSnapshot = {
   barilocheCutoffMinute: number
   barilocheEnabled: boolean
   barilocheDiscountPercent: number
+  petSizeFinderEnabled: boolean
 }
 
 export const TRANSFER_PAYMENT_ALIAS = 'patagonicos.tienda'

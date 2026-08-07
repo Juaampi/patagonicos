@@ -2,6 +2,7 @@ import { HeroSlider } from '@/components/marketing/hero-slider'
 import { AdoptionShowcase } from '@/components/adoption/adoption-showcase'
 import { BarilocheDeliveryCountdown } from '@/components/marketing/bariloche-delivery-countdown'
 import { BrandStory } from '@/components/marketing/brand-story'
+import { PetSizeFinderCard } from '@/components/marketing/pet-size-finder-card'
 import { ShoppingBenefits } from '@/components/marketing/shopping-benefits'
 import { SectionHeading } from '@/components/marketing/section-heading'
 import { ProductFeature } from '@/components/products/product-feature'
@@ -79,6 +80,12 @@ export default async function HomePage() {
               <ProductCard key={product.id} product={product} />
             ))}
           </div>
+        </section>
+      ) : null}
+
+      {settings.petSizeFinderEnabled ? (
+        <section className="shell mt-20">
+          <PetSizeFinderCard />
         </section>
       ) : null}
 

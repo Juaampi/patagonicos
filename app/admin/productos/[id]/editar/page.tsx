@@ -56,6 +56,18 @@ export default async function EditAdminProductPage({
           stock: variant.stock,
           sku: variant.sku,
         })),
+        sizeGuides: editProduct.sizeGuides.map((guide) => ({
+          sizeLabel: guide.sizeLabel,
+          chestMin: guide.chestMin,
+          chestMax: guide.chestMax,
+          backMin: guide.backMin,
+          backMax: guide.backMax,
+          neckMin: guide.neckMin,
+          neckMax: guide.neckMax,
+          weightMinKg: guide.weightMinKg,
+          weightMaxKg: guide.weightMaxKg,
+          sortOrder: guide.sortOrder,
+        })),
         images: editProduct.images.map((image) => ({
           id: image.id,
           url: image.url,

@@ -82,6 +82,7 @@ export const defaultStoreSettings = {
   barilocheCutoffMinute: 30,
   barilocheEnabled: false,
   barilocheDiscountPercent: 10,
+  petSizeFinderEnabled: false,
 } as const
 
 export const ensureStoreSettings = cache(async function ensureStoreSettings() {

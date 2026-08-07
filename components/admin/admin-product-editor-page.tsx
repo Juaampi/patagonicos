@@ -37,6 +37,18 @@ type EditProduct = {
   productStar: boolean
   comboProductIds: string[]
   variants: Array<{ colorName: string; colorHex: string; size: string; stock: number; sku: string }>
+  sizeGuides: Array<{
+    sizeLabel: string
+    chestMin?: number | null
+    chestMax?: number | null
+    backMin?: number | null
+    backMax?: number | null
+    neckMin?: number | null
+    neckMax?: number | null
+    weightMinKg?: number | null
+    weightMaxKg?: number | null
+    sortOrder: number
+  }>
   images: Array<{ id: string; url: string; alt: string; colorName?: string; type: 'MAIN' | 'COLOR' | 'INFO' | 'LIFESTYLE'; sortOrder: number }>
 }
 

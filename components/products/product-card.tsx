@@ -23,7 +23,13 @@ function getInstallmentPrice(price: number) {
   return Math.round(price / 3)
 }
 
-export function ProductCard({ product }: { product: Product }) {
+export function ProductCard({
+  product,
+  recommendedSize,
+}: {
+  product: Product
+  recommendedSize?: string
+}) {
   const { items } = useCart()
   const colors = getProductColors(product)
   const mainImage = getMainImage(product)
@@ -166,6 +172,11 @@ export function ProductCard({ product }: { product: Product }) {
             {product.comboArmable ? (
               <p className="mt-3 inline-flex rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-emerald-800">
                 2x1 armable
+              </p>
+            ) : null}
+            {recommendedSize ? (
+              <p className="mt-3 inline-flex rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-sky-800">
+                Talle sugerido: {recommendedSize}
               </p>
             ) : null}
             {activeComboTrigger ? (

@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "postinstall": "prisma generate",
-    "prebuild": "prisma generate",
+    "prebuild": "node -e \"require('node:fs').rmSync('.next/dev/types', { recursive: true, force: true });\" && prisma generate",
     "dev": "next dev",
     "build": "next build --webpack",
     "start": "next start",
