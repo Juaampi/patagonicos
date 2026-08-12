@@ -3,6 +3,7 @@ import { PaymentStatus } from '@prisma/client'
 import { buildMetaPurchaseEventId } from '@/lib/analytics-shared'
 import { env } from '@/lib/env'
 import { prisma } from '@/lib/prisma'
+import { getEquivalentSizeLabels } from '@/lib/variant-utils'
 
 const META_GRAPH_VERSION = 'v20.0'
 
@@ -92,9 +93,43 @@ async function fetchMetaOrder(orderId: string) {
         orderBy: {
           id: 'asc',
         },
+        include: {
+          product: {
+            select: {
+              variants: {
+                select: {
+                  colorName: true,
+                  size: true,
+                  sku: true,
+                },
+              },
+            },
+          },
+        },
       },
     },
   })
+}
+
+function resolveCatalogItemId(item: {
+  productId: string
+  colorName: string
+  size: string
+  product: {
+    variants: Array<{
+      colorName: string
+      size: string
+      sku: string
+    }>
+  }
+}) {
+  const matchedVariant = item.product.variants.find(
+    (variant) =>
+      variant.colorName === item.colorName &&
+      getEquivalentSizeLabels(item.size).includes(variant.size),
+  )
+
+  return matchedVariant?.sku || item.productId
 }
 
 export async function sendMetaPurchaseEvent(input: {
@@ -134,7 +169,7 @@ export async function sendMetaPurchaseEvent(input: {
   }
 
   const contents = order.items.map((item) => ({
-    id: item.productId,
+    id: resolveCatalogItemId(item),
     quantity: item.quantity,
     item_price: item.unitPrice,
   }))
@@ -153,7 +188,7 @@ export async function sendMetaPurchaseEvent(input: {
           value: order.total,
           order_id: order.orderNumber,
           content_type: 'product',
-          content_ids: order.items.map((item) => item.productId),
+          content_ids: order.items.map((item) => resolveCatalogItemId(item)),
           contents,
           num_items: order.items.reduce((total, item) => total + item.quantity, 0),
         }),

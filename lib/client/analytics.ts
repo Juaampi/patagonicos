@@ -82,7 +82,7 @@ function buildVariantLabel(colorName?: string, size?: string) {
 
 export function mapCartItemToAnalyticsItem(item: CartItem): AnalyticsItem {
   return {
-    item_id: item.productId,
+    item_id: item.sku || item.productId,
     item_name: item.name,
     item_category: item.category,
     item_variant: buildVariantLabel(item.colorName, item.size),
@@ -93,7 +93,7 @@ export function mapCartItemToAnalyticsItem(item: CartItem): AnalyticsItem {
 
 export function mapProductToAnalyticsItem(product: Product, variant?: ProductVariant | null): AnalyticsItem {
   return {
-    item_id: product.id,
+    item_id: variant?.sku || product.id,
     item_name: product.name,
     item_category: product.category,
     item_variant: buildVariantLabel(variant?.colorName, variant?.size),

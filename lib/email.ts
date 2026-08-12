@@ -17,7 +17,7 @@ export async function sendEmail({
   if (env.EMAIL_PROVIDER === 'resend' && env.RESEND_API_KEY) {
     const resend = new Resend(env.RESEND_API_KEY)
     const result = await resend.emails.send({
-      from: from ?? `patagonicos.tienda <${env.FROM_EMAIL}>`,
+      from: from ?? `patagonicos.ok <${env.FROM_EMAIL}>`,
       to,
       subject,
       html,
@@ -35,6 +35,6 @@ export async function sendEmail({
     return result
   }
 
-  console.info('[email:console]', { to, subject, from: from ?? `patagonicos.tienda <${env.FROM_EMAIL}>`, replyTo })
+  console.info('[email:console]', { to, subject, from: from ?? `patagonicos.ok <${env.FROM_EMAIL}>`, replyTo })
   return { ok: true }
 }

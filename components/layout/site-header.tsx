@@ -13,7 +13,7 @@ import {
 } from '@/lib/store-settings'
 import { cn } from '@/lib/utils'
 
-const instagramUrl = 'https://www.instagram.com/patagonicos.tienda/'
+const instagramUrl = 'https://www.instagram.com/patagonicos.ok/'
 
 function InstagramGlyph({ className = 'h-4 w-4' }: { className?: string }) {
   return (
@@ -240,7 +240,7 @@ export function SiteHeader({ settings }: { settings: StoreSettingsSnapshot }) {
               className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white/78 px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-black/76 shadow-[0_10px_28px_rgba(0,0,0,0.06)] transition hover:bg-black hover:text-white"
             >
               <InstagramGlyph className="h-4 w-4" />
-              patagonicos.tienda
+              patagonicos.ok
             </Link>
             {renderThemeToggle()}
           </div>
@@ -317,7 +317,7 @@ export function SiteHeader({ settings }: { settings: StoreSettingsSnapshot }) {
                   <InstagramGlyph className="h-4.5 w-4.5" />
                   Instagram
                 </span>
-                <span className="text-[10px] tracking-[0.14em] text-black/52">patagonicos.tienda</span>
+                <span className="text-[10px] tracking-[0.14em] text-black/52">patagonicos.ok</span>
               </Link>
               <div className="flex justify-center">
                 {renderThemeToggle(true)}

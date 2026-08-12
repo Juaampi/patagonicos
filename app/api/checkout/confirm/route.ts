@@ -2,9 +2,31 @@ import { NextResponse } from 'next/server'
 import { getMercadoPagoPaymentById } from '@/lib/mercadopago'
 import { prisma } from '@/lib/prisma'
 import { syncApprovedPayment } from '@/lib/server/fulfillment'
+import { getEquivalentSizeLabels } from '@/lib/variant-utils'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
+
+function resolveCatalogItemId(item: {
+  productId: string
+  colorName: string
+  size: string
+  product?: {
+    variants: Array<{
+      colorName: string
+      size: string
+      sku: string
+    }>
+  } | null
+}) {
+  const matchedVariant = item.product?.variants.find(
+    (variant) =>
+      variant.colorName === item.colorName &&
+      getEquivalentSizeLabels(item.size).includes(variant.size),
+  )
+
+  return matchedVariant?.sku || item.productId
+}
 
 export async function GET(request: Request) {
   const url = new URL(request.url)
@@ -40,6 +62,19 @@ export async function GET(request: Request) {
                 orderBy: {
                   id: 'asc',
                 },
+                include: {
+                  product: {
+                    select: {
+                      variants: {
+                        select: {
+                          colorName: true,
+                          size: true,
+                          sku: true,
+                        },
+                      },
+                    },
+                  },
+                },
               },
             },
           })
@@ -62,7 +97,7 @@ export async function GET(request: Request) {
             shippingAmount: order.shippingAmount,
             subtotal: order.subtotal,
             items: order.items.map((item) => ({
-              item_id: item.productId,
+              item_id: resolveCatalogItemId(item),
               item_name: item.productName,
               item_variant: [item.colorName, item.size].filter(Boolean).join(' - '),
               price: item.unitPrice,
