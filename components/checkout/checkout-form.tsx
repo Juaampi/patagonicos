@@ -1,6 +1,6 @@
 'use client'
 
-import { ArrowRight, CheckCheck, Landmark, LoaderCircle, MapPin, Phone } from 'lucide-react'
+import { ArrowRight, CheckCheck, Landmark, LoaderCircle, MapPin, Phone, Store, Truck } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useCart } from '@/components/cart/cart-provider'
@@ -43,6 +43,7 @@ type GeoRefLocality = {
 }
 
 type CheckoutPaymentMethod = 'ONLINE' | 'CASH_ON_DELIVERY' | 'TRANSFER'
+type CheckoutDeliveryMode = 'HOME' | 'BRANCH'
 
 type AppliedCoupon = {
   id: string
@@ -53,14 +54,46 @@ type AppliedCoupon = {
   minSubtotal: number
 }
 
+type AndreaniBranchOption = {
+  id: string
+  label: string
+  branchName: string
+  addressLine: string
+}
+
+function addBusinessDays(baseDate: Date, days: number) {
+  const nextDate = new Date(baseDate)
+  let remainingDays = days
+
+  while (remainingDays > 0) {
+    nextDate.setDate(nextDate.getDate() + 1)
+    const day = nextDate.getDay()
+    if (day !== 0 && day !== 6) {
+      remainingDays -= 1
+    }
+  }
+
+  return nextDate
+}
+
+function formatDeliveryDate(date: Date) {
+  return new Intl.DateTimeFormat('es-AR', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  }).format(date)
+}
+
 function MercadoPagoBadge({ compact = false }: { compact?: boolean }) {
   return (
     <span
-      className={`inline-flex items-center rounded-full border border-black/10 bg-white text-black/82 ${
+      className={`inline-flex items-center rounded-full border border-[#009ee3]/18 bg-[#ecf8ff] text-[#003b61] ${
         compact ? 'px-2.5 py-1 text-[10px]' : 'px-3 py-1.5 text-[11px]'
       } font-semibold uppercase tracking-[0.12em]`}
     >
-      <span className={`inline-flex items-center rounded-full bg-black ${compact ? 'px-2 py-0.5' : 'px-2.5 py-0.5'} text-white`}>
+      <span
+        className={`inline-flex items-center rounded-full bg-[#009ee3] ${compact ? 'px-2 py-0.5' : 'px-2.5 py-0.5'} text-white`}
+      >
         MP
       </span>
       <span className="ml-2">Mercado Pago</span>
@@ -91,6 +124,7 @@ export function CheckoutForm({
   const cityRef = useRef<HTMLInputElement>(null)
   const postalCodeRef = useRef<HTMLInputElement>(null)
   const pinRef = useRef<HTMLDivElement>(null)
+  const branchRef = useRef<HTMLDivElement>(null)
   const comboSummary = useMemo(() => buildCartPricingSummary(items), [items])
   const subtotal = comboSummary.payableSubtotal
   const twoForOneDiscountAmount = comboSummary.twoForOneDiscount
@@ -117,9 +151,19 @@ export function CheckoutForm({
     pinLabel: '',
   })
   const [paymentMethod, setPaymentMethod] = useState<CheckoutPaymentMethod>('ONLINE')
+  const [deliveryMode, setDeliveryMode] = useState<CheckoutDeliveryMode>('HOME')
   const [cityOptions, setCityOptions] = useState<string[]>([])
   const [addressSuggestions, setAddressSuggestions] = useState<AddressSuggestion[]>([])
   const [addressSuggestionsOpen, setAddressSuggestionsOpen] = useState(false)
+  const [branchOptions, setBranchOptions] = useState<AndreaniBranchOption[]>([])
+  const [selectedBranchId, setSelectedBranchId] = useState('')
+  const [branchFeedback, setBranchFeedback] = useState<{
+    status: 'idle' | 'loading' | 'success' | 'error'
+    message: string
+  }>({
+    status: 'idle',
+    message: '',
+  })
   const [state, setState] = useState<{
     status: 'idle' | 'saving' | 'success' | 'error'
     message: string
@@ -149,7 +193,7 @@ export function CheckoutForm({
   const shippingPreview = useMemo(() => {
     return getCheckoutPreview(subtotal, form.city, form.province, settings, paymentMethod, appliedCoupon)
   }, [appliedCoupon, form.city, form.province, paymentMethod, settings, subtotal])
-  const shouldRequirePin = shippingPreview.isBariloche
+  const shouldRequirePin = shippingPreview.isBariloche && deliveryMode === 'HOME'
   const couponRestrictionReason = getCouponRestrictionReason(shippingPreview.qualifiesForFreeShipping, paymentMethod)
   const selectedProvince = getCanonicalProvince(form.province)
   const selectedCity = cityOptions.find((city) => normalizeProvinceName(city) === normalizeProvinceName(form.city))
@@ -176,6 +220,17 @@ export function CheckoutForm({
   const couponDiscountAmount = useMemo(() => {
     return getCouponDiscountAmount(subtotal, shippingPreview.discountAmount, appliedCoupon)
   }, [appliedCoupon, shippingPreview.discountAmount, subtotal])
+  const isBranchPickup = deliveryMode === 'BRANCH' && !shippingPreview.isBariloche
+  const selectedBranch = branchOptions.find((branch) => branch.id === selectedBranchId) ?? null
+  const estimatedDeliveryWindow = useMemo(() => {
+    const today = new Date()
+    return {
+      from: addBusinessDays(today, 5),
+      to: addBusinessDays(today, 10),
+    }
+  }, [])
+  const shouldShowShippingPrice = hasValidProvince && hasValidCity && form.postalCode.trim().length >= 3
+  const shippingLabel = isBranchPickup ? 'Retiro en sucursal Andreani' : shippingPreview.isBariloche ? 'Envío a domicilio Bariloche' : 'Envío a domicilio'
 
   useEffect(() => {
     if (!appliedCoupon || !couponRestrictionReason) {
@@ -230,6 +285,78 @@ export function CheckoutForm({
 
     return () => controller.abort()
   }, [selectedProvince])
+
+  useEffect(() => {
+    if (shippingPreview.isBariloche && deliveryMode !== 'HOME') {
+      setDeliveryMode('HOME')
+    }
+  }, [deliveryMode, shippingPreview.isBariloche])
+
+  useEffect(() => {
+    if (!isBranchPickup || !hasValidCity || form.postalCode.trim().length < 3) {
+      setBranchOptions([])
+      setSelectedBranchId('')
+      setBranchFeedback({
+        status: 'idle',
+        message: '',
+      })
+      return
+    }
+
+    setBranchFeedback({
+      status: 'loading',
+      message: 'Buscando sucursales Andreani cercanas a tu código postal…',
+    })
+    setBranchOptions([])
+    setSelectedBranchId('')
+
+    const controller = new AbortController()
+    const timeout = window.setTimeout(async () => {
+      try {
+        const url = `/api/andreani-branches?city=${encodeURIComponent(selectedCity ?? '')}&province=${encodeURIComponent(
+          selectedProvince ?? '',
+        )}&postalCode=${encodeURIComponent(form.postalCode.trim())}`
+        const response = await fetch(url, {
+          signal: controller.signal,
+          headers: {
+            Accept: 'application/json',
+          },
+        })
+
+        if (!response.ok) {
+          throw new Error('No pudimos consultar sucursales en este momento.')
+        }
+
+        const data = (await response.json()) as {
+          branches?: AndreaniBranchOption[]
+          message?: string
+        }
+        const nextBranches = data.branches ?? []
+
+        setBranchOptions(nextBranches)
+        setSelectedBranchId((current) => (nextBranches.some((branch) => branch.id === current) ? current : nextBranches[0]?.id ?? ''))
+        setBranchFeedback({
+          status: nextBranches.length > 0 ? 'success' : 'error',
+          message:
+            nextBranches.length > 0
+              ? data.message || 'Seleccioná una sucursal.'
+              : data.message || 'No encontramos sucursales automáticas para ese código postal. Podés seguir con envío a domicilio.',
+        })
+      } catch {
+        setBranchOptions([])
+        setSelectedBranchId('')
+        setBranchFeedback({
+          status: 'error',
+          message: 'No pudimos cargar sucursales Andreani ahora. Probá de nuevo en unos segundos.',
+        })
+      }
+    }, 220)
+
+    return () => {
+      controller.abort()
+      window.clearTimeout(timeout)
+    }
+  }, [form.postalCode, hasValidCity, hasValidProvince, isBranchPickup, selectedCity, selectedProvince])
 
   useEffect(() => {
     if (state.status !== 'saving') {
@@ -295,6 +422,7 @@ export function CheckoutForm({
       city: cityRef.current,
       postalCode: postalCodeRef.current,
       pin: pinRef.current,
+      branch: branchRef.current,
     }
 
     const element = refMap[name]
@@ -331,13 +459,26 @@ export function CheckoutForm({
       { key: 'phoneNumber', valid: form.phoneNumber.replace(/\D/g, '').length >= 6, message: 'Completá el número de celular.' },
       { key: 'province', valid: hasValidProvince, message: 'Elegí una provincia válida de la lista.' },
       { key: 'city', valid: hasValidCity, message: 'Elegí una ciudad válida de la lista.' },
-      { key: 'address', valid: form.address.trim().length >= 4, message: 'Completá la dirección de entrega.' },
-      { key: 'streetNumber', valid: form.streetNumber.trim().length >= 1, message: 'Completá la numeración de la dirección.' },
+      {
+        key: 'address',
+        valid: isBranchPickup || form.address.trim().length >= 4,
+        message: 'Completá la dirección de entrega.',
+      },
+      {
+        key: 'streetNumber',
+        valid: isBranchPickup || form.streetNumber.trim().length >= 1,
+        message: 'Completá la numeración de la dirección.',
+      },
       { key: 'postalCode', valid: form.postalCode.trim().length >= 3, message: 'Completá el código postal.' },
       {
         key: 'pin',
         valid: !shouldRequirePin || Boolean(form.latitude && form.longitude),
         message: 'Verificá el pin en el mapa para confirmar la dirección exacta de entrega.',
+      },
+      {
+        key: 'branch',
+        valid: !isBranchPickup || Boolean(selectedBranch),
+        message: 'Elegí la sucursal Andreani donde querés retirar tu pedido.',
       },
     ] as const
 
@@ -356,7 +497,7 @@ export function CheckoutForm({
   }
 
   useEffect(() => {
-    if (!hasValidCity || form.address.trim().length < 3) {
+    if (isBranchPickup || !hasValidCity || form.address.trim().length < 3) {
       return
     }
 
@@ -396,7 +537,7 @@ export function CheckoutForm({
       controller.abort()
       window.clearTimeout(timeout)
     }
-  }, [form.address, hasValidCity, selectedCity, selectedProvince])
+  }, [form.address, hasValidCity, isBranchPickup, selectedCity, selectedProvince])
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -414,9 +555,23 @@ export function CheckoutForm({
       items: items.map(mapCartItemToAnalyticsItem),
     })
 
+    const checkoutNotes = [
+      form.notes.trim(),
+      isBranchPickup ? 'Entrega elegida: Retiro en sucursal Andreani.' : 'Entrega elegida: Envío a domicilio.',
+      selectedBranch ? `Sucursal Andreani: ${selectedBranch.label}.` : null,
+    ]
+      .filter(Boolean)
+      .join(' · ')
+
     const payload = {
       ...form,
+      address: isBranchPickup ? selectedBranch?.branchName ?? 'Sucursal Andreani' : form.address,
+      streetNumber: isBranchPickup ? selectedBranch?.addressLine ?? 'Sucursal Andreani' : form.streetNumber,
+      floor: isBranchPickup ? '' : form.floor,
+      apartment: isBranchPickup ? '' : form.apartment,
+      pinLabel: isBranchPickup ? selectedBranch?.label ?? '' : form.pinLabel,
       phone: `${form.phoneAreaCode.trim()} ${form.phoneNumber.trim()}`.trim(),
+      notes: checkoutNotes || undefined,
       couponCode: appliedCoupon?.code,
       paymentMethod,
       salesChannel,
@@ -768,11 +923,10 @@ export function CheckoutForm({
         <div className="space-y-6">
           <div className="card-surface p-7">
             <p className="eyebrow">Checkout</p>
-            <h1 className="mt-4 font-display text-4xl tracking-[-0.05em] text-black md:text-5xl">Despacho rápido y seguimiento claro de tu pedido</h1>
+            <h1 className="mt-4 font-display text-4xl tracking-[-0.05em] text-black md:text-5xl">Elegí cómo recibir tu pedido y pagalo de forma simple</h1>
             <p className="mt-4 max-w-3xl text-sm leading-7 text-black/62 md:text-base md:leading-8">
-              Comprando antes de las 17 hs, el pedido sale en el día. Si entra después de ese horario, se despacha al día siguiente.
-              Contamos con una logística muy ágil, lo que nos permite preparar compras rápido y sostener envíos inmediatos a todo el país.
-              Además, una vez realizada la compra, vas a poder seguir el estado del pedido y del envío desde tu cuenta.
+              Definí si querés envío a domicilio o retiro en sucursal Andreani, completá tus datos y seguí al pago.
+              Vas a ver el tiempo estimado de entrega antes de terminar la compra y después vas a poder revisar el estado del pedido desde tu cuenta.
             </p>
             {state.status !== 'idle' ? (
               <div
@@ -797,7 +951,270 @@ export function CheckoutForm({
           </div>
 
           <div className="card-surface p-7">
-            <h2 className="font-display text-3xl tracking-[-0.05em]">Datos del cliente</h2>
+            <div className="grid gap-6">
+              <div className="rounded-[24px] border border-black/8 bg-[#fafaf8] p-5">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.18em] text-black/46">Forma de entrega</p>
+                    <h2 className="mt-2 font-display text-3xl tracking-[-0.05em]">Cómo querés recibirlo</h2>
+                  </div>
+                  {shippingPreview.isBariloche ? (
+                    <span className="inline-flex rounded-full bg-emerald-100 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-emerald-800">
+                      Bariloche
+                    </span>
+                  ) : null}
+                </div>
+                <div className="mt-5 grid gap-3 md:grid-cols-2">
+                  <label
+                    className={`group cursor-pointer rounded-[24px] border px-4 py-4 text-sm transition ${
+                      deliveryMode === 'HOME'
+                        ? 'border-black bg-white shadow-[0_12px_28px_rgba(0,0,0,0.06)]'
+                        : 'border-black/10 bg-white/90 hover:border-black/20'
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="deliveryMode"
+                      checked={deliveryMode === 'HOME'}
+                      onChange={() => setDeliveryMode('HOME')}
+                      className="sr-only"
+                    />
+                    <div className="flex items-start gap-3">
+                      <span
+                        className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition ${
+                          deliveryMode === 'HOME' ? 'border-black bg-black' : 'border-black/22 bg-white'
+                        }`}
+                        aria-hidden="true"
+                      >
+                        <span
+                          className={`h-2 w-2 rounded-full bg-white transition ${
+                            deliveryMode === 'HOME' ? 'scale-100 opacity-100' : 'scale-0 opacity-0'
+                          }`}
+                        />
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <Truck className="h-4 w-4 text-black/66" />
+                          <p className="text-sm font-semibold text-black/84">Envío a domicilio</p>
+                        </div>
+                        <p className="mt-1 text-xs text-black/56">Lo enviamos a la dirección que cargues en el checkout.</p>
+                      </div>
+                    </div>
+                  </label>
+                  <label
+                    className={`group cursor-pointer rounded-[24px] border px-4 py-4 text-sm transition ${
+                      deliveryMode === 'BRANCH'
+                        ? 'border-sky-300 bg-sky-50 shadow-[0_12px_28px_rgba(14,165,233,0.12)]'
+                        : shippingPreview.isBariloche
+                          ? 'cursor-not-allowed border-black/10 bg-white/65 opacity-55'
+                          : 'border-black/10 bg-white hover:border-sky-200 hover:bg-sky-50/50'
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="deliveryMode"
+                      checked={deliveryMode === 'BRANCH'}
+                      onChange={() => {
+                        if (!shippingPreview.isBariloche) {
+                          setDeliveryMode('BRANCH')
+                        }
+                      }}
+                      className="sr-only"
+                      disabled={shippingPreview.isBariloche}
+                    />
+                    <div className="flex items-start gap-3">
+                      <span
+                        className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition ${
+                          deliveryMode === 'BRANCH' ? 'border-sky-700 bg-sky-700' : 'border-black/22 bg-white'
+                        }`}
+                        aria-hidden="true"
+                      >
+                        <span
+                          className={`h-2 w-2 rounded-full bg-white transition ${
+                            deliveryMode === 'BRANCH' ? 'scale-100 opacity-100' : 'scale-0 opacity-0'
+                          }`}
+                        />
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <Store className="h-4 w-4 text-sky-700" />
+                          <p className="text-sm font-semibold text-black/84">Retiro en sucursal</p>
+                        </div>
+                        <p className="mt-1 text-xs text-black/56">
+                          Elegís una sucursal Andreani cercana y retirás ahí tu pedido.
+                        </p>
+                      </div>
+                    </div>
+                  </label>
+                </div>
+                <div className="mt-5 grid gap-4 md:grid-cols-2">
+                  <div ref={provinceRef}>
+                    <SearchableSelect
+                      label="Provincia"
+                      value={form.province}
+                      options={[...argentinaProvinces]}
+                      placeholder="Seleccioná provincia"
+                      onChange={(province) => {
+                        const currentCityStillValid = cityOptions.find(
+                          (city) => normalizeProvinceName(city) === normalizeProvinceName(form.city),
+                        )
+                        setCityOptions([])
+                        setForm((current) => ({
+                          ...current,
+                          province,
+                          city: currentCityStillValid ?? '',
+                          address: currentCityStillValid ? current.address : '',
+                          latitude: '',
+                          longitude: '',
+                          pinLabel: '',
+                        }))
+                        setAddressSuggestions([])
+                        setAddressSuggestionsOpen(false)
+                        if (!currentCityStillValid && paymentMethod === 'CASH_ON_DELIVERY') {
+                          setPaymentMethod('ONLINE')
+                        }
+                      }}
+                    />
+                  </div>
+
+                  <div ref={cityRef} className="relative">
+                    <SearchableSelect
+                      label="Ciudad"
+                      value={form.city}
+                      options={citySuggestions}
+                      placeholder={selectedProvince ? 'Seleccioná ciudad' : 'Primero elegí provincia'}
+                      disabled={!selectedProvince}
+                      emptyMessage="No hay ciudades cargadas para esa provincia."
+                      onChange={(city) => {
+                        setForm((current) => ({
+                          ...current,
+                          city,
+                          address: '',
+                          latitude: '',
+                          longitude: '',
+                          pinLabel: '',
+                        }))
+                        if (!isBarilocheLocation(city, selectedProvince ?? form.province) && paymentMethod === 'CASH_ON_DELIVERY') {
+                          setPaymentMethod('ONLINE')
+                        }
+                        setAddressSuggestions([])
+                        setAddressSuggestionsOpen(false)
+                      }}
+                    />
+                    <MapPin className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-black/34" />
+                  </div>
+
+                  <input
+                    ref={postalCodeRef}
+                    value={form.postalCode}
+                    onChange={(event) => updateField('postalCode', event.target.value)}
+                    placeholder="Código postal"
+                    className="rounded-[20px] border border-black/10 bg-white px-4 py-4 text-sm outline-none"
+                  />
+                </div>
+                {isBranchPickup ? (
+                  <div ref={branchRef} className="mt-4 rounded-[24px] border border-black/8 bg-white p-5">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div>
+                        <p className="text-xs uppercase tracking-[0.18em] text-black/46">Sucursal Andreani</p>
+                        <p className="mt-2 text-sm text-black/62">
+                          Elegí dónde querés retirar antes de completar tus datos.
+                        </p>
+                      </div>
+                      <span className="inline-flex items-center rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-sky-800">
+                        Retiro en sucursal
+                      </span>
+                    </div>
+                    <div className="mt-4">
+                      {branchFeedback.status === 'loading' ? (
+                        <div className="rounded-[18px] border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-800">
+                          <span className="inline-flex items-center gap-2 font-medium">
+                            <LoaderCircle className="h-4 w-4 animate-spin" />
+                            Buscando sucursales…
+                          </span>
+                        </div>
+                      ) : null}
+                      {branchOptions.length > 0 ? (
+                        <div className={branchFeedback.status === 'loading' ? 'mt-3 opacity-70' : ''}>
+                          <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-black/48">
+                            Seleccioná una sucursal
+                          </p>
+                          <SearchableSelect
+                            label="Sucursal Andreani"
+                            value={selectedBranch?.label ?? ''}
+                            options={branchOptions.map((branch) => branch.label)}
+                            placeholder="Seleccioná una sucursal"
+                            searchable={false}
+                            disabled={branchFeedback.status === 'loading' || branchOptions.length === 0}
+                            emptyMessage="No encontramos sucursales para esa búsqueda."
+                            onChange={(label) => {
+                              const branch = branchOptions.find((option) => option.label === label)
+                              setSelectedBranchId(branch?.id ?? '')
+                            }}
+                          />
+                        </div>
+                      ) : null}
+                    </div>
+                    {branchFeedback.status !== 'idle' && branchFeedback.status !== 'loading' ? (
+                      <p
+                        className={`mt-3 text-sm ${
+                          branchFeedback.status === 'error'
+                            ? 'text-amber-700'
+                            : 'text-emerald-700'
+                        }`}
+                      >
+                        {branchFeedback.message}
+                      </p>
+                    ) : null}
+                    {selectedBranch ? (
+                      <div className="mt-4 rounded-[18px] border border-black/8 bg-[#fafaf8] px-4 py-4 text-sm text-black/74">
+                        <p className="font-semibold text-black/84">{selectedBranch.branchName}</p>
+                        <p className="mt-1">{selectedBranch.addressLine}</p>
+                      </div>
+                    ) : null}
+                  </div>
+                ) : null}
+                {!isBranchPickup || selectedBranch ? (
+                  <>
+                    <div className="mt-5 rounded-[20px] border border-black/8 bg-white px-4 py-4">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-black/48">Tiempo estimado de entrega</p>
+                      <p className="mt-2 text-sm font-medium text-black/82">
+                        Entre el {formatDeliveryDate(estimatedDeliveryWindow.from)} y el {formatDeliveryDate(estimatedDeliveryWindow.to)}.
+                      </p>
+                      <p className="mt-1 text-xs text-black/54">
+                        Son entre 5 y 10 días hábiles desde la confirmación del pago.
+                      </p>
+                    </div>
+                    {shippingPreview.isBariloche ? (
+                      <div className="mt-4">
+                        <BarilocheDeliveryCountdown variant="block" showStatusBadge />
+                      </div>
+                    ) : null}
+                    <div className="mt-4 space-y-3">
+                      <p className="text-sm text-black/58">
+                        {isBranchPickup
+                          ? 'Cuando el pedido llegue a la sucursal te avisamos para que puedas retirarlo.'
+                          : 'Te pedimos la dirección para calcular y validar correctamente el envío.'}
+                      </p>
+                      <p className="rounded-[18px] border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800">
+                        {TRANSFER_DISCOUNT_PERCENT}% de descuento abonando por transferencia.
+                      </p>
+                      {shouldShowShippingPrice && shippingPreview.shippingAmount === 0 ? (
+                        <p className="rounded-[18px] border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">
+                          Envío gratis por superar {formatPrice(settings.localDeliveryFreeThreshold)}.
+                        </p>
+                      ) : null}
+                    </div>
+                  </>
+                ) : null}
+              </div>
+            </div>
+          </div>
+
+          <div className="card-surface p-7">
+            <h2 className="font-display text-3xl tracking-[-0.05em]">
+              {isBranchPickup ? 'Datos para retirar en sucursal' : 'Datos del cliente'}
+            </h2>
             <div className="mt-6 grid gap-4 md:grid-cols-2">
               <input
                 ref={fullNameRef}
@@ -881,143 +1298,85 @@ export function CheckoutForm({
                 </div>
               </div>
 
-              <div ref={provinceRef}>
-                <SearchableSelect
-                  label="Provincia"
-                  value={form.province}
-                  options={[...argentinaProvinces]}
-                  placeholder="Seleccioná provincia"
-                  onChange={(province) => {
-                    const currentCityStillValid = cityOptions.find(
-                      (city) => normalizeProvinceName(city) === normalizeProvinceName(form.city),
-                    )
-                    setCityOptions([])
-                    setForm((current) => ({
-                      ...current,
-                      province,
-                      city: currentCityStillValid ?? '',
-                      address: currentCityStillValid ? current.address : '',
-                      latitude: '',
-                      longitude: '',
-                      pinLabel: '',
-                    }))
-                    setAddressSuggestions([])
-                    setAddressSuggestionsOpen(false)
-                    if (!currentCityStillValid && paymentMethod === 'CASH_ON_DELIVERY') {
-                      setPaymentMethod('ONLINE')
-                    }
-                  }}
-                />
-              </div>
-
-              <div ref={cityRef} className="relative">
-                <SearchableSelect
-                  label="Ciudad"
-                  value={form.city}
-                  options={citySuggestions}
-                  placeholder={selectedProvince ? 'Seleccioná ciudad' : 'Primero elegí provincia'}
-                  disabled={!selectedProvince}
-                  emptyMessage="No hay ciudades cargadas para esa provincia."
-                  onChange={(city) => {
-                    setForm((current) => ({
-                      ...current,
-                      city,
-                      address: '',
-                      latitude: '',
-                      longitude: '',
-                      pinLabel: '',
-                    }))
-                    if (!isBarilocheLocation(city, selectedProvince ?? form.province) && paymentMethod === 'CASH_ON_DELIVERY') {
-                      setPaymentMethod('ONLINE')
-                    }
-                    setAddressSuggestions([])
-                    setAddressSuggestionsOpen(false)
-                  }}
-                />
-                <MapPin className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-black/34" />
-              </div>
-
-              {hasValidCity ? (
-                <div className="relative md:col-span-2">
-                  <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_160px]">
-                    <div className="relative">
-                      <input
-                        ref={addressRef}
-                        name="delivery-address-search"
-                        value={form.address}
-                        autoComplete="off"
-                        autoCorrect="off"
-                        autoCapitalize="words"
-                        spellCheck={false}
-                        data-form-type="other"
-                        data-lpignore="true"
-                        onChange={(event) => {
-                          updateField('address', event.target.value)
-                          setAddressSuggestionsOpen(true)
-                        }}
-                        onBlur={() => {
-                          window.setTimeout(() => {
-                            setAddressSuggestionsOpen(false)
-                            if (shouldShowPinPicker) {
-                              pinRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-                            }
-                          }, 140)
-                        }}
-                        placeholder="Calle"
-                        className="w-full rounded-[20px] border border-black/10 bg-[#f7f7f4] px-4 py-4 text-sm outline-none"
-                      />
-                      {addressSuggestionsOpen && addressSuggestions.length > 0 ? (
-                        <div className="absolute left-0 right-0 top-[calc(100%+8px)] z-20 max-h-64 overflow-y-auto rounded-[20px] border border-black/10 bg-white p-2 shadow-[0_18px_50px_rgba(0,0,0,0.08)]">
-                          {addressSuggestions.map((suggestion) => (
-                            <button
-                              key={suggestion.displayName}
-                              type="button"
-                              onMouseDown={(event) => {
-                                event.preventDefault()
-                                applyAddressSuggestion(suggestion)
-                              }}
-                              onTouchStart={() => applyAddressSuggestion(suggestion)}
-                              className="block w-full rounded-[14px] px-3 py-3 text-left text-sm text-black/72 transition hover:bg-[#f6f6f3]"
-                            >
-                              {suggestion.displayName}
-                            </button>
-                          ))}
+              {deliveryMode === 'HOME' ? (
+                <>
+                  {hasValidCity ? (
+                    <div className="relative md:col-span-2">
+                      <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_160px]">
+                        <div className="relative">
+                          <input
+                            ref={addressRef}
+                            name="delivery-address-search"
+                            value={form.address}
+                            autoComplete="off"
+                            autoCorrect="off"
+                            autoCapitalize="words"
+                            spellCheck={false}
+                            data-form-type="other"
+                            data-lpignore="true"
+                            onChange={(event) => {
+                              updateField('address', event.target.value)
+                              setAddressSuggestionsOpen(true)
+                            }}
+                            onBlur={() => {
+                              window.setTimeout(() => {
+                                setAddressSuggestionsOpen(false)
+                                if (shouldShowPinPicker) {
+                                  pinRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                                }
+                              }, 140)
+                            }}
+                            placeholder="Calle"
+                            className="w-full rounded-[20px] border border-black/10 bg-[#f7f7f4] px-4 py-4 text-sm outline-none"
+                          />
+                          {addressSuggestionsOpen && addressSuggestions.length > 0 ? (
+                            <div className="absolute left-0 right-0 top-[calc(100%+8px)] z-20 max-h-64 overflow-y-auto rounded-[20px] border border-black/10 bg-white p-2 shadow-[0_18px_50px_rgba(0,0,0,0.08)]">
+                              {addressSuggestions.map((suggestion) => (
+                                <button
+                                  key={suggestion.displayName}
+                                  type="button"
+                                  onMouseDown={(event) => {
+                                    event.preventDefault()
+                                    applyAddressSuggestion(suggestion)
+                                  }}
+                                  onTouchStart={() => applyAddressSuggestion(suggestion)}
+                                  className="block w-full rounded-[14px] px-3 py-3 text-left text-sm text-black/72 transition hover:bg-[#f6f6f3]"
+                                >
+                                  {suggestion.displayName}
+                                </button>
+                              ))}
+                            </div>
+                          ) : null}
                         </div>
-                      ) : null}
+                        <input
+                          ref={streetNumberRef}
+                          value={form.streetNumber}
+                          onChange={(event) =>
+                            updateField('streetNumber', event.target.value.replace(/[^\dA-Za-z/-]/g, '').slice(0, 10))
+                          }
+                          placeholder="Número"
+                          className="w-full rounded-[20px] border border-black/10 bg-[#f7f7f4] px-4 py-4 text-sm outline-none"
+                        />
+                      </div>
                     </div>
-                    <input
-                      ref={streetNumberRef}
-                      value={form.streetNumber}
-                      onChange={(event) => updateField('streetNumber', event.target.value.replace(/[^\dA-Za-z/-]/g, '').slice(0, 10))}
-                      placeholder="Número"
-                      className="w-full rounded-[20px] border border-black/10 bg-[#f7f7f4] px-4 py-4 text-sm outline-none"
-                    />
-                  </div>
-                </div>
+                  ) : null}
+
+                  <input
+                    ref={floorRef}
+                    value={form.floor}
+                    onChange={(event) => updateField('floor', event.target.value.slice(0, 10))}
+                    placeholder="Piso (opcional)"
+                    className="rounded-[20px] border border-black/10 bg-[#f7f7f4] px-4 py-4 text-sm outline-none"
+                  />
+                  <input
+                    ref={apartmentRef}
+                    value={form.apartment}
+                    onChange={(event) => updateField('apartment', event.target.value.slice(0, 10))}
+                    placeholder="Departamento (opcional)"
+                    className="rounded-[20px] border border-black/10 bg-[#f7f7f4] px-4 py-4 text-sm outline-none"
+                  />
+                </>
               ) : null}
-
-              <input
-                ref={floorRef}
-                value={form.floor}
-                onChange={(event) => updateField('floor', event.target.value.slice(0, 10))}
-                placeholder="Piso (opcional)"
-                className="rounded-[20px] border border-black/10 bg-[#f7f7f4] px-4 py-4 text-sm outline-none"
-              />
-              <input
-                ref={apartmentRef}
-                value={form.apartment}
-                onChange={(event) => updateField('apartment', event.target.value.slice(0, 10))}
-                placeholder="Departamento (opcional)"
-                className="rounded-[20px] border border-black/10 bg-[#f7f7f4] px-4 py-4 text-sm outline-none"
-              />
-
-              <input
-                ref={postalCodeRef}
-                value={form.postalCode}
-                onChange={(event) => updateField('postalCode', event.target.value)}
-                placeholder="Código postal"
-                className="rounded-[20px] border border-black/10 bg-[#f7f7f4] px-4 py-4 text-sm outline-none"
-              />
             </div>
 
             {shouldRequirePin ? (
@@ -1056,67 +1415,7 @@ export function CheckoutForm({
           </div>
 
           <div className="card-surface p-7">
-            <h2 className="font-display text-3xl tracking-[-0.05em]">Entrega y pago</h2>
-            <div className="mt-5 rounded-[22px] border border-black/8 bg-[#fafaf8] p-5">
-              <p className="text-xs uppercase tracking-[0.18em] text-black/46">
-                {shippingPreview.isBariloche ? 'Bariloche detectado' : 'Resto del país'}
-              </p>
-              <div className="mt-3">
-                {shippingPreview.isBariloche ? (
-                  <BarilocheDeliveryCountdown variant="block" showStatusBadge />
-                ) : (
-                  <>
-                    <span className="inline-flex rounded-full bg-black/8 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-black/72">
-                      Entrega nacional activa
-                    </span>
-                    <p className="mt-3 text-sm text-black/58">Despacho nacional listo para integrar con Andreani.</p>
-                  </>
-                )}
-              </div>
-              {shippingPreview.isBariloche ? (
-                <div className="mt-3 space-y-2">
-                  <p
-                    className={`text-sm ${
-                      shippingPreview.shippingAmount === 0 ? 'font-medium text-emerald-700' : 'font-medium text-red-700'
-                    }`}
-                  >
-                    {shippingPreview.shippingAmount === 0
-                      ? `Tu compra supera ${formatPrice(settings.localDeliveryFreeThreshold)} y accede al envío en el día en Bariloche.`
-                      : `Tu compra no supera ${formatPrice(settings.localDeliveryFreeThreshold)}. Tiene que superar ese monto para obtener el envío en el día en Bariloche.`}
-                  </p>
-                  {shippingPreview.discountAmount > 0 ? (
-                    <div className="space-y-2">
-                      {shippingPreview.barilocheDiscountAmount > 0 ? (
-                        <p className="rounded-[18px] border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-800">
-                          Descuento Bariloche activo: {shippingPreview.barilocheDiscountPercent}% menos sobre productos en esta compra.
-                        </p>
-                      ) : null}
-                      {shippingPreview.transferDiscountAmount > 0 ? (
-                        <p className="rounded-[18px] border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800">
-                          Descuento por transferencia activo: {shippingPreview.transferDiscountPercent}% menos sobre productos en esta compra.
-                        </p>
-                      ) : null}
-                    </div>
-                  ) : null}
-                </div>
-              ) : (
-                <div className="mt-3 space-y-3">
-                  <p className="text-sm text-black/58">
-                    Comprando antes de las 17 hs despachamos en el día. Si la compra entra después, sale al día siguiente.
-                  </p>
-                  <p className="rounded-[18px] border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800">
-                    {TRANSFER_DISCOUNT_PERCENT}% de descuento abonando por transferencia.
-                  </p>
-                  {shippingPreview.shippingAmount === 0 ? (
-                    <p className="rounded-[18px] border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">
-                      Envío nacional gratis por superar {formatPrice(settings.localDeliveryFreeThreshold)}.
-                    </p>
-                  ) : null}
-                </div>
-              )}
-            </div>
-
-            <div className="mt-6 grid gap-3">
+            <div className="grid gap-3">
               <div className="rounded-[24px] border border-black/10 bg-white p-4">
                 <div className="flex flex-col gap-3 md:flex-row md:items-center">
                   <div className="min-w-0 flex-1">
@@ -1176,8 +1475,8 @@ export function CheckoutForm({
               <label
                 className={`group cursor-pointer rounded-[24px] border px-4 py-4 text-sm transition ${
                   paymentMethod === 'ONLINE'
-                    ? 'border-black bg-[#f7f7f4] shadow-[0_12px_28px_rgba(0,0,0,0.06)]'
-                    : 'border-black/10 bg-white hover:border-black/20 hover:bg-[#fafaf7]'
+                    ? 'border-[#009ee3]/24 bg-[#f3fbff] shadow-[0_12px_28px_rgba(0,158,227,0.12)]'
+                    : 'border-black/10 bg-white hover:border-[#009ee3]/24 hover:bg-[#f7fcff]'
                 }`}
               >
                 <input
@@ -1203,10 +1502,12 @@ export function CheckoutForm({
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <MercadoPagoBadge compact />
-                      <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-black/42">Recomendado</span>
+                      <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#0070a3]">3 cuotas sin interés</span>
                     </div>
                     <p className="text-sm font-semibold tracking-normal text-black/84">Pagar con Mercado Pago</p>
-                    <p className="mt-1 text-xs tracking-normal text-black/56">Checkout seguro para tarjeta, saldo o dinero en cuenta.</p>
+                    <p className="mt-1 text-xs tracking-normal text-black/56">
+                      Pagás con tarjeta por Mercado Pago, con checkout seguro y hasta 3 cuotas sin interés.
+                    </p>
                   </div>
                 </div>
               </label>
@@ -1382,15 +1683,26 @@ export function CheckoutForm({
               </div>
             ) : null}
             <div className="flex justify-between">
-              <span>{shippingPreview.isBariloche ? 'Envío Bariloche' : 'Envío nacional'}</span>
-              <span className={shippingPreview.shippingAmount === 0 ? 'font-semibold text-emerald-700' : ''}>
-                {shippingPreview.shippingAmount === 0 ? 'Envío gratis' : formatPrice(shippingPreview.shippingAmount)}
+              <span>{shippingLabel}</span>
+              <span className={shouldShowShippingPrice && shippingPreview.shippingAmount === 0 ? 'font-semibold text-emerald-700' : ''}>
+                {!shouldShowShippingPrice
+                  ? 'Se calcula al completar destino'
+                  : shippingPreview.shippingAmount === 0
+                    ? 'Envío gratis'
+                    : formatPrice(shippingPreview.shippingAmount)}
               </span>
             </div>
             <div className="flex justify-between border-t border-black/10 pt-4 text-base font-semibold text-black">
               <span>Total</span>
-              <span>{formatPrice(shippingPreview.total)}</span>
+              <span>{shouldShowShippingPrice ? formatPrice(shippingPreview.total) : formatPrice(Math.max(0, shippingPreview.total - shippingPreview.shippingAmount))}</span>
             </div>
+          </div>
+
+          <div className="mt-4 rounded-[22px] border border-black/8 bg-[#fafaf8] px-4 py-4 text-sm text-black/66">
+            <p className="font-semibold text-black/82">{shippingLabel}</p>
+            <p className="mt-1">
+              Entrega estimada entre el {formatDeliveryDate(estimatedDeliveryWindow.from)} y el {formatDeliveryDate(estimatedDeliveryWindow.to)}.
+            </p>
           </div>
 
           <p className="mt-4 text-sm leading-6 text-red-700">
@@ -1420,9 +1732,12 @@ export function CheckoutForm({
                   : 'Cargando Mercado Pago…'
                 : isTransferPayment
                   ? 'Confirmar pedido con transferencia'
-                  : 'Pagar con Mercado Pago'}
+                  : 'Continuar a Mercado Pago'}
             </span>
           </button>
+          {!isTransferPayment ? (
+            <p className="mt-3 text-center text-xs text-black/54">Tarjeta vía Mercado Pago. Hasta 3 cuotas sin interés.</p>
+          ) : null}
         </aside>
       </form>
     </div>

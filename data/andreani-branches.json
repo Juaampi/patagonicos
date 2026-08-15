@@ -1,0 +1,2699 @@
+{
+  "updatedAt": "2026-08-15T16:01:21.923Z",
+  "totalBranches": 129,
+  "postalCodes": {
+    "1001": [
+      {
+        "id": "andreani-1001-tribunales-55",
+        "label": "TRIBUNALES · Talcahuano 470 · TRIBUNALES, C.A.B.A., 1001",
+        "branchName": "TRIBUNALES",
+        "addressLine": "Talcahuano 470 · TRIBUNALES, C.A.B.A., 1001",
+        "province": "C.A.B.A.",
+        "city": "TRIBUNALES",
+        "postalCode": "1001"
+      }
+    ],
+    "1039": [
+      {
+        "id": "andreani-1039-estacion-once-50",
+        "label": "ESTACIÓN ONCE · Bartolomé Mitre (Local 21) 2815 · ESTACIÓN ONCE, C.A.B.A., 1039",
+        "branchName": "ESTACIÓN ONCE",
+        "addressLine": "Bartolomé Mitre (Local 21) 2815 · ESTACIÓN ONCE, C.A.B.A., 1039",
+        "province": "C.A.B.A.",
+        "city": "ESTACIÓN ONCE",
+        "postalCode": "1039"
+      }
+    ],
+    "1043": [
+      {
+        "id": "andreani-1043-microcentro-52",
+        "label": "MICROCENTRO · Av. Corrientes 455 · MICROCENTRO, C.A.B.A., 1043",
+        "branchName": "MICROCENTRO",
+        "addressLine": "Av. Corrientes 455 · MICROCENTRO, C.A.B.A., 1043",
+        "province": "C.A.B.A.",
+        "city": "MICROCENTRO",
+        "postalCode": "1043"
+      }
+    ],
+    "1093": [
+      {
+        "id": "andreani-1093-monserrat-53",
+        "label": "MONSERRAT · Av. Belgrano 1211 · MONSERRAT, C.A.B.A., 1093",
+        "branchName": "MONSERRAT",
+        "addressLine": "Av. Belgrano 1211 · MONSERRAT, C.A.B.A., 1093",
+        "province": "C.A.B.A.",
+        "city": "MONSERRAT",
+        "postalCode": "1093"
+      }
+    ],
+    "1200": [
+      {
+        "id": "andreani-1200-caballito-49",
+        "label": "CABALLITO · Diaz Velez 4190 · CABALLITO, C.A.B.A., 1200",
+        "branchName": "CABALLITO",
+        "addressLine": "Diaz Velez 4190 · CABALLITO, C.A.B.A., 1200",
+        "province": "C.A.B.A.",
+        "city": "CABALLITO",
+        "postalCode": "1200"
+      }
+    ],
+    "1406": [
+      {
+        "id": "andreani-1406-flores-51",
+        "label": "FLORES · Av. J. B. Alberdi 3138 · FLORES, C.A.B.A., 1406",
+        "branchName": "FLORES",
+        "addressLine": "Av. J. B. Alberdi 3138 · FLORES, C.A.B.A., 1406",
+        "province": "C.A.B.A.",
+        "city": "FLORES",
+        "postalCode": "1406"
+      }
+    ],
+    "1414": [
+      {
+        "id": "andreani-1414-palermo-54",
+        "label": "PALERMO · Scalabrini Ortiz 615 · PALERMO, C.A.B.A., 1414",
+        "branchName": "PALERMO",
+        "addressLine": "Scalabrini Ortiz 615 · PALERMO, C.A.B.A., 1414",
+        "province": "C.A.B.A.",
+        "city": "PALERMO",
+        "postalCode": "1414"
+      }
+    ],
+    "1419": [
+      {
+        "id": "andreani-1419-villa-devoto-56",
+        "label": "VILLA DEVOTO · Av. Beiro 4740 · VILLA DEVOTO, C.A.B.A., 1419",
+        "branchName": "VILLA DEVOTO",
+        "addressLine": "Av. Beiro 4740 · VILLA DEVOTO, C.A.B.A., 1419",
+        "province": "C.A.B.A.",
+        "city": "VILLA DEVOTO",
+        "postalCode": "1419"
+      }
+    ],
+    "1429": [
+      {
+        "id": "andreani-1429-belgrano-48",
+        "label": "BELGRANO · Av. Cabildo 1386 · BELGRANO, C.A.B.A., 1429",
+        "branchName": "BELGRANO",
+        "addressLine": "Av. Cabildo 1386 · BELGRANO, C.A.B.A., 1429",
+        "province": "C.A.B.A.",
+        "city": "BELGRANO",
+        "postalCode": "1429"
+      }
+    ],
+    "1430": [
+      {
+        "id": "andreani-1430-villa-urquiza-58",
+        "label": "VILLA URQUIZA · Av Alvarez Thomas 2621 · VILLA URQUIZA, C.A.B.A., 1430",
+        "branchName": "VILLA URQUIZA",
+        "addressLine": "Av Alvarez Thomas 2621 · VILLA URQUIZA, C.A.B.A., 1430",
+        "province": "C.A.B.A.",
+        "city": "VILLA URQUIZA",
+        "postalCode": "1430"
+      }
+    ],
+    "1437": [
+      {
+        "id": "andreani-1437-villa-soldati-57",
+        "label": "VILLA SOLDATI · Pergamino 3751 · VILLA SOLDATI, C.A.B.A., 1437",
+        "branchName": "VILLA SOLDATI",
+        "addressLine": "Pergamino 3751 · VILLA SOLDATI, C.A.B.A., 1437",
+        "province": "C.A.B.A.",
+        "city": "VILLA SOLDATI",
+        "postalCode": "1437"
+      }
+    ],
+    "1600": [
+      {
+        "id": "andreani-1600-vicente-lopez-45",
+        "label": "VICENTE LOPEZ · Av Maipu 1901 · VICENTE LOPEZ, BUENOS AIRES – GBA, 1600",
+        "branchName": "VICENTE LOPEZ",
+        "addressLine": "Av Maipu 1901 · VICENTE LOPEZ, BUENOS AIRES – GBA, 1600",
+        "province": "BUENOS AIRES – GBA",
+        "city": "VICENTE LOPEZ",
+        "postalCode": "1600"
+      }
+    ],
+    "1621": [
+      {
+        "id": "andreani-1621-tigre-av-pres-j-d-peron-43",
+        "label": "TIGRE (AV PRES J D PERON) · Av. Pres Peron 4749 · TIGRE, BUENOS AIRES – GBA, 1621",
+        "branchName": "TIGRE (AV PRES J D PERON)",
+        "addressLine": "Av. Pres Peron 4749 · TIGRE, BUENOS AIRES – GBA, 1621",
+        "province": "BUENOS AIRES – GBA",
+        "city": "TIGRE",
+        "postalCode": "1621"
+      }
+    ],
+    "1625": [
+      {
+        "id": "andreani-1625-escobar-22",
+        "label": "ESCOBAR · Belgrano 732 · ESCOBAR, BUENOS AIRES – GBA, 1625",
+        "branchName": "ESCOBAR",
+        "addressLine": "Belgrano 732 · ESCOBAR, BUENOS AIRES – GBA, 1625",
+        "province": "BUENOS AIRES – GBA",
+        "city": "ESCOBAR",
+        "postalCode": "1625"
+      }
+    ],
+    "1629": [
+      {
+        "id": "andreani-1629-pilar-36",
+        "label": "PILAR · Lagrave 282 · PILAR, BUENOS AIRES – GBA, 1629",
+        "branchName": "PILAR",
+        "addressLine": "Lagrave 282 · PILAR, BUENOS AIRES – GBA, 1629",
+        "province": "BUENOS AIRES – GBA",
+        "city": "PILAR",
+        "postalCode": "1629"
+      }
+    ],
+    "1642": [
+      {
+        "id": "andreani-1642-san-isidro-38",
+        "label": "SAN ISIDRO · Ituzaingo 375 · SAN ISIDRO, BUENOS AIRES – GBA, 1642",
+        "branchName": "SAN ISIDRO",
+        "addressLine": "Ituzaingo 375 · SAN ISIDRO, BUENOS AIRES – GBA, 1642",
+        "province": "BUENOS AIRES – GBA",
+        "city": "SAN ISIDRO",
+        "postalCode": "1642"
+      }
+    ],
+    "1644": [
+      {
+        "id": "andreani-1644-victoria-46",
+        "label": "VICTORIA · Av. Presidente Peron 2880 · VICTORIA, BUENOS AIRES – GBA, 1644",
+        "branchName": "VICTORIA",
+        "addressLine": "Av. Presidente Peron 2880 · VICTORIA, BUENOS AIRES – GBA, 1644",
+        "province": "BUENOS AIRES – GBA",
+        "city": "VICTORIA",
+        "postalCode": "1644"
+      }
+    ],
+    "1648": [
+      {
+        "id": "andreani-1648-tigre-estacion-de-servicio-44",
+        "label": "TIGRE (ESTACIÓN DE SERVICIO) · Gelly y Obes 1680 · TIGRE, BUENOS AIRES – GBA, 1648",
+        "branchName": "TIGRE (ESTACIÓN DE SERVICIO)",
+        "addressLine": "Gelly y Obes 1680 · TIGRE, BUENOS AIRES – GBA, 1648",
+        "province": "BUENOS AIRES – GBA",
+        "city": "TIGRE",
+        "postalCode": "1648"
+      }
+    ],
+    "1650": [
+      {
+        "id": "andreani-1650-san-martin-40",
+        "label": "SAN MARTIN · Carrillo 2176 · SAN MARTIN, BUENOS AIRES – GBA, 1650",
+        "branchName": "SAN MARTIN",
+        "addressLine": "Carrillo 2176 · SAN MARTIN, BUENOS AIRES – GBA, 1650",
+        "province": "BUENOS AIRES – GBA",
+        "city": "SAN MARTIN",
+        "postalCode": "1650"
+      }
+    ],
+    "1663": [
+      {
+        "id": "andreani-1663-san-miguel-41",
+        "label": "SAN MIGUEL · Serrano 1695 · SAN MIGUEL, BUENOS AIRES – GBA, 1663",
+        "branchName": "SAN MIGUEL",
+        "addressLine": "Serrano 1695 · SAN MIGUEL, BUENOS AIRES – GBA, 1663",
+        "province": "BUENOS AIRES – GBA",
+        "city": "SAN MIGUEL",
+        "postalCode": "1663"
+      }
+    ],
+    "1678": [
+      {
+        "id": "andreani-1678-caseros-21",
+        "label": "CASEROS · Justo Josê de Urquiza 5141 · CASEROS, BUENOS AIRES – GBA, 1678",
+        "branchName": "CASEROS",
+        "addressLine": "Justo Josê de Urquiza 5141 · CASEROS, BUENOS AIRES – GBA, 1678",
+        "province": "BUENOS AIRES – GBA",
+        "city": "CASEROS",
+        "postalCode": "1678"
+      }
+    ],
+    "1708": [
+      {
+        "id": "andreani-1708-moron-35",
+        "label": "MORON · 25 de Mayo 497 · MORON, BUENOS AIRES – GBA, 1708",
+        "branchName": "MORON",
+        "addressLine": "25 de Mayo 497 · MORON, BUENOS AIRES – GBA, 1708",
+        "province": "BUENOS AIRES – GBA",
+        "city": "MORON",
+        "postalCode": "1708"
+      }
+    ],
+    "1722": [
+      {
+        "id": "andreani-1722-merlo-32",
+        "label": "MERLO · Av Calle Real 257 · MERLO, BUENOS AIRES – GBA, 1722",
+        "branchName": "MERLO",
+        "addressLine": "Av Calle Real 257 · MERLO, BUENOS AIRES – GBA, 1722",
+        "province": "BUENOS AIRES – GBA",
+        "city": "MERLO",
+        "postalCode": "1722"
+      }
+    ],
+    "1744": [
+      {
+        "id": "andreani-1744-moreno-34",
+        "label": "MORENO · Tucumán 128 · MORENO, BUENOS AIRES – GBA, 1744",
+        "branchName": "MORENO",
+        "addressLine": "Tucumán 128 · MORENO, BUENOS AIRES – GBA, 1744",
+        "province": "BUENOS AIRES – GBA",
+        "city": "MORENO",
+        "postalCode": "1744"
+      }
+    ],
+    "1754": [
+      {
+        "id": "andreani-1754-san-justo-39",
+        "label": "SAN JUSTO · Mendoza 2552 · SAN JUSTO, BUENOS AIRES – GBA, 1754",
+        "branchName": "SAN JUSTO",
+        "addressLine": "Mendoza 2552 · SAN JUSTO, BUENOS AIRES – GBA, 1754",
+        "province": "BUENOS AIRES – GBA",
+        "city": "SAN JUSTO",
+        "postalCode": "1754"
+      }
+    ],
+    "1757": [
+      {
+        "id": "andreani-1757-laferrere-28",
+        "label": "LAFERRERE · Av. Piedrabuena 6028 · LAFERRERE, BUENOS AIRES – GBA, 1757",
+        "branchName": "LAFERRERE",
+        "addressLine": "Av. Piedrabuena 6028 · LAFERRERE, BUENOS AIRES – GBA, 1757",
+        "province": "BUENOS AIRES – GBA",
+        "city": "LAFERRERE",
+        "postalCode": "1757"
+      }
+    ],
+    "1801": [
+      {
+        "id": "andreani-1801-canning-20",
+        "label": "CANNING · Av Castex 177 · CANNING, BUENOS AIRES – GBA, 1801",
+        "branchName": "CANNING",
+        "addressLine": "Av Castex 177 · CANNING, BUENOS AIRES – GBA, 1801",
+        "province": "BUENOS AIRES – GBA",
+        "city": "CANNING",
+        "postalCode": "1801"
+      }
+    ],
+    "1824": [
+      {
+        "id": "andreani-1824-lanus-29",
+        "label": "LANÚS · Av. H. Yrigoyen 2828 · LANÚS, BUENOS AIRES – GBA, 1824",
+        "branchName": "LANÚS",
+        "addressLine": "Av. H. Yrigoyen 2828 · LANÚS, BUENOS AIRES – GBA, 1824",
+        "province": "BUENOS AIRES – GBA",
+        "city": "LANÚS",
+        "postalCode": "1824"
+      }
+    ],
+    "1825": [
+      {
+        "id": "andreani-1825-wilde-47",
+        "label": "WILDE · Av. Mitre 5195, Villa Dominico · WILDE, BUENOS AIRES – GBA, 1825",
+        "branchName": "WILDE",
+        "addressLine": "Av. Mitre 5195, Villa Dominico · WILDE, BUENOS AIRES – GBA, 1825",
+        "province": "BUENOS AIRES – GBA",
+        "city": "WILDE",
+        "postalCode": "1825"
+      }
+    ],
+    "1834": [
+      {
+        "id": "andreani-1834-temperley-42",
+        "label": "TEMPERLEY · Almirante Brown 3180 · TEMPERLEY, BUENOS AIRES – GBA, 1834",
+        "branchName": "TEMPERLEY",
+        "addressLine": "Almirante Brown 3180 · TEMPERLEY, BUENOS AIRES – GBA, 1834",
+        "province": "BUENOS AIRES – GBA",
+        "city": "TEMPERLEY",
+        "postalCode": "1834"
+      }
+    ],
+    "1842": [
+      {
+        "id": "andreani-1842-monte-grande-33",
+        "label": "MONTE GRANDE · Bv. Buenos Aires 311 · MONTE GRANDE, BUENOS AIRES – GBA, 1842",
+        "branchName": "MONTE GRANDE",
+        "addressLine": "Bv. Buenos Aires 311 · MONTE GRANDE, BUENOS AIRES – GBA, 1842",
+        "province": "BUENOS AIRES – GBA",
+        "city": "MONTE GRANDE",
+        "postalCode": "1842"
+      }
+    ],
+    "1852": [
+      {
+        "id": "andreani-1852-burzaco-19",
+        "label": "BURZACO · Hipolito Yrigoyen 14343 · BURZACO, BUENOS AIRES – GBA, 1852",
+        "branchName": "BURZACO",
+        "addressLine": "Hipolito Yrigoyen 14343 · BURZACO, BUENOS AIRES – GBA, 1852",
+        "province": "BUENOS AIRES – GBA",
+        "city": "BURZACO",
+        "postalCode": "1852"
+      }
+    ],
+    "1868": [
+      {
+        "id": "andreani-1868-avellaneda-pienovi-barracas-17",
+        "label": "AVELLANEDA (PIENOVI) / BARRACAS · Pienovi 104, Pineyro · AVELLANEDA, BUENOS AIRES – GBA, 1868",
+        "branchName": "AVELLANEDA (PIENOVI) / BARRACAS",
+        "addressLine": "Pienovi 104, Pineyro · AVELLANEDA, BUENOS AIRES – GBA, 1868",
+        "province": "BUENOS AIRES – GBA",
+        "city": "AVELLANEDA",
+        "postalCode": "1868"
+      }
+    ],
+    "1878": [
+      {
+        "id": "andreani-1878-quilmes-37",
+        "label": "QUILMES · Andrés Baranda 625 · QUILMES, BUENOS AIRES – GBA, 1878",
+        "branchName": "QUILMES",
+        "addressLine": "Andrés Baranda 625 · QUILMES, BUENOS AIRES – GBA, 1878",
+        "province": "BUENOS AIRES – GBA",
+        "city": "QUILMES",
+        "postalCode": "1878"
+      }
+    ],
+    "1884": [
+      {
+        "id": "andreani-1884-berazategui-18",
+        "label": "BERAZATEGUI · Av Mitre 662 · BERAZATEGUI, BUENOS AIRES – GBA, 1884",
+        "branchName": "BERAZATEGUI",
+        "addressLine": "Av Mitre 662 · BERAZATEGUI, BUENOS AIRES – GBA, 1884",
+        "province": "BUENOS AIRES – GBA",
+        "city": "BERAZATEGUI",
+        "postalCode": "1884"
+      }
+    ],
+    "1888": [
+      {
+        "id": "andreani-1888-florencio-varela-23",
+        "label": "FLORENCIO VARELA · Av. San Martin 2326 · FLORENCIO VARELA, BUENOS AIRES – GBA, 1888",
+        "branchName": "FLORENCIO VARELA",
+        "addressLine": "Av. San Martin 2326 · FLORENCIO VARELA, BUENOS AIRES – GBA, 1888",
+        "province": "BUENOS AIRES – GBA",
+        "city": "FLORENCIO VARELA",
+        "postalCode": "1888"
+      }
+    ],
+    "1897": [
+      {
+        "id": "andreani-1897-gonnet-24",
+        "label": "GONNET · Camino Centenario 2156 · GONNET, BUENOS AIRES – GBA, 1897",
+        "branchName": "GONNET",
+        "addressLine": "Camino Centenario 2156 · GONNET, BUENOS AIRES – GBA, 1897",
+        "province": "BUENOS AIRES – GBA",
+        "city": "GONNET",
+        "postalCode": "1897"
+      }
+    ],
+    "1900": [
+      {
+        "id": "andreani-1900-la-plata-avenida-13-26",
+        "label": "LA PLATA AVENIDA 13 · Calle 13 1262 · LA PLATA AVENIDA 13, BUENOS AIRES – GBA, 1900",
+        "branchName": "LA PLATA AVENIDA 13",
+        "addressLine": "Calle 13 1262 · LA PLATA AVENIDA 13, BUENOS AIRES – GBA, 1900",
+        "province": "BUENOS AIRES – GBA",
+        "city": "LA PLATA AVENIDA 13",
+        "postalCode": "1900"
+      },
+      {
+        "id": "andreani-1900-la-plata-calle-2-27",
+        "label": "LA PLATA CALLE 2 · Calle 2 475 · LA PLATA CALLE 2, BUENOS AIRES – GBA, 1900",
+        "branchName": "LA PLATA CALLE 2",
+        "addressLine": "Calle 2 475 · LA PLATA CALLE 2, BUENOS AIRES – GBA, 1900",
+        "province": "BUENOS AIRES – GBA",
+        "city": "LA PLATA CALLE 2",
+        "postalCode": "1900"
+      }
+    ],
+    "2000": [
+      {
+        "id": "andreani-2000-rosario-118",
+        "label": "ROSARIO · Av. San Martín 2127 · ROSARIO, SANTA FE, 2000",
+        "branchName": "ROSARIO",
+        "addressLine": "Av. San Martín 2127 · ROSARIO, SANTA FE, 2000",
+        "province": "SANTA FE",
+        "city": "ROSARIO",
+        "postalCode": "2000"
+      }
+    ],
+    "2008": [
+      {
+        "id": "andreani-2008-rosario-av-eva-peron-119",
+        "label": "ROSARIO (AV. EVA PERÓN) · Av. Eva Peron 6243 · ROSARIO, SANTA FE, 2008",
+        "branchName": "ROSARIO (AV. EVA PERÓN)",
+        "addressLine": "Av. Eva Peron 6243 · ROSARIO, SANTA FE, 2008",
+        "province": "SANTA FE",
+        "city": "ROSARIO",
+        "postalCode": "2008"
+      }
+    ],
+    "2170": [
+      {
+        "id": "andreani-2170-casilda-115",
+        "label": "CASILDA · Buenos Aires 2447 · CASILDA, SANTA FE, 2170",
+        "branchName": "CASILDA",
+        "addressLine": "Buenos Aires 2447 · CASILDA, SANTA FE, 2170",
+        "province": "SANTA FE",
+        "city": "CASILDA",
+        "postalCode": "2170"
+      }
+    ],
+    "2200": [
+      {
+        "id": "andreani-2200-san-lorenzo-120",
+        "label": "SAN LORENZO · Av. San Martin 191 · SAN LORENZO, SANTA FE, 2200",
+        "branchName": "SAN LORENZO",
+        "addressLine": "Av. San Martin 191 · SAN LORENZO, SANTA FE, 2200",
+        "province": "SANTA FE",
+        "city": "SAN LORENZO",
+        "postalCode": "2200"
+      }
+    ],
+    "2300": [
+      {
+        "id": "andreani-2300-rafaela-av-intendente-zobboli-116",
+        "label": "RAFAELA (AV. INTENDENTE ZOBBOLI) · Av Intendente Zobboli 724 · RAFAELA, SANTA FE, 2300",
+        "branchName": "RAFAELA (AV. INTENDENTE ZOBBOLI)",
+        "addressLine": "Av Intendente Zobboli 724 · RAFAELA, SANTA FE, 2300",
+        "province": "SANTA FE",
+        "city": "RAFAELA",
+        "postalCode": "2300"
+      }
+    ],
+    "2400": [
+      {
+        "id": "andreani-2400-san-francisco-73",
+        "label": "SAN FRANCISCO · Bv 9 De Julio 1852 · SAN FRANCISCO, CORDOBA, 2400",
+        "branchName": "SAN FRANCISCO",
+        "addressLine": "Bv 9 De Julio 1852 · SAN FRANCISCO, CORDOBA, 2400",
+        "province": "CORDOBA",
+        "city": "SAN FRANCISCO",
+        "postalCode": "2400"
+      }
+    ],
+    "2500": [
+      {
+        "id": "andreani-2500-canada-de-gomez-bv-balcarce-114",
+        "label": "CAÑADA DE GOMEZ (BV BALCARCE) · Bv Balcarce 445 · CAÑADA DE GOMEZ, SANTA FE, 2500",
+        "branchName": "CAÑADA DE GOMEZ (BV BALCARCE)",
+        "addressLine": "Bv Balcarce 445 · CAÑADA DE GOMEZ, SANTA FE, 2500",
+        "province": "SANTA FE",
+        "city": "CAÑADA DE GOMEZ",
+        "postalCode": "2500"
+      }
+    ],
+    "2600": [
+      {
+        "id": "andreani-2600-venado-tuerto-123",
+        "label": "VENADO TUERTO · Bv 12 De Octubre 53 · VENADO TUERTO, SANTA FE, 2600",
+        "branchName": "VENADO TUERTO",
+        "addressLine": "Bv 12 De Octubre 53 · VENADO TUERTO, SANTA FE, 2600",
+        "province": "SANTA FE",
+        "city": "VENADO TUERTO",
+        "postalCode": "2600"
+      }
+    ],
+    "2702": [
+      {
+        "id": "andreani-2702-pergamino-h-yrigoyen-10",
+        "label": "PERGAMINO (H YRIGOYEN) · Av Hipolito Yrigoyen 845 · PERGAMINO, BUENOS AIRES, 2702",
+        "branchName": "PERGAMINO (H YRIGOYEN)",
+        "addressLine": "Av Hipolito Yrigoyen 845 · PERGAMINO, BUENOS AIRES, 2702",
+        "province": "BUENOS AIRES",
+        "city": "PERGAMINO",
+        "postalCode": "2702"
+      }
+    ],
+    "2800": [
+      {
+        "id": "andreani-2800-zarate-16",
+        "label": "ZARATE · Justa Lima 1626 · ZARATE, BUENOS AIRES, 2800",
+        "branchName": "ZARATE",
+        "addressLine": "Justa Lima 1626 · ZARATE, BUENOS AIRES, 2800",
+        "province": "BUENOS AIRES",
+        "city": "ZARATE",
+        "postalCode": "2800"
+      }
+    ],
+    "2900": [
+      {
+        "id": "andreani-2900-san-nicolas-12",
+        "label": "SAN NICOLAS · Italia 67 · SAN NICOLAS, BUENOS AIRES, 2900",
+        "branchName": "SAN NICOLAS",
+        "addressLine": "Italia 67 · SAN NICOLAS, BUENOS AIRES, 2900",
+        "province": "BUENOS AIRES",
+        "city": "SAN NICOLAS",
+        "postalCode": "2900"
+      }
+    ],
+    "2930": [
+      {
+        "id": "andreani-2930-san-pedro-centro-de-comercio-e-ind-13",
+        "label": "SAN PEDRO – CENTRO DE COMERCIO E IND · Mitre 650 · SAN PEDRO, BUENOS AIRES, 2930",
+        "branchName": "SAN PEDRO – CENTRO DE COMERCIO E IND",
+        "addressLine": "Mitre 650 · SAN PEDRO, BUENOS AIRES, 2930",
+        "province": "BUENOS AIRES",
+        "city": "SAN PEDRO",
+        "postalCode": "2930"
+      }
+    ],
+    "3000": [
+      {
+        "id": "andreani-3000-santa-fe-centro-121",
+        "label": "SANTA FE (CENTRO) · 25 De Mayo 3340 · SANTA FE, SANTA FE, 3000",
+        "branchName": "SANTA FE (CENTRO)",
+        "addressLine": "25 De Mayo 3340 · SANTA FE, SANTA FE, 3000",
+        "province": "SANTA FE",
+        "city": "SANTA FE",
+        "postalCode": "3000"
+      }
+    ],
+    "3016": [
+      {
+        "id": "andreani-3016-santo-tome-ruta-19-122",
+        "label": "SANTO TOME (RUTA 19) · Autovia Ruta 19km 2km. 2 · SANTO TOME, SANTA FE, 3016",
+        "branchName": "SANTO TOME (RUTA 19)",
+        "addressLine": "Autovia Ruta 19km 2km. 2 · SANTO TOME, SANTA FE, 3016",
+        "province": "SANTA FE",
+        "city": "SANTO TOME",
+        "postalCode": "3016"
+      }
+    ],
+    "3100": [
+      {
+        "id": "andreani-3100-parana-83",
+        "label": "PARANÁ · Almirante Brown 1182 · PARANÁ, ENTRE RIOS, 3100",
+        "branchName": "PARANÁ",
+        "addressLine": "Almirante Brown 1182 · PARANÁ, ENTRE RIOS, 3100",
+        "province": "ENTRE RIOS",
+        "city": "PARANÁ",
+        "postalCode": "3100"
+      }
+    ],
+    "3190": [
+      {
+        "id": "andreani-3190-la-paz-entre-rios-82",
+        "label": "LA PAZ (ENTRE RIOS) · Italia 750 · LA PAZ, ENTRE RIOS, 3190",
+        "branchName": "LA PAZ (ENTRE RIOS)",
+        "addressLine": "Italia 750 · LA PAZ, ENTRE RIOS, 3190",
+        "province": "ENTRE RIOS",
+        "city": "LA PAZ",
+        "postalCode": "3190"
+      }
+    ],
+    "3200": [
+      {
+        "id": "andreani-3200-concordia-villa-zorraquin-81",
+        "label": "CONCORDIA (VILLA ZORRAQUIN) · Av Monseñor Rösch 4548 · CONCORDIA, ENTRE RIOS, 3200",
+        "branchName": "CONCORDIA (VILLA ZORRAQUIN)",
+        "addressLine": "Av Monseñor Rösch 4548 · CONCORDIA, ENTRE RIOS, 3200",
+        "province": "ENTRE RIOS",
+        "city": "CONCORDIA",
+        "postalCode": "3200"
+      }
+    ],
+    "3260": [
+      {
+        "id": "andreani-3260-concepcion-del-uruguay-80",
+        "label": "CONCEPCIÓN DEL URUGUAY · Mariano Moreno 125 · CONCEPCIÓN DEL URUGUAY, ENTRE RIOS, 3260",
+        "branchName": "CONCEPCIÓN DEL URUGUAY",
+        "addressLine": "Mariano Moreno 125 · CONCEPCIÓN DEL URUGUAY, ENTRE RIOS, 3260",
+        "province": "ENTRE RIOS",
+        "city": "CONCEPCIÓN DEL URUGUAY",
+        "postalCode": "3260"
+      }
+    ],
+    "3300": [
+      {
+        "id": "andreani-3300-posadas-95",
+        "label": "POSADAS · Colon 1647 · POSADAS, MISIONES, 3300",
+        "branchName": "POSADAS",
+        "addressLine": "Colon 1647 · POSADAS, MISIONES, 3300",
+        "province": "MISIONES",
+        "city": "POSADAS",
+        "postalCode": "3300"
+      },
+      {
+        "id": "andreani-3300-posadas-barrio-itaembe-guazu-96",
+        "label": "POSADAS (BARRIO ITAEMBE GUAZU) · Ruta Nacional 12 (Km 1335) 10004 · POSADAS, MISIONES, 3300",
+        "branchName": "POSADAS (BARRIO ITAEMBE GUAZU)",
+        "addressLine": "Ruta Nacional 12 (Km 1335) 10004 · POSADAS, MISIONES, 3300",
+        "province": "MISIONES",
+        "city": "POSADAS",
+        "postalCode": "3300"
+      }
+    ],
+    "3360": [
+      {
+        "id": "andreani-3360-obera-94",
+        "label": "OBERA · Av De Las Americas 1623 · OBERA, MISIONES, 3360",
+        "branchName": "OBERA",
+        "addressLine": "Av De Las Americas 1623 · OBERA, MISIONES, 3360",
+        "province": "MISIONES",
+        "city": "OBERA",
+        "postalCode": "3360"
+      }
+    ],
+    "3380": [
+      {
+        "id": "andreani-3380-eldorado-93",
+        "label": "ELDORADO · Hipólito Irigoyen 1809 · ELDORADO, MISIONES, 3380",
+        "branchName": "ELDORADO",
+        "addressLine": "Hipólito Irigoyen 1809 · ELDORADO, MISIONES, 3380",
+        "province": "MISIONES",
+        "city": "ELDORADO",
+        "postalCode": "3380"
+      }
+    ],
+    "3400": [
+      {
+        "id": "andreani-3400-corrientes-78",
+        "label": "CORRIENTES · Av. Independencia 3903 · CORRIENTES, CORRIENTES, 3400",
+        "branchName": "CORRIENTES",
+        "addressLine": "Av. Independencia 3903 · CORRIENTES, CORRIENTES, 3400",
+        "province": "CORRIENTES",
+        "city": "CORRIENTES",
+        "postalCode": "3400"
+      }
+    ],
+    "3450": [
+      {
+        "id": "andreani-3450-goya-79",
+        "label": "GOYA · Ruta 126 Interseccion Con Ruta 27 · GOYA, CORRIENTES, 3450",
+        "branchName": "GOYA",
+        "addressLine": "Ruta 126 Interseccion Con Ruta 27 · GOYA, CORRIENTES, 3450",
+        "province": "CORRIENTES",
+        "city": "GOYA",
+        "postalCode": "3450"
+      }
+    ],
+    "3500": [
+      {
+        "id": "andreani-3500-resistencia-chaco-62",
+        "label": "RESISTENCIA (CHACO) · Juan Domingo Peron 455 · RESISTENCIA, CHACO, 3500",
+        "branchName": "RESISTENCIA (CHACO)",
+        "addressLine": "Juan Domingo Peron 455 · RESISTENCIA, CHACO, 3500",
+        "province": "CHACO",
+        "city": "RESISTENCIA",
+        "postalCode": "3500"
+      }
+    ],
+    "3560": [
+      {
+        "id": "andreani-3560-reconquista-bv-juan-d-peron-santa-fe-117",
+        "label": "RECONQUISTA (BV JUAN D PERON – SANTA FE) · Ruta 40s Km 2.3 · RECONQUISTA, SANTA FE, 3560",
+        "branchName": "RECONQUISTA (BV JUAN D PERON – SANTA FE)",
+        "addressLine": "Ruta 40s Km 2.3 · RECONQUISTA, SANTA FE, 3560",
+        "province": "SANTA FE",
+        "city": "RECONQUISTA",
+        "postalCode": "3560"
+      }
+    ],
+    "3600": [
+      {
+        "id": "andreani-3600-formosa-84",
+        "label": "FORMOSA · Saavedra 423 · FORMOSA, FORMOSA, 3600",
+        "branchName": "FORMOSA",
+        "addressLine": "Saavedra 423 · FORMOSA, FORMOSA, 3600",
+        "province": "FORMOSA",
+        "city": "FORMOSA",
+        "postalCode": "3600"
+      }
+    ],
+    "3700": [
+      {
+        "id": "andreani-3700-pres-roque-saenz-pena-61",
+        "label": "PRES ROQUE SAENZ PEÑA · Ruta 16km (176.28) · PRES ROQUE SAENZ PEÑA, CHACO, 3700",
+        "branchName": "PRES ROQUE SAENZ PEÑA",
+        "addressLine": "Ruta 16km (176.28) · PRES ROQUE SAENZ PEÑA, CHACO, 3700",
+        "province": "CHACO",
+        "city": "PRES ROQUE SAENZ PEÑA",
+        "postalCode": "3700"
+      }
+    ],
+    "4000": [
+      {
+        "id": "andreani-4000-concepcion-127",
+        "label": "CONCEPCIÓN · 24 De Septiembre 2344 · CONCEPCIÓN, TUCUMAN, 4000",
+        "branchName": "CONCEPCIÓN",
+        "addressLine": "24 De Septiembre 2344 · CONCEPCIÓN, TUCUMAN, 4000",
+        "province": "TUCUMAN",
+        "city": "CONCEPCIÓN",
+        "postalCode": "4000"
+      },
+      {
+        "id": "andreani-4000-tucuman-128",
+        "label": "TUCUMÁN · San Martín 1175 · TUCUMÁN, TUCUMAN, 4000",
+        "branchName": "TUCUMÁN",
+        "addressLine": "San Martín 1175 · TUCUMÁN, TUCUMAN, 4000",
+        "province": "TUCUMAN",
+        "city": "TUCUMÁN",
+        "postalCode": "4000"
+      }
+    ],
+    "4107": [
+      {
+        "id": "andreani-4107-yerba-buena-129",
+        "label": "YERBA BUENA · Aconquija 523 · YERBA BUENA, TUCUMAN, 4107",
+        "branchName": "YERBA BUENA",
+        "addressLine": "Aconquija 523 · YERBA BUENA, TUCUMAN, 4107",
+        "province": "TUCUMAN",
+        "city": "YERBA BUENA",
+        "postalCode": "4107"
+      }
+    ],
+    "4200": [
+      {
+        "id": "andreani-4200-santiago-del-estero-124",
+        "label": "SANTIAGO DEL ESTERO · Sarmiento 77 · SANTIAGO DEL ESTERO, SANTIAGO DEL ESTERO, 4200",
+        "branchName": "SANTIAGO DEL ESTERO",
+        "addressLine": "Sarmiento 77 · SANTIAGO DEL ESTERO, SANTIAGO DEL ESTERO, 4200",
+        "province": "SANTIAGO DEL ESTERO",
+        "city": "SANTIAGO DEL ESTERO",
+        "postalCode": "4200"
+      }
+    ],
+    "4400": [
+      {
+        "id": "andreani-4400-salta-107",
+        "label": "SALTA · Juramento 367 · SALTA, SALTA, 4400",
+        "branchName": "SALTA",
+        "addressLine": "Juramento 367 · SALTA, SALTA, 4400",
+        "province": "SALTA",
+        "city": "SALTA",
+        "postalCode": "4400"
+      },
+      {
+        "id": "andreani-4400-salta-av-tavella-108",
+        "label": "SALTA (AV TAVELLA) · Av Monseñor Tavella 3642 · SALTA, SALTA, 4400",
+        "branchName": "SALTA (AV TAVELLA)",
+        "addressLine": "Av Monseñor Tavella 3642 · SALTA, SALTA, 4400",
+        "province": "SALTA",
+        "city": "SALTA",
+        "postalCode": "4400"
+      }
+    ],
+    "4440": [
+      {
+        "id": "andreani-4440-metan-105",
+        "label": "METÁN · San Martin 172 · METÁN, SALTA, 4440",
+        "branchName": "METÁN",
+        "addressLine": "San Martin 172 · METÁN, SALTA, 4440",
+        "province": "SALTA",
+        "city": "METÁN",
+        "postalCode": "4440"
+      }
+    ],
+    "4530": [
+      {
+        "id": "andreani-4530-oran-106",
+        "label": "ORAN · Lamadrid 307 · ORAN, SALTA, 4530",
+        "branchName": "ORAN",
+        "addressLine": "Lamadrid 307 · ORAN, SALTA, 4530",
+        "province": "SALTA",
+        "city": "ORAN",
+        "postalCode": "4530"
+      }
+    ],
+    "4560": [
+      {
+        "id": "andreani-4560-tartagal-109",
+        "label": "TARTAGAL · Richieri 690 · TARTAGAL, SALTA, 4560",
+        "branchName": "TARTAGAL",
+        "addressLine": "Richieri 690 · TARTAGAL, SALTA, 4560",
+        "province": "SALTA",
+        "city": "TARTAGAL",
+        "postalCode": "4560"
+      }
+    ],
+    "4600": [
+      {
+        "id": "andreani-4600-jujuy-85",
+        "label": "JUJUY · San Martin 979 · JUJUY, JUJUY, 4600",
+        "branchName": "JUJUY",
+        "addressLine": "San Martin 979 · JUJUY, JUJUY, 4600",
+        "province": "JUJUY",
+        "city": "JUJUY",
+        "postalCode": "4600"
+      }
+    ],
+    "4700": [
+      {
+        "id": "andreani-4700-catamarca-59",
+        "label": "CATAMARCA · An Miguel 665 · CATAMARCA, CATAMARCA, 4700",
+        "branchName": "CATAMARCA",
+        "addressLine": "An Miguel 665 · CATAMARCA, CATAMARCA, 4700",
+        "province": "CATAMARCA",
+        "city": "CATAMARCA",
+        "postalCode": "4700"
+      },
+      {
+        "id": "andreani-4700-catamarca-guemes-60",
+        "label": "CATAMARCA (GUEMES) · Av, Güemes Oeste 1505 · CATAMARCA, CATAMARCA, 4700",
+        "branchName": "CATAMARCA (GUEMES)",
+        "addressLine": "Av, Güemes Oeste 1505 · CATAMARCA, CATAMARCA, 4700",
+        "province": "CATAMARCA",
+        "city": "CATAMARCA",
+        "postalCode": "4700"
+      }
+    ],
+    "5000": [
+      {
+        "id": "andreani-5000-cordoba-au9-cordoba-rosario-66",
+        "label": "CORDOBA (AU9 CORDOBA-ROSARIO) · Colectora Au.9, Toledo · CORDOBA, CORDOBA, 5000",
+        "branchName": "CORDOBA (AU9 CORDOBA-ROSARIO)",
+        "addressLine": "Colectora Au.9, Toledo · CORDOBA, CORDOBA, 5000",
+        "province": "CORDOBA",
+        "city": "CORDOBA",
+        "postalCode": "5000"
+      },
+      {
+        "id": "andreani-5000-cordoba-av-colon-67",
+        "label": "CORDOBA (AV. COLÓN) · Av. Colón 4205 · CORDOBA, CORDOBA, 5000",
+        "branchName": "CORDOBA (AV. COLÓN)",
+        "addressLine": "Av. Colón 4205 · CORDOBA, CORDOBA, 5000",
+        "province": "CORDOBA",
+        "city": "CORDOBA",
+        "postalCode": "5000"
+      },
+      {
+        "id": "andreani-5000-cordoba-av-sabattini-69",
+        "label": "CORDOBA (AV. SABATTINI) · Av. Sabattini 1647 · CORDOBA, CORDOBA, 5000",
+        "branchName": "CORDOBA (AV. SABATTINI)",
+        "addressLine": "Av. Sabattini 1647 · CORDOBA, CORDOBA, 5000",
+        "province": "CORDOBA",
+        "city": "CORDOBA",
+        "postalCode": "5000"
+      }
+    ],
+    "5005": [
+      {
+        "id": "andreani-5005-cordoba-av-general-paz-68",
+        "label": "CORDOBA (AV. GENERAL PAZ) · Av. General Paz 420 · CORDOBA, CORDOBA, 5005",
+        "branchName": "CORDOBA (AV. GENERAL PAZ)",
+        "addressLine": "Av. General Paz 420 · CORDOBA, CORDOBA, 5005",
+        "province": "CORDOBA",
+        "city": "CORDOBA",
+        "postalCode": "5005"
+      }
+    ],
+    "5105": [
+      {
+        "id": "andreani-5105-villa-allende-75",
+        "label": "VILLA ALLENDE · Goycoechea 1535 · VILLA ALLENDE, CORDOBA, 5105",
+        "branchName": "VILLA ALLENDE",
+        "addressLine": "Goycoechea 1535 · VILLA ALLENDE, CORDOBA, 5105",
+        "province": "CORDOBA",
+        "city": "VILLA ALLENDE",
+        "postalCode": "5105"
+      }
+    ],
+    "5147": [
+      {
+        "id": "andreani-5147-cordoba-cerro-de-las-rosas-70",
+        "label": "CORDOBA (CERRO DE LAS ROSAS) · Av. Rafael Nuñez 4635 · CORDOBA, CORDOBA, 5147",
+        "branchName": "CORDOBA (CERRO DE LAS ROSAS)",
+        "addressLine": "Av. Rafael Nuñez 4635 · CORDOBA, CORDOBA, 5147",
+        "province": "CORDOBA",
+        "city": "CORDOBA",
+        "postalCode": "5147"
+      }
+    ],
+    "5152": [
+      {
+        "id": "andreani-5152-villa-carlos-paz-76",
+        "label": "VILLA CARLOS PAZ · San Martín 1907 · VILLA CARLOS PAZ, CORDOBA, 5152",
+        "branchName": "VILLA CARLOS PAZ",
+        "addressLine": "San Martín 1907 · VILLA CARLOS PAZ, CORDOBA, 5152",
+        "province": "CORDOBA",
+        "city": "VILLA CARLOS PAZ",
+        "postalCode": "5152"
+      }
+    ],
+    "5300": [
+      {
+        "id": "andreani-5300-la-rioja-87",
+        "label": "LA RIOJA · Belgrano 202 · LA RIOJA, LA RIOJA, 5300",
+        "branchName": "LA RIOJA",
+        "addressLine": "Belgrano 202 · LA RIOJA, LA RIOJA, 5300",
+        "province": "LA RIOJA",
+        "city": "LA RIOJA",
+        "postalCode": "5300"
+      }
+    ],
+    "5500": [
+      {
+        "id": "andreani-5500-mendoza-90",
+        "label": "MENDOZA · Av San Martin 505 · MENDOZA, MENDOZA, 5500",
+        "branchName": "MENDOZA",
+        "addressLine": "Av San Martin 505 · MENDOZA, MENDOZA, 5500",
+        "province": "MENDOZA",
+        "city": "MENDOZA",
+        "postalCode": "5500"
+      }
+    ],
+    "5501": [
+      {
+        "id": "andreani-5501-godoy-cruz-88",
+        "label": "GODOY CRUZ · San Martin Sur 735 · GODOY CRUZ, MENDOZA, 5501",
+        "branchName": "GODOY CRUZ",
+        "addressLine": "San Martin Sur 735 · GODOY CRUZ, MENDOZA, 5501",
+        "province": "MENDOZA",
+        "city": "GODOY CRUZ",
+        "postalCode": "5501"
+      }
+    ],
+    "5517": [
+      {
+        "id": "andreani-5517-lujan-de-cuyo-acceso-sur-89",
+        "label": "LUJAN DE CUYO (ACCESO SUR) · Acceso Sur Km.14 Lateral Este · LUJAN DE CUYO, MENDOZA, 5517",
+        "branchName": "LUJAN DE CUYO (ACCESO SUR)",
+        "addressLine": "Acceso Sur Km.14 Lateral Este · LUJAN DE CUYO, MENDOZA, 5517",
+        "province": "MENDOZA",
+        "city": "LUJAN DE CUYO",
+        "postalCode": "5517"
+      }
+    ],
+    "5570": [
+      {
+        "id": "andreani-5570-san-martin-91",
+        "label": "SAN MARTÍN · Ruta 50 Km 1035 · SAN MARTÍN, MENDOZA, 5570",
+        "branchName": "SAN MARTÍN",
+        "addressLine": "Ruta 50 Km 1035 · SAN MARTÍN, MENDOZA, 5570",
+        "province": "MENDOZA",
+        "city": "SAN MARTÍN",
+        "postalCode": "5570"
+      }
+    ],
+    "5600": [
+      {
+        "id": "andreani-5600-san-rafael-92",
+        "label": "SAN RAFAEL · Chile 512 · SAN RAFAEL, MENDOZA, 5600",
+        "branchName": "SAN RAFAEL",
+        "addressLine": "Chile 512 · SAN RAFAEL, MENDOZA, 5600",
+        "province": "MENDOZA",
+        "city": "SAN RAFAEL",
+        "postalCode": "5600"
+      }
+    ],
+    "5730": [
+      {
+        "id": "andreani-5730-villa-mercedes-lavaisse-110",
+        "label": "VILLA MERCEDES (LAVAISSE) · Belgrano 452 · VILLA MERCEDES, SAN LUIS, 5730",
+        "branchName": "VILLA MERCEDES (LAVAISSE)",
+        "addressLine": "Belgrano 452 · VILLA MERCEDES, SAN LUIS, 5730",
+        "province": "SAN LUIS",
+        "city": "VILLA MERCEDES",
+        "postalCode": "5730"
+      }
+    ],
+    "5850": [
+      {
+        "id": "andreani-5850-rio-cuarto-71",
+        "label": "RIO CUARTO · Alberdi 845 · RIO CUARTO, CORDOBA, 5850",
+        "branchName": "RIO CUARTO",
+        "addressLine": "Alberdi 845 · RIO CUARTO, CORDOBA, 5850",
+        "province": "CORDOBA",
+        "city": "RIO CUARTO",
+        "postalCode": "5850"
+      },
+      {
+        "id": "andreani-5850-rio-tercero-72",
+        "label": "RIO TERCERO · Gral Savio 2097 · RIO TERCERO, CORDOBA, 5850",
+        "branchName": "RIO TERCERO",
+        "addressLine": "Gral Savio 2097 · RIO TERCERO, CORDOBA, 5850",
+        "province": "CORDOBA",
+        "city": "RIO TERCERO",
+        "postalCode": "5850"
+      }
+    ],
+    "5900": [
+      {
+        "id": "andreani-5900-villa-maria-77",
+        "label": "VILLA MARIA · Mendoza 1085 · VILLA MARIA, CORDOBA, 5900",
+        "branchName": "VILLA MARIA",
+        "addressLine": "Mendoza 1085 · VILLA MARIA, CORDOBA, 5900",
+        "province": "CORDOBA",
+        "city": "VILLA MARIA",
+        "postalCode": "5900"
+      }
+    ],
+    "6000": [
+      {
+        "id": "andreani-6000-junin-circunvalacion-25",
+        "label": "JUNIN (CIRCUNVALACION) · Rojo Vesgas 317 · JUNIN, BUENOS AIRES – GBA, 6000",
+        "branchName": "JUNIN (CIRCUNVALACION)",
+        "addressLine": "Rojo Vesgas 317 · JUNIN, BUENOS AIRES – GBA, 6000",
+        "province": "BUENOS AIRES – GBA",
+        "city": "JUNIN",
+        "postalCode": "6000"
+      }
+    ],
+    "6300": [
+      {
+        "id": "andreani-6300-santa-rosa-la-pampa-86",
+        "label": "SANTA ROSA (LA PAMPA) · Pres Juan Domingo Peron 1935 · SANTA ROSA, LA PAMPA, 6300",
+        "branchName": "SANTA ROSA (LA PAMPA)",
+        "addressLine": "Pres Juan Domingo Peron 1935 · SANTA ROSA, LA PAMPA, 6300",
+        "province": "LA PAMPA",
+        "city": "SANTA ROSA",
+        "postalCode": "6300"
+      }
+    ],
+    "6400": [
+      {
+        "id": "andreani-6400-trenque-lauquen-74",
+        "label": "TRENQUE LAUQUEN · Peron 1237 · TRENQUE LAUQUEN, CORDOBA, 6400",
+        "branchName": "TRENQUE LAUQUEN",
+        "addressLine": "Peron 1237 · TRENQUE LAUQUEN, CORDOBA, 6400",
+        "province": "CORDOBA",
+        "city": "TRENQUE LAUQUEN",
+        "postalCode": "6400"
+      }
+    ],
+    "6500": [
+      {
+        "id": "andreani-6500-9-de-julio-1",
+        "label": "9 DE JULIO · Av. Vedia 774 · 9 DE JULIO, BUENOS AIRES, 6500",
+        "branchName": "9 DE JULIO",
+        "addressLine": "Av. Vedia 774 · 9 DE JULIO, BUENOS AIRES, 6500",
+        "province": "BUENOS AIRES",
+        "city": "9 DE JULIO",
+        "postalCode": "6500"
+      }
+    ],
+    "6600": [
+      {
+        "id": "andreani-6600-mercedes-31",
+        "label": "MERCEDES · Calle 29 482 · MERCEDES, BUENOS AIRES – GBA, 6600",
+        "branchName": "MERCEDES",
+        "addressLine": "Calle 29 482 · MERCEDES, BUENOS AIRES – GBA, 6600",
+        "province": "BUENOS AIRES – GBA",
+        "city": "MERCEDES",
+        "postalCode": "6600"
+      }
+    ],
+    "6700": [
+      {
+        "id": "andreani-6700-lujan-30",
+        "label": "LUJÁN · Humberto Primo 733 · LUJÁN, BUENOS AIRES – GBA, 6700",
+        "branchName": "LUJÁN",
+        "addressLine": "Humberto Primo 733 · LUJÁN, BUENOS AIRES – GBA, 6700",
+        "province": "BUENOS AIRES – GBA",
+        "city": "LUJÁN",
+        "postalCode": "6700"
+      }
+    ],
+    "7000": [
+      {
+        "id": "andreani-7000-tandil-14",
+        "label": "TANDIL · Alem 820 · TANDIL, BUENOS AIRES, 7000",
+        "branchName": "TANDIL",
+        "addressLine": "Alem 820 · TANDIL, BUENOS AIRES, 7000",
+        "province": "BUENOS AIRES",
+        "city": "TANDIL",
+        "postalCode": "7000"
+      }
+    ],
+    "7108": [
+      {
+        "id": "andreani-7108-mar-del-tuyu-7",
+        "label": "MAR DEL TUYÚ · Calle 16 8064 · MAR DEL TUYÚ, BUENOS AIRES, 7108",
+        "branchName": "MAR DEL TUYÚ",
+        "addressLine": "Calle 16 8064 · MAR DEL TUYÚ, BUENOS AIRES, 7108",
+        "province": "BUENOS AIRES",
+        "city": "MAR DEL TUYÚ",
+        "postalCode": "7108"
+      }
+    ],
+    "7130": [
+      {
+        "id": "andreani-7130-chascomus-4",
+        "label": "CHASCOMUS · Av Presidente Alfonsin 1567 · CHASCOMUS, BUENOS AIRES, 7130",
+        "branchName": "CHASCOMUS",
+        "addressLine": "Av Presidente Alfonsin 1567 · CHASCOMUS, BUENOS AIRES, 7130",
+        "province": "BUENOS AIRES",
+        "city": "CHASCOMUS",
+        "postalCode": "7130"
+      }
+    ],
+    "7167": [
+      {
+        "id": "andreani-7167-pinamar-11",
+        "label": "PINAMAR · Eneas 498 · PINAMAR, BUENOS AIRES, 7167",
+        "branchName": "PINAMAR",
+        "addressLine": "Eneas 498 · PINAMAR, BUENOS AIRES, 7167",
+        "province": "BUENOS AIRES",
+        "city": "PINAMAR",
+        "postalCode": "7167"
+      }
+    ],
+    "7300": [
+      {
+        "id": "andreani-7300-azul-av-mitre-2",
+        "label": "AZUL (AV MITRE) · Av Mitre 1036 · AZUL, BUENOS AIRES, 7300",
+        "branchName": "AZUL (AV MITRE)",
+        "addressLine": "Av Mitre 1036 · AZUL, BUENOS AIRES, 7300",
+        "province": "BUENOS AIRES",
+        "city": "AZUL",
+        "postalCode": "7300"
+      }
+    ],
+    "7400": [
+      {
+        "id": "andreani-7400-olavarria-av-la-rioja-y-los-cercis-9",
+        "label": "OLAVARRIA (AV LA RIOJA Y LOS CERCIS) · Hornos 2775 · OLAVARRIA, BUENOS AIRES, 7400",
+        "branchName": "OLAVARRIA (AV LA RIOJA Y LOS CERCIS)",
+        "addressLine": "Hornos 2775 · OLAVARRIA, BUENOS AIRES, 7400",
+        "province": "BUENOS AIRES",
+        "city": "OLAVARRIA",
+        "postalCode": "7400"
+      }
+    ],
+    "7500": [
+      {
+        "id": "andreani-7500-tres-arroyos-15",
+        "label": "TRES ARROYOS · Falucho 198 · TRES ARROYOS, BUENOS AIRES, 7500",
+        "branchName": "TRES ARROYOS",
+        "addressLine": "Falucho 198 · TRES ARROYOS, BUENOS AIRES, 7500",
+        "province": "BUENOS AIRES",
+        "city": "TRES ARROYOS",
+        "postalCode": "7500"
+      }
+    ],
+    "7600": [
+      {
+        "id": "andreani-7600-mar-del-plata-av-constitucion-5",
+        "label": "MAR DEL PLATA (AV CONSTITUCION) · Av Constitución 4632 · MAR DEL PLATA, BUENOS AIRES, 7600",
+        "branchName": "MAR DEL PLATA (AV CONSTITUCION)",
+        "addressLine": "Av Constitución 4632 · MAR DEL PLATA, BUENOS AIRES, 7600",
+        "province": "BUENOS AIRES",
+        "city": "MAR DEL PLATA",
+        "postalCode": "7600"
+      },
+      {
+        "id": "andreani-7600-mar-del-plata-av-independencia-6",
+        "label": "MAR DEL PLATA (AV. INDEPENDENCIA) · Independencia 1946 · MAR DEL PLATA, BUENOS AIRES, 7600",
+        "branchName": "MAR DEL PLATA (AV. INDEPENDENCIA)",
+        "addressLine": "Independencia 1946 · MAR DEL PLATA, BUENOS AIRES, 7600",
+        "province": "BUENOS AIRES",
+        "city": "MAR DEL PLATA",
+        "postalCode": "7600"
+      }
+    ],
+    "7630": [
+      {
+        "id": "andreani-7630-necochea-8",
+        "label": "NECOCHEA · Calle 47 2131 · NECOCHEA, BUENOS AIRES, 7630",
+        "branchName": "NECOCHEA",
+        "addressLine": "Calle 47 2131 · NECOCHEA, BUENOS AIRES, 7630",
+        "province": "BUENOS AIRES",
+        "city": "NECOCHEA",
+        "postalCode": "7630"
+      }
+    ],
+    "8000": [
+      {
+        "id": "andreani-8000-bahia-blanca-3",
+        "label": "BAHIA BLANCA · San Martin 351 · BAHIA BLANCA, BUENOS AIRES, 8000",
+        "branchName": "BAHIA BLANCA",
+        "addressLine": "San Martin 351 · BAHIA BLANCA, BUENOS AIRES, 8000",
+        "province": "BUENOS AIRES",
+        "city": "BAHIA BLANCA",
+        "postalCode": "8000"
+      }
+    ],
+    "8300": [
+      {
+        "id": "andreani-8300-neuquen-beltran-97",
+        "label": "NEUQUEN (BELTRÁN) · Fray Luis Beltrán 367 · NEUQUEN, NEUQUEN, 8300",
+        "branchName": "NEUQUEN (BELTRÁN)",
+        "addressLine": "Fray Luis Beltrán 367 · NEUQUEN, NEUQUEN, 8300",
+        "province": "NEUQUEN",
+        "city": "NEUQUEN",
+        "postalCode": "8300"
+      }
+    ],
+    "8324": [
+      {
+        "id": "andreani-8324-cipolletti-100",
+        "label": "CIPOLLETTI · Av. General Pacheco 420 · CIPOLLETTI, RIO NEGRO, 8324",
+        "branchName": "CIPOLLETTI",
+        "addressLine": "Av. General Pacheco 420 · CIPOLLETTI, RIO NEGRO, 8324",
+        "province": "RIO NEGRO",
+        "city": "CIPOLLETTI",
+        "postalCode": "8324"
+      }
+    ],
+    "8332": [
+      {
+        "id": "andreani-8332-general-roca-102",
+        "label": "GENERAL ROCA · Italia 1637 · GENERAL ROCA, RIO NEGRO, 8332",
+        "branchName": "GENERAL ROCA",
+        "addressLine": "Italia 1637 · GENERAL ROCA, RIO NEGRO, 8332",
+        "province": "RIO NEGRO",
+        "city": "GENERAL ROCA",
+        "postalCode": "8332"
+      }
+    ],
+    "8340": [
+      {
+        "id": "andreani-8340-zapala-98",
+        "label": "ZAPALA · Etcheluz 108 · ZAPALA, NEUQUEN, 8340",
+        "branchName": "ZAPALA",
+        "addressLine": "Etcheluz 108 · ZAPALA, NEUQUEN, 8340",
+        "province": "NEUQUEN",
+        "city": "ZAPALA",
+        "postalCode": "8340"
+      }
+    ],
+    "8400": [
+      {
+        "id": "andreani-8400-bariloche-99",
+        "label": "BARILOCHE · Elflein 248 · BARILOCHE, RIO NEGRO, 8400",
+        "branchName": "BARILOCHE",
+        "addressLine": "Elflein 248 · BARILOCHE, RIO NEGRO, 8400",
+        "province": "RIO NEGRO",
+        "city": "BARILOCHE",
+        "postalCode": "8400"
+      }
+    ],
+    "8430": [
+      {
+        "id": "andreani-8430-el-bolson-101",
+        "label": "EL BOLSÓN · Ruta 40 4580 · EL BOLSÓN, RIO NEGRO, 8430",
+        "branchName": "EL BOLSÓN",
+        "addressLine": "Ruta 40 4580 · EL BOLSÓN, RIO NEGRO, 8430",
+        "province": "RIO NEGRO",
+        "city": "EL BOLSÓN",
+        "postalCode": "8430"
+      }
+    ],
+    "8500": [
+      {
+        "id": "andreani-8500-viedma-104",
+        "label": "VIEDMA · Belgrano 1345 · VIEDMA, RIO NEGRO, 8500",
+        "branchName": "VIEDMA",
+        "addressLine": "Belgrano 1345 · VIEDMA, RIO NEGRO, 8500",
+        "province": "RIO NEGRO",
+        "city": "VIEDMA",
+        "postalCode": "8500"
+      }
+    ],
+    "8520": [
+      {
+        "id": "andreani-8520-san-antonio-oeste-103",
+        "label": "SAN ANTONIO OESTE · Hipólito Yrigoyen 565 · SAN ANTONIO OESTE, RIO NEGRO, 8520",
+        "branchName": "SAN ANTONIO OESTE",
+        "addressLine": "Hipólito Yrigoyen 565 · SAN ANTONIO OESTE, RIO NEGRO, 8520",
+        "province": "RIO NEGRO",
+        "city": "SAN ANTONIO OESTE",
+        "postalCode": "8520"
+      }
+    ],
+    "9000": [
+      {
+        "id": "andreani-9000-comodoro-rivadavia-63",
+        "label": "COMODORO RIVADAVIA · Sarmiento 128 · COMODORO RIVADAVIA, CHUBUT, 9000",
+        "branchName": "COMODORO RIVADAVIA",
+        "addressLine": "Sarmiento 128 · COMODORO RIVADAVIA, CHUBUT, 9000",
+        "province": "CHUBUT",
+        "city": "COMODORO RIVADAVIA",
+        "postalCode": "9000"
+      }
+    ],
+    "9011": [
+      {
+        "id": "andreani-9011-caleta-olivia-111",
+        "label": "CALETA OLIVIA · Bartolomé Mitre 1640 · CALETA OLIVIA, SANTA CRUZ, 9011",
+        "branchName": "CALETA OLIVIA",
+        "addressLine": "Bartolomé Mitre 1640 · CALETA OLIVIA, SANTA CRUZ, 9011",
+        "province": "SANTA CRUZ",
+        "city": "CALETA OLIVIA",
+        "postalCode": "9011"
+      }
+    ],
+    "9100": [
+      {
+        "id": "andreani-9100-trelew-65",
+        "label": "TRELEW · Cacique Chiquichano 1890 · TRELEW, CHUBUT, 9100",
+        "branchName": "TRELEW",
+        "addressLine": "Cacique Chiquichano 1890 · TRELEW, CHUBUT, 9100",
+        "province": "CHUBUT",
+        "city": "TRELEW",
+        "postalCode": "9100"
+      }
+    ],
+    "9120": [
+      {
+        "id": "andreani-9120-puerto-madryn-64",
+        "label": "PUERTO MADRYN · 9 De Julio 677 · PUERTO MADRYN, CHUBUT, 9120",
+        "branchName": "PUERTO MADRYN",
+        "addressLine": "9 De Julio 677 · PUERTO MADRYN, CHUBUT, 9120",
+        "province": "CHUBUT",
+        "city": "PUERTO MADRYN",
+        "postalCode": "9120"
+      }
+    ],
+    "9400": [
+      {
+        "id": "andreani-9400-rio-gallegos-113",
+        "label": "RIO GALLEGOS · Alberdi 488 · RIO GALLEGOS, SANTA CRUZ, 9400",
+        "branchName": "RIO GALLEGOS",
+        "addressLine": "Alberdi 488 · RIO GALLEGOS, SANTA CRUZ, 9400",
+        "province": "SANTA CRUZ",
+        "city": "RIO GALLEGOS",
+        "postalCode": "9400"
+      }
+    ],
+    "9405": [
+      {
+        "id": "andreani-9405-el-calafate-112",
+        "label": "EL CALAFATE · Pantin 31 · EL CALAFATE, SANTA CRUZ, 9405",
+        "branchName": "EL CALAFATE",
+        "addressLine": "Pantin 31 · EL CALAFATE, SANTA CRUZ, 9405",
+        "province": "SANTA CRUZ",
+        "city": "EL CALAFATE",
+        "postalCode": "9405"
+      }
+    ],
+    "9410": [
+      {
+        "id": "andreani-9410-ushuaia-126",
+        "label": "USHUAIA · San Martín 1543 · USHUAIA, TIERRA DEL FUEGO, 9410",
+        "branchName": "USHUAIA",
+        "addressLine": "San Martín 1543 · USHUAIA, TIERRA DEL FUEGO, 9410",
+        "province": "TIERRA DEL FUEGO",
+        "city": "USHUAIA",
+        "postalCode": "9410"
+      }
+    ],
+    "9420": [
+      {
+        "id": "andreani-9420-rio-grande-125",
+        "label": "RIO GRANDE · Leonardo Rosales 664 · RIO GRANDE, TIERRA DEL FUEGO, 9420",
+        "branchName": "RIO GRANDE",
+        "addressLine": "Leonardo Rosales 664 · RIO GRANDE, TIERRA DEL FUEGO, 9420",
+        "province": "TIERRA DEL FUEGO",
+        "city": "RIO GRANDE",
+        "postalCode": "9420"
+      }
+    ]
+  },
+  "branches": [
+    {
+      "id": "andreani-6500-9-de-julio-1",
+      "province": "BUENOS AIRES",
+      "city": "9 DE JULIO",
+      "postalCode": "6500",
+      "branchName": "9 DE JULIO",
+      "streetAddress": "Av. Vedia 774",
+      "addressLine": "Av. Vedia 774 · 9 DE JULIO, BUENOS AIRES, 6500",
+      "label": "9 DE JULIO · Av. Vedia 774 · 9 DE JULIO, BUENOS AIRES, 6500"
+    },
+    {
+      "id": "andreani-7300-azul-av-mitre-2",
+      "province": "BUENOS AIRES",
+      "city": "AZUL",
+      "postalCode": "7300",
+      "branchName": "AZUL (AV MITRE)",
+      "streetAddress": "Av Mitre 1036",
+      "addressLine": "Av Mitre 1036 · AZUL, BUENOS AIRES, 7300",
+      "label": "AZUL (AV MITRE) · Av Mitre 1036 · AZUL, BUENOS AIRES, 7300"
+    },
+    {
+      "id": "andreani-8000-bahia-blanca-3",
+      "province": "BUENOS AIRES",
+      "city": "BAHIA BLANCA",
+      "postalCode": "8000",
+      "branchName": "BAHIA BLANCA",
+      "streetAddress": "San Martin 351",
+      "addressLine": "San Martin 351 · BAHIA BLANCA, BUENOS AIRES, 8000",
+      "label": "BAHIA BLANCA · San Martin 351 · BAHIA BLANCA, BUENOS AIRES, 8000"
+    },
+    {
+      "id": "andreani-7130-chascomus-4",
+      "province": "BUENOS AIRES",
+      "city": "CHASCOMUS",
+      "postalCode": "7130",
+      "branchName": "CHASCOMUS",
+      "streetAddress": "Av Presidente Alfonsin 1567",
+      "addressLine": "Av Presidente Alfonsin 1567 · CHASCOMUS, BUENOS AIRES, 7130",
+      "label": "CHASCOMUS · Av Presidente Alfonsin 1567 · CHASCOMUS, BUENOS AIRES, 7130"
+    },
+    {
+      "id": "andreani-7600-mar-del-plata-av-constitucion-5",
+      "province": "BUENOS AIRES",
+      "city": "MAR DEL PLATA",
+      "postalCode": "7600",
+      "branchName": "MAR DEL PLATA (AV CONSTITUCION)",
+      "streetAddress": "Av Constitución 4632",
+      "addressLine": "Av Constitución 4632 · MAR DEL PLATA, BUENOS AIRES, 7600",
+      "label": "MAR DEL PLATA (AV CONSTITUCION) · Av Constitución 4632 · MAR DEL PLATA, BUENOS AIRES, 7600"
+    },
+    {
+      "id": "andreani-7600-mar-del-plata-av-independencia-6",
+      "province": "BUENOS AIRES",
+      "city": "MAR DEL PLATA",
+      "postalCode": "7600",
+      "branchName": "MAR DEL PLATA (AV. INDEPENDENCIA)",
+      "streetAddress": "Independencia 1946",
+      "addressLine": "Independencia 1946 · MAR DEL PLATA, BUENOS AIRES, 7600",
+      "label": "MAR DEL PLATA (AV. INDEPENDENCIA) · Independencia 1946 · MAR DEL PLATA, BUENOS AIRES, 7600"
+    },
+    {
+      "id": "andreani-7108-mar-del-tuyu-7",
+      "province": "BUENOS AIRES",
+      "city": "MAR DEL TUYÚ",
+      "postalCode": "7108",
+      "branchName": "MAR DEL TUYÚ",
+      "streetAddress": "Calle 16 8064",
+      "addressLine": "Calle 16 8064 · MAR DEL TUYÚ, BUENOS AIRES, 7108",
+      "label": "MAR DEL TUYÚ · Calle 16 8064 · MAR DEL TUYÚ, BUENOS AIRES, 7108"
+    },
+    {
+      "id": "andreani-7630-necochea-8",
+      "province": "BUENOS AIRES",
+      "city": "NECOCHEA",
+      "postalCode": "7630",
+      "branchName": "NECOCHEA",
+      "streetAddress": "Calle 47 2131",
+      "addressLine": "Calle 47 2131 · NECOCHEA, BUENOS AIRES, 7630",
+      "label": "NECOCHEA · Calle 47 2131 · NECOCHEA, BUENOS AIRES, 7630"
+    },
+    {
+      "id": "andreani-7400-olavarria-av-la-rioja-y-los-cercis-9",
+      "province": "BUENOS AIRES",
+      "city": "OLAVARRIA",
+      "postalCode": "7400",
+      "branchName": "OLAVARRIA (AV LA RIOJA Y LOS CERCIS)",
+      "streetAddress": "Hornos 2775",
+      "addressLine": "Hornos 2775 · OLAVARRIA, BUENOS AIRES, 7400",
+      "label": "OLAVARRIA (AV LA RIOJA Y LOS CERCIS) · Hornos 2775 · OLAVARRIA, BUENOS AIRES, 7400"
+    },
+    {
+      "id": "andreani-2702-pergamino-h-yrigoyen-10",
+      "province": "BUENOS AIRES",
+      "city": "PERGAMINO",
+      "postalCode": "2702",
+      "branchName": "PERGAMINO (H YRIGOYEN)",
+      "streetAddress": "Av Hipolito Yrigoyen 845",
+      "addressLine": "Av Hipolito Yrigoyen 845 · PERGAMINO, BUENOS AIRES, 2702",
+      "label": "PERGAMINO (H YRIGOYEN) · Av Hipolito Yrigoyen 845 · PERGAMINO, BUENOS AIRES, 2702"
+    },
+    {
+      "id": "andreani-7167-pinamar-11",
+      "province": "BUENOS AIRES",
+      "city": "PINAMAR",
+      "postalCode": "7167",
+      "branchName": "PINAMAR",
+      "streetAddress": "Eneas 498",
+      "addressLine": "Eneas 498 · PINAMAR, BUENOS AIRES, 7167",
+      "label": "PINAMAR · Eneas 498 · PINAMAR, BUENOS AIRES, 7167"
+    },
+    {
+      "id": "andreani-2900-san-nicolas-12",
+      "province": "BUENOS AIRES",
+      "city": "SAN NICOLAS",
+      "postalCode": "2900",
+      "branchName": "SAN NICOLAS",
+      "streetAddress": "Italia 67",
+      "addressLine": "Italia 67 · SAN NICOLAS, BUENOS AIRES, 2900",
+      "label": "SAN NICOLAS · Italia 67 · SAN NICOLAS, BUENOS AIRES, 2900"
+    },
+    {
+      "id": "andreani-2930-san-pedro-centro-de-comercio-e-ind-13",
+      "province": "BUENOS AIRES",
+      "city": "SAN PEDRO",
+      "postalCode": "2930",
+      "branchName": "SAN PEDRO – CENTRO DE COMERCIO E IND",
+      "streetAddress": "Mitre 650",
+      "addressLine": "Mitre 650 · SAN PEDRO, BUENOS AIRES, 2930",
+      "label": "SAN PEDRO – CENTRO DE COMERCIO E IND · Mitre 650 · SAN PEDRO, BUENOS AIRES, 2930"
+    },
+    {
+      "id": "andreani-7000-tandil-14",
+      "province": "BUENOS AIRES",
+      "city": "TANDIL",
+      "postalCode": "7000",
+      "branchName": "TANDIL",
+      "streetAddress": "Alem 820",
+      "addressLine": "Alem 820 · TANDIL, BUENOS AIRES, 7000",
+      "label": "TANDIL · Alem 820 · TANDIL, BUENOS AIRES, 7000"
+    },
+    {
+      "id": "andreani-7500-tres-arroyos-15",
+      "province": "BUENOS AIRES",
+      "city": "TRES ARROYOS",
+      "postalCode": "7500",
+      "branchName": "TRES ARROYOS",
+      "streetAddress": "Falucho 198",
+      "addressLine": "Falucho 198 · TRES ARROYOS, BUENOS AIRES, 7500",
+      "label": "TRES ARROYOS · Falucho 198 · TRES ARROYOS, BUENOS AIRES, 7500"
+    },
+    {
+      "id": "andreani-2800-zarate-16",
+      "province": "BUENOS AIRES",
+      "city": "ZARATE",
+      "postalCode": "2800",
+      "branchName": "ZARATE",
+      "streetAddress": "Justa Lima 1626",
+      "addressLine": "Justa Lima 1626 · ZARATE, BUENOS AIRES, 2800",
+      "label": "ZARATE · Justa Lima 1626 · ZARATE, BUENOS AIRES, 2800"
+    },
+    {
+      "id": "andreani-1868-avellaneda-pienovi-barracas-17",
+      "province": "BUENOS AIRES – GBA",
+      "city": "AVELLANEDA",
+      "postalCode": "1868",
+      "branchName": "AVELLANEDA (PIENOVI) / BARRACAS",
+      "streetAddress": "Pienovi 104, Pineyro",
+      "addressLine": "Pienovi 104, Pineyro · AVELLANEDA, BUENOS AIRES – GBA, 1868",
+      "label": "AVELLANEDA (PIENOVI) / BARRACAS · Pienovi 104, Pineyro · AVELLANEDA, BUENOS AIRES – GBA, 1868"
+    },
+    {
+      "id": "andreani-1884-berazategui-18",
+      "province": "BUENOS AIRES – GBA",
+      "city": "BERAZATEGUI",
+      "postalCode": "1884",
+      "branchName": "BERAZATEGUI",
+      "streetAddress": "Av Mitre 662",
+      "addressLine": "Av Mitre 662 · BERAZATEGUI, BUENOS AIRES – GBA, 1884",
+      "label": "BERAZATEGUI · Av Mitre 662 · BERAZATEGUI, BUENOS AIRES – GBA, 1884"
+    },
+    {
+      "id": "andreani-1852-burzaco-19",
+      "province": "BUENOS AIRES – GBA",
+      "city": "BURZACO",
+      "postalCode": "1852",
+      "branchName": "BURZACO",
+      "streetAddress": "Hipolito Yrigoyen 14343",
+      "addressLine": "Hipolito Yrigoyen 14343 · BURZACO, BUENOS AIRES – GBA, 1852",
+      "label": "BURZACO · Hipolito Yrigoyen 14343 · BURZACO, BUENOS AIRES – GBA, 1852"
+    },
+    {
+      "id": "andreani-1801-canning-20",
+      "province": "BUENOS AIRES – GBA",
+      "city": "CANNING",
+      "postalCode": "1801",
+      "branchName": "CANNING",
+      "streetAddress": "Av Castex 177",
+      "addressLine": "Av Castex 177 · CANNING, BUENOS AIRES – GBA, 1801",
+      "label": "CANNING · Av Castex 177 · CANNING, BUENOS AIRES – GBA, 1801"
+    },
+    {
+      "id": "andreani-1678-caseros-21",
+      "province": "BUENOS AIRES – GBA",
+      "city": "CASEROS",
+      "postalCode": "1678",
+      "branchName": "CASEROS",
+      "streetAddress": "Justo Josê de Urquiza 5141",
+      "addressLine": "Justo Josê de Urquiza 5141 · CASEROS, BUENOS AIRES – GBA, 1678",
+      "label": "CASEROS · Justo Josê de Urquiza 5141 · CASEROS, BUENOS AIRES – GBA, 1678"
+    },
+    {
+      "id": "andreani-1625-escobar-22",
+      "province": "BUENOS AIRES – GBA",
+      "city": "ESCOBAR",
+      "postalCode": "1625",
+      "branchName": "ESCOBAR",
+      "streetAddress": "Belgrano 732",
+      "addressLine": "Belgrano 732 · ESCOBAR, BUENOS AIRES – GBA, 1625",
+      "label": "ESCOBAR · Belgrano 732 · ESCOBAR, BUENOS AIRES – GBA, 1625"
+    },
+    {
+      "id": "andreani-1888-florencio-varela-23",
+      "province": "BUENOS AIRES – GBA",
+      "city": "FLORENCIO VARELA",
+      "postalCode": "1888",
+      "branchName": "FLORENCIO VARELA",
+      "streetAddress": "Av. San Martin 2326",
+      "addressLine": "Av. San Martin 2326 · FLORENCIO VARELA, BUENOS AIRES – GBA, 1888",
+      "label": "FLORENCIO VARELA · Av. San Martin 2326 · FLORENCIO VARELA, BUENOS AIRES – GBA, 1888"
+    },
+    {
+      "id": "andreani-1897-gonnet-24",
+      "province": "BUENOS AIRES – GBA",
+      "city": "GONNET",
+      "postalCode": "1897",
+      "branchName": "GONNET",
+      "streetAddress": "Camino Centenario 2156",
+      "addressLine": "Camino Centenario 2156 · GONNET, BUENOS AIRES – GBA, 1897",
+      "label": "GONNET · Camino Centenario 2156 · GONNET, BUENOS AIRES – GBA, 1897"
+    },
+    {
+      "id": "andreani-6000-junin-circunvalacion-25",
+      "province": "BUENOS AIRES – GBA",
+      "city": "JUNIN",
+      "postalCode": "6000",
+      "branchName": "JUNIN (CIRCUNVALACION)",
+      "streetAddress": "Rojo Vesgas 317",
+      "addressLine": "Rojo Vesgas 317 · JUNIN, BUENOS AIRES – GBA, 6000",
+      "label": "JUNIN (CIRCUNVALACION) · Rojo Vesgas 317 · JUNIN, BUENOS AIRES – GBA, 6000"
+    },
+    {
+      "id": "andreani-1900-la-plata-avenida-13-26",
+      "province": "BUENOS AIRES – GBA",
+      "city": "LA PLATA AVENIDA 13",
+      "postalCode": "1900",
+      "branchName": "LA PLATA AVENIDA 13",
+      "streetAddress": "Calle 13 1262",
+      "addressLine": "Calle 13 1262 · LA PLATA AVENIDA 13, BUENOS AIRES – GBA, 1900",
+      "label": "LA PLATA AVENIDA 13 · Calle 13 1262 · LA PLATA AVENIDA 13, BUENOS AIRES – GBA, 1900"
+    },
+    {
+      "id": "andreani-1900-la-plata-calle-2-27",
+      "province": "BUENOS AIRES – GBA",
+      "city": "LA PLATA CALLE 2",
+      "postalCode": "1900",
+      "branchName": "LA PLATA CALLE 2",
+      "streetAddress": "Calle 2 475",
+      "addressLine": "Calle 2 475 · LA PLATA CALLE 2, BUENOS AIRES – GBA, 1900",
+      "label": "LA PLATA CALLE 2 · Calle 2 475 · LA PLATA CALLE 2, BUENOS AIRES – GBA, 1900"
+    },
+    {
+      "id": "andreani-1757-laferrere-28",
+      "province": "BUENOS AIRES – GBA",
+      "city": "LAFERRERE",
+      "postalCode": "1757",
+      "branchName": "LAFERRERE",
+      "streetAddress": "Av. Piedrabuena 6028",
+      "addressLine": "Av. Piedrabuena 6028 · LAFERRERE, BUENOS AIRES – GBA, 1757",
+      "label": "LAFERRERE · Av. Piedrabuena 6028 · LAFERRERE, BUENOS AIRES – GBA, 1757"
+    },
+    {
+      "id": "andreani-1824-lanus-29",
+      "province": "BUENOS AIRES – GBA",
+      "city": "LANÚS",
+      "postalCode": "1824",
+      "branchName": "LANÚS",
+      "streetAddress": "Av. H. Yrigoyen 2828",
+      "addressLine": "Av. H. Yrigoyen 2828 · LANÚS, BUENOS AIRES – GBA, 1824",
+      "label": "LANÚS · Av. H. Yrigoyen 2828 · LANÚS, BUENOS AIRES – GBA, 1824"
+    },
+    {
+      "id": "andreani-6700-lujan-30",
+      "province": "BUENOS AIRES – GBA",
+      "city": "LUJÁN",
+      "postalCode": "6700",
+      "branchName": "LUJÁN",
+      "streetAddress": "Humberto Primo 733",
+      "addressLine": "Humberto Primo 733 · LUJÁN, BUENOS AIRES – GBA, 6700",
+      "label": "LUJÁN · Humberto Primo 733 · LUJÁN, BUENOS AIRES – GBA, 6700"
+    },
+    {
+      "id": "andreani-6600-mercedes-31",
+      "province": "BUENOS AIRES – GBA",
+      "city": "MERCEDES",
+      "postalCode": "6600",
+      "branchName": "MERCEDES",
+      "streetAddress": "Calle 29 482",
+      "addressLine": "Calle 29 482 · MERCEDES, BUENOS AIRES – GBA, 6600",
+      "label": "MERCEDES · Calle 29 482 · MERCEDES, BUENOS AIRES – GBA, 6600"
+    },
+    {
+      "id": "andreani-1722-merlo-32",
+      "province": "BUENOS AIRES – GBA",
+      "city": "MERLO",
+      "postalCode": "1722",
+      "branchName": "MERLO",
+      "streetAddress": "Av Calle Real 257",
+      "addressLine": "Av Calle Real 257 · MERLO, BUENOS AIRES – GBA, 1722",
+      "label": "MERLO · Av Calle Real 257 · MERLO, BUENOS AIRES – GBA, 1722"
+    },
+    {
+      "id": "andreani-1842-monte-grande-33",
+      "province": "BUENOS AIRES – GBA",
+      "city": "MONTE GRANDE",
+      "postalCode": "1842",
+      "branchName": "MONTE GRANDE",
+      "streetAddress": "Bv. Buenos Aires 311",
+      "addressLine": "Bv. Buenos Aires 311 · MONTE GRANDE, BUENOS AIRES – GBA, 1842",
+      "label": "MONTE GRANDE · Bv. Buenos Aires 311 · MONTE GRANDE, BUENOS AIRES – GBA, 1842"
+    },
+    {
+      "id": "andreani-1744-moreno-34",
+      "province": "BUENOS AIRES – GBA",
+      "city": "MORENO",
+      "postalCode": "1744",
+      "branchName": "MORENO",
+      "streetAddress": "Tucumán 128",
+      "addressLine": "Tucumán 128 · MORENO, BUENOS AIRES – GBA, 1744",
+      "label": "MORENO · Tucumán 128 · MORENO, BUENOS AIRES – GBA, 1744"
+    },
+    {
+      "id": "andreani-1708-moron-35",
+      "province": "BUENOS AIRES – GBA",
+      "city": "MORON",
+      "postalCode": "1708",
+      "branchName": "MORON",
+      "streetAddress": "25 de Mayo 497",
+      "addressLine": "25 de Mayo 497 · MORON, BUENOS AIRES – GBA, 1708",
+      "label": "MORON · 25 de Mayo 497 · MORON, BUENOS AIRES – GBA, 1708"
+    },
+    {
+      "id": "andreani-1629-pilar-36",
+      "province": "BUENOS AIRES – GBA",
+      "city": "PILAR",
+      "postalCode": "1629",
+      "branchName": "PILAR",
+      "streetAddress": "Lagrave 282",
+      "addressLine": "Lagrave 282 · PILAR, BUENOS AIRES – GBA, 1629",
+      "label": "PILAR · Lagrave 282 · PILAR, BUENOS AIRES – GBA, 1629"
+    },
+    {
+      "id": "andreani-1878-quilmes-37",
+      "province": "BUENOS AIRES – GBA",
+      "city": "QUILMES",
+      "postalCode": "1878",
+      "branchName": "QUILMES",
+      "streetAddress": "Andrés Baranda 625",
+      "addressLine": "Andrés Baranda 625 · QUILMES, BUENOS AIRES – GBA, 1878",
+      "label": "QUILMES · Andrés Baranda 625 · QUILMES, BUENOS AIRES – GBA, 1878"
+    },
+    {
+      "id": "andreani-1642-san-isidro-38",
+      "province": "BUENOS AIRES – GBA",
+      "city": "SAN ISIDRO",
+      "postalCode": "1642",
+      "branchName": "SAN ISIDRO",
+      "streetAddress": "Ituzaingo 375",
+      "addressLine": "Ituzaingo 375 · SAN ISIDRO, BUENOS AIRES – GBA, 1642",
+      "label": "SAN ISIDRO · Ituzaingo 375 · SAN ISIDRO, BUENOS AIRES – GBA, 1642"
+    },
+    {
+      "id": "andreani-1754-san-justo-39",
+      "province": "BUENOS AIRES – GBA",
+      "city": "SAN JUSTO",
+      "postalCode": "1754",
+      "branchName": "SAN JUSTO",
+      "streetAddress": "Mendoza 2552",
+      "addressLine": "Mendoza 2552 · SAN JUSTO, BUENOS AIRES – GBA, 1754",
+      "label": "SAN JUSTO · Mendoza 2552 · SAN JUSTO, BUENOS AIRES – GBA, 1754"
+    },
+    {
+      "id": "andreani-1650-san-martin-40",
+      "province": "BUENOS AIRES – GBA",
+      "city": "SAN MARTIN",
+      "postalCode": "1650",
+      "branchName": "SAN MARTIN",
+      "streetAddress": "Carrillo 2176",
+      "addressLine": "Carrillo 2176 · SAN MARTIN, BUENOS AIRES – GBA, 1650",
+      "label": "SAN MARTIN · Carrillo 2176 · SAN MARTIN, BUENOS AIRES – GBA, 1650"
+    },
+    {
+      "id": "andreani-1663-san-miguel-41",
+      "province": "BUENOS AIRES – GBA",
+      "city": "SAN MIGUEL",
+      "postalCode": "1663",
+      "branchName": "SAN MIGUEL",
+      "streetAddress": "Serrano 1695",
+      "addressLine": "Serrano 1695 · SAN MIGUEL, BUENOS AIRES – GBA, 1663",
+      "label": "SAN MIGUEL · Serrano 1695 · SAN MIGUEL, BUENOS AIRES – GBA, 1663"
+    },
+    {
+      "id": "andreani-1834-temperley-42",
+      "province": "BUENOS AIRES – GBA",
+      "city": "TEMPERLEY",
+      "postalCode": "1834",
+      "branchName": "TEMPERLEY",
+      "streetAddress": "Almirante Brown 3180",
+      "addressLine": "Almirante Brown 3180 · TEMPERLEY, BUENOS AIRES – GBA, 1834",
+      "label": "TEMPERLEY · Almirante Brown 3180 · TEMPERLEY, BUENOS AIRES – GBA, 1834"
+    },
+    {
+      "id": "andreani-1621-tigre-av-pres-j-d-peron-43",
+      "province": "BUENOS AIRES – GBA",
+      "city": "TIGRE",
+      "postalCode": "1621",
+      "branchName": "TIGRE (AV PRES J D PERON)",
+      "streetAddress": "Av. Pres Peron 4749",
+      "addressLine": "Av. Pres Peron 4749 · TIGRE, BUENOS AIRES – GBA, 1621",
+      "label": "TIGRE (AV PRES J D PERON) · Av. Pres Peron 4749 · TIGRE, BUENOS AIRES – GBA, 1621"
+    },
+    {
+      "id": "andreani-1648-tigre-estacion-de-servicio-44",
+      "province": "BUENOS AIRES – GBA",
+      "city": "TIGRE",
+      "postalCode": "1648",
+      "branchName": "TIGRE (ESTACIÓN DE SERVICIO)",
+      "streetAddress": "Gelly y Obes 1680",
+      "addressLine": "Gelly y Obes 1680 · TIGRE, BUENOS AIRES – GBA, 1648",
+      "label": "TIGRE (ESTACIÓN DE SERVICIO) · Gelly y Obes 1680 · TIGRE, BUENOS AIRES – GBA, 1648"
+    },
+    {
+      "id": "andreani-1600-vicente-lopez-45",
+      "province": "BUENOS AIRES – GBA",
+      "city": "VICENTE LOPEZ",
+      "postalCode": "1600",
+      "branchName": "VICENTE LOPEZ",
+      "streetAddress": "Av Maipu 1901",
+      "addressLine": "Av Maipu 1901 · VICENTE LOPEZ, BUENOS AIRES – GBA, 1600",
+      "label": "VICENTE LOPEZ · Av Maipu 1901 · VICENTE LOPEZ, BUENOS AIRES – GBA, 1600"
+    },
+    {
+      "id": "andreani-1644-victoria-46",
+      "province": "BUENOS AIRES – GBA",
+      "city": "VICTORIA",
+      "postalCode": "1644",
+      "branchName": "VICTORIA",
+      "streetAddress": "Av. Presidente Peron 2880",
+      "addressLine": "Av. Presidente Peron 2880 · VICTORIA, BUENOS AIRES – GBA, 1644",
+      "label": "VICTORIA · Av. Presidente Peron 2880 · VICTORIA, BUENOS AIRES – GBA, 1644"
+    },
+    {
+      "id": "andreani-1825-wilde-47",
+      "province": "BUENOS AIRES – GBA",
+      "city": "WILDE",
+      "postalCode": "1825",
+      "branchName": "WILDE",
+      "streetAddress": "Av. Mitre 5195, Villa Dominico",
+      "addressLine": "Av. Mitre 5195, Villa Dominico · WILDE, BUENOS AIRES – GBA, 1825",
+      "label": "WILDE · Av. Mitre 5195, Villa Dominico · WILDE, BUENOS AIRES – GBA, 1825"
+    },
+    {
+      "id": "andreani-1429-belgrano-48",
+      "province": "C.A.B.A.",
+      "city": "BELGRANO",
+      "postalCode": "1429",
+      "branchName": "BELGRANO",
+      "streetAddress": "Av. Cabildo 1386",
+      "addressLine": "Av. Cabildo 1386 · BELGRANO, C.A.B.A., 1429",
+      "label": "BELGRANO · Av. Cabildo 1386 · BELGRANO, C.A.B.A., 1429"
+    },
+    {
+      "id": "andreani-1200-caballito-49",
+      "province": "C.A.B.A.",
+      "city": "CABALLITO",
+      "postalCode": "1200",
+      "branchName": "CABALLITO",
+      "streetAddress": "Diaz Velez 4190",
+      "addressLine": "Diaz Velez 4190 · CABALLITO, C.A.B.A., 1200",
+      "label": "CABALLITO · Diaz Velez 4190 · CABALLITO, C.A.B.A., 1200"
+    },
+    {
+      "id": "andreani-1039-estacion-once-50",
+      "province": "C.A.B.A.",
+      "city": "ESTACIÓN ONCE",
+      "postalCode": "1039",
+      "branchName": "ESTACIÓN ONCE",
+      "streetAddress": "Bartolomé Mitre (Local 21) 2815",
+      "addressLine": "Bartolomé Mitre (Local 21) 2815 · ESTACIÓN ONCE, C.A.B.A., 1039",
+      "label": "ESTACIÓN ONCE · Bartolomé Mitre (Local 21) 2815 · ESTACIÓN ONCE, C.A.B.A., 1039"
+    },
+    {
+      "id": "andreani-1406-flores-51",
+      "province": "C.A.B.A.",
+      "city": "FLORES",
+      "postalCode": "1406",
+      "branchName": "FLORES",
+      "streetAddress": "Av. J. B. Alberdi 3138",
+      "addressLine": "Av. J. B. Alberdi 3138 · FLORES, C.A.B.A., 1406",
+      "label": "FLORES · Av. J. B. Alberdi 3138 · FLORES, C.A.B.A., 1406"
+    },
+    {
+      "id": "andreani-1043-microcentro-52",
+      "province": "C.A.B.A.",
+      "city": "MICROCENTRO",
+      "postalCode": "1043",
+      "branchName": "MICROCENTRO",
+      "streetAddress": "Av. Corrientes 455",
+      "addressLine": "Av. Corrientes 455 · MICROCENTRO, C.A.B.A., 1043",
+      "label": "MICROCENTRO · Av. Corrientes 455 · MICROCENTRO, C.A.B.A., 1043"
+    },
+    {
+      "id": "andreani-1093-monserrat-53",
+      "province": "C.A.B.A.",
+      "city": "MONSERRAT",
+      "postalCode": "1093",
+      "branchName": "MONSERRAT",
+      "streetAddress": "Av. Belgrano 1211",
+      "addressLine": "Av. Belgrano 1211 · MONSERRAT, C.A.B.A., 1093",
+      "label": "MONSERRAT · Av. Belgrano 1211 · MONSERRAT, C.A.B.A., 1093"
+    },
+    {
+      "id": "andreani-1414-palermo-54",
+      "province": "C.A.B.A.",
+      "city": "PALERMO",
+      "postalCode": "1414",
+      "branchName": "PALERMO",
+      "streetAddress": "Scalabrini Ortiz 615",
+      "addressLine": "Scalabrini Ortiz 615 · PALERMO, C.A.B.A., 1414",
+      "label": "PALERMO · Scalabrini Ortiz 615 · PALERMO, C.A.B.A., 1414"
+    },
+    {
+      "id": "andreani-1001-tribunales-55",
+      "province": "C.A.B.A.",
+      "city": "TRIBUNALES",
+      "postalCode": "1001",
+      "branchName": "TRIBUNALES",
+      "streetAddress": "Talcahuano 470",
+      "addressLine": "Talcahuano 470 · TRIBUNALES, C.A.B.A., 1001",
+      "label": "TRIBUNALES · Talcahuano 470 · TRIBUNALES, C.A.B.A., 1001"
+    },
+    {
+      "id": "andreani-1419-villa-devoto-56",
+      "province": "C.A.B.A.",
+      "city": "VILLA DEVOTO",
+      "postalCode": "1419",
+      "branchName": "VILLA DEVOTO",
+      "streetAddress": "Av. Beiro 4740",
+      "addressLine": "Av. Beiro 4740 · VILLA DEVOTO, C.A.B.A., 1419",
+      "label": "VILLA DEVOTO · Av. Beiro 4740 · VILLA DEVOTO, C.A.B.A., 1419"
+    },
+    {
+      "id": "andreani-1437-villa-soldati-57",
+      "province": "C.A.B.A.",
+      "city": "VILLA SOLDATI",
+      "postalCode": "1437",
+      "branchName": "VILLA SOLDATI",
+      "streetAddress": "Pergamino 3751",
+      "addressLine": "Pergamino 3751 · VILLA SOLDATI, C.A.B.A., 1437",
+      "label": "VILLA SOLDATI · Pergamino 3751 · VILLA SOLDATI, C.A.B.A., 1437"
+    },
+    {
+      "id": "andreani-1430-villa-urquiza-58",
+      "province": "C.A.B.A.",
+      "city": "VILLA URQUIZA",
+      "postalCode": "1430",
+      "branchName": "VILLA URQUIZA",
+      "streetAddress": "Av Alvarez Thomas 2621",
+      "addressLine": "Av Alvarez Thomas 2621 · VILLA URQUIZA, C.A.B.A., 1430",
+      "label": "VILLA URQUIZA · Av Alvarez Thomas 2621 · VILLA URQUIZA, C.A.B.A., 1430"
+    },
+    {
+      "id": "andreani-4700-catamarca-59",
+      "province": "CATAMARCA",
+      "city": "CATAMARCA",
+      "postalCode": "4700",
+      "branchName": "CATAMARCA",
+      "streetAddress": "An Miguel 665",
+      "addressLine": "An Miguel 665 · CATAMARCA, CATAMARCA, 4700",
+      "label": "CATAMARCA · An Miguel 665 · CATAMARCA, CATAMARCA, 4700"
+    },
+    {
+      "id": "andreani-4700-catamarca-guemes-60",
+      "province": "CATAMARCA",
+      "city": "CATAMARCA",
+      "postalCode": "4700",
+      "branchName": "CATAMARCA (GUEMES)",
+      "streetAddress": "Av, Güemes Oeste 1505",
+      "addressLine": "Av, Güemes Oeste 1505 · CATAMARCA, CATAMARCA, 4700",
+      "label": "CATAMARCA (GUEMES) · Av, Güemes Oeste 1505 · CATAMARCA, CATAMARCA, 4700"
+    },
+    {
+      "id": "andreani-3700-pres-roque-saenz-pena-61",
+      "province": "CHACO",
+      "city": "PRES ROQUE SAENZ PEÑA",
+      "postalCode": "3700",
+      "branchName": "PRES ROQUE SAENZ PEÑA",
+      "streetAddress": "Ruta 16km (176.28)",
+      "addressLine": "Ruta 16km (176.28) · PRES ROQUE SAENZ PEÑA, CHACO, 3700",
+      "label": "PRES ROQUE SAENZ PEÑA · Ruta 16km (176.28) · PRES ROQUE SAENZ PEÑA, CHACO, 3700"
+    },
+    {
+      "id": "andreani-3500-resistencia-chaco-62",
+      "province": "CHACO",
+      "city": "RESISTENCIA",
+      "postalCode": "3500",
+      "branchName": "RESISTENCIA (CHACO)",
+      "streetAddress": "Juan Domingo Peron 455",
+      "addressLine": "Juan Domingo Peron 455 · RESISTENCIA, CHACO, 3500",
+      "label": "RESISTENCIA (CHACO) · Juan Domingo Peron 455 · RESISTENCIA, CHACO, 3500"
+    },
+    {
+      "id": "andreani-9000-comodoro-rivadavia-63",
+      "province": "CHUBUT",
+      "city": "COMODORO RIVADAVIA",
+      "postalCode": "9000",
+      "branchName": "COMODORO RIVADAVIA",
+      "streetAddress": "Sarmiento 128",
+      "addressLine": "Sarmiento 128 · COMODORO RIVADAVIA, CHUBUT, 9000",
+      "label": "COMODORO RIVADAVIA · Sarmiento 128 · COMODORO RIVADAVIA, CHUBUT, 9000"
+    },
+    {
+      "id": "andreani-9120-puerto-madryn-64",
+      "province": "CHUBUT",
+      "city": "PUERTO MADRYN",
+      "postalCode": "9120",
+      "branchName": "PUERTO MADRYN",
+      "streetAddress": "9 De Julio 677",
+      "addressLine": "9 De Julio 677 · PUERTO MADRYN, CHUBUT, 9120",
+      "label": "PUERTO MADRYN · 9 De Julio 677 · PUERTO MADRYN, CHUBUT, 9120"
+    },
+    {
+      "id": "andreani-9100-trelew-65",
+      "province": "CHUBUT",
+      "city": "TRELEW",
+      "postalCode": "9100",
+      "branchName": "TRELEW",
+      "streetAddress": "Cacique Chiquichano 1890",
+      "addressLine": "Cacique Chiquichano 1890 · TRELEW, CHUBUT, 9100",
+      "label": "TRELEW · Cacique Chiquichano 1890 · TRELEW, CHUBUT, 9100"
+    },
+    {
+      "id": "andreani-5000-cordoba-au9-cordoba-rosario-66",
+      "province": "CORDOBA",
+      "city": "CORDOBA",
+      "postalCode": "5000",
+      "branchName": "CORDOBA (AU9 CORDOBA-ROSARIO)",
+      "streetAddress": "Colectora Au.9, Toledo",
+      "addressLine": "Colectora Au.9, Toledo · CORDOBA, CORDOBA, 5000",
+      "label": "CORDOBA (AU9 CORDOBA-ROSARIO) · Colectora Au.9, Toledo · CORDOBA, CORDOBA, 5000"
+    },
+    {
+      "id": "andreani-5000-cordoba-av-colon-67",
+      "province": "CORDOBA",
+      "city": "CORDOBA",
+      "postalCode": "5000",
+      "branchName": "CORDOBA (AV. COLÓN)",
+      "streetAddress": "Av. Colón 4205",
+      "addressLine": "Av. Colón 4205 · CORDOBA, CORDOBA, 5000",
+      "label": "CORDOBA (AV. COLÓN) · Av. Colón 4205 · CORDOBA, CORDOBA, 5000"
+    },
+    {
+      "id": "andreani-5005-cordoba-av-general-paz-68",
+      "province": "CORDOBA",
+      "city": "CORDOBA",
+      "postalCode": "5005",
+      "branchName": "CORDOBA (AV. GENERAL PAZ)",
+      "streetAddress": "Av. General Paz 420",
+      "addressLine": "Av. General Paz 420 · CORDOBA, CORDOBA, 5005",
+      "label": "CORDOBA (AV. GENERAL PAZ) · Av. General Paz 420 · CORDOBA, CORDOBA, 5005"
+    },
+    {
+      "id": "andreani-5000-cordoba-av-sabattini-69",
+      "province": "CORDOBA",
+      "city": "CORDOBA",
+      "postalCode": "5000",
+      "branchName": "CORDOBA (AV. SABATTINI)",
+      "streetAddress": "Av. Sabattini 1647",
+      "addressLine": "Av. Sabattini 1647 · CORDOBA, CORDOBA, 5000",
+      "label": "CORDOBA (AV. SABATTINI) · Av. Sabattini 1647 · CORDOBA, CORDOBA, 5000"
+    },
+    {
+      "id": "andreani-5147-cordoba-cerro-de-las-rosas-70",
+      "province": "CORDOBA",
+      "city": "CORDOBA",
+      "postalCode": "5147",
+      "branchName": "CORDOBA (CERRO DE LAS ROSAS)",
+      "streetAddress": "Av. Rafael Nuñez 4635",
+      "addressLine": "Av. Rafael Nuñez 4635 · CORDOBA, CORDOBA, 5147",
+      "label": "CORDOBA (CERRO DE LAS ROSAS) · Av. Rafael Nuñez 4635 · CORDOBA, CORDOBA, 5147"
+    },
+    {
+      "id": "andreani-5850-rio-cuarto-71",
+      "province": "CORDOBA",
+      "city": "RIO CUARTO",
+      "postalCode": "5850",
+      "branchName": "RIO CUARTO",
+      "streetAddress": "Alberdi 845",
+      "addressLine": "Alberdi 845 · RIO CUARTO, CORDOBA, 5850",
+      "label": "RIO CUARTO · Alberdi 845 · RIO CUARTO, CORDOBA, 5850"
+    },
+    {
+      "id": "andreani-5850-rio-tercero-72",
+      "province": "CORDOBA",
+      "city": "RIO TERCERO",
+      "postalCode": "5850",
+      "branchName": "RIO TERCERO",
+      "streetAddress": "Gral Savio 2097",
+      "addressLine": "Gral Savio 2097 · RIO TERCERO, CORDOBA, 5850",
+      "label": "RIO TERCERO · Gral Savio 2097 · RIO TERCERO, CORDOBA, 5850"
+    },
+    {
+      "id": "andreani-2400-san-francisco-73",
+      "province": "CORDOBA",
+      "city": "SAN FRANCISCO",
+      "postalCode": "2400",
+      "branchName": "SAN FRANCISCO",
+      "streetAddress": "Bv 9 De Julio 1852",
+      "addressLine": "Bv 9 De Julio 1852 · SAN FRANCISCO, CORDOBA, 2400",
+      "label": "SAN FRANCISCO · Bv 9 De Julio 1852 · SAN FRANCISCO, CORDOBA, 2400"
+    },
+    {
+      "id": "andreani-6400-trenque-lauquen-74",
+      "province": "CORDOBA",
+      "city": "TRENQUE LAUQUEN",
+      "postalCode": "6400",
+      "branchName": "TRENQUE LAUQUEN",
+      "streetAddress": "Peron 1237",
+      "addressLine": "Peron 1237 · TRENQUE LAUQUEN, CORDOBA, 6400",
+      "label": "TRENQUE LAUQUEN · Peron 1237 · TRENQUE LAUQUEN, CORDOBA, 6400"
+    },
+    {
+      "id": "andreani-5105-villa-allende-75",
+      "province": "CORDOBA",
+      "city": "VILLA ALLENDE",
+      "postalCode": "5105",
+      "branchName": "VILLA ALLENDE",
+      "streetAddress": "Goycoechea 1535",
+      "addressLine": "Goycoechea 1535 · VILLA ALLENDE, CORDOBA, 5105",
+      "label": "VILLA ALLENDE · Goycoechea 1535 · VILLA ALLENDE, CORDOBA, 5105"
+    },
+    {
+      "id": "andreani-5152-villa-carlos-paz-76",
+      "province": "CORDOBA",
+      "city": "VILLA CARLOS PAZ",
+      "postalCode": "5152",
+      "branchName": "VILLA CARLOS PAZ",
+      "streetAddress": "San Martín 1907",
+      "addressLine": "San Martín 1907 · VILLA CARLOS PAZ, CORDOBA, 5152",
+      "label": "VILLA CARLOS PAZ · San Martín 1907 · VILLA CARLOS PAZ, CORDOBA, 5152"
+    },
+    {
+      "id": "andreani-5900-villa-maria-77",
+      "province": "CORDOBA",
+      "city": "VILLA MARIA",
+      "postalCode": "5900",
+      "branchName": "VILLA MARIA",
+      "streetAddress": "Mendoza 1085",
+      "addressLine": "Mendoza 1085 · VILLA MARIA, CORDOBA, 5900",
+      "label": "VILLA MARIA · Mendoza 1085 · VILLA MARIA, CORDOBA, 5900"
+    },
+    {
+      "id": "andreani-3400-corrientes-78",
+      "province": "CORRIENTES",
+      "city": "CORRIENTES",
+      "postalCode": "3400",
+      "branchName": "CORRIENTES",
+      "streetAddress": "Av. Independencia 3903",
+      "addressLine": "Av. Independencia 3903 · CORRIENTES, CORRIENTES, 3400",
+      "label": "CORRIENTES · Av. Independencia 3903 · CORRIENTES, CORRIENTES, 3400"
+    },
+    {
+      "id": "andreani-3450-goya-79",
+      "province": "CORRIENTES",
+      "city": "GOYA",
+      "postalCode": "3450",
+      "branchName": "GOYA",
+      "streetAddress": "Ruta 126 Interseccion Con Ruta 27",
+      "addressLine": "Ruta 126 Interseccion Con Ruta 27 · GOYA, CORRIENTES, 3450",
+      "label": "GOYA · Ruta 126 Interseccion Con Ruta 27 · GOYA, CORRIENTES, 3450"
+    },
+    {
+      "id": "andreani-3260-concepcion-del-uruguay-80",
+      "province": "ENTRE RIOS",
+      "city": "CONCEPCIÓN DEL URUGUAY",
+      "postalCode": "3260",
+      "branchName": "CONCEPCIÓN DEL URUGUAY",
+      "streetAddress": "Mariano Moreno 125",
+      "addressLine": "Mariano Moreno 125 · CONCEPCIÓN DEL URUGUAY, ENTRE RIOS, 3260",
+      "label": "CONCEPCIÓN DEL URUGUAY · Mariano Moreno 125 · CONCEPCIÓN DEL URUGUAY, ENTRE RIOS, 3260"
+    },
+    {
+      "id": "andreani-3200-concordia-villa-zorraquin-81",
+      "province": "ENTRE RIOS",
+      "city": "CONCORDIA",
+      "postalCode": "3200",
+      "branchName": "CONCORDIA (VILLA ZORRAQUIN)",
+      "streetAddress": "Av Monseñor Rösch 4548",
+      "addressLine": "Av Monseñor Rösch 4548 · CONCORDIA, ENTRE RIOS, 3200",
+      "label": "CONCORDIA (VILLA ZORRAQUIN) · Av Monseñor Rösch 4548 · CONCORDIA, ENTRE RIOS, 3200"
+    },
+    {
+      "id": "andreani-3190-la-paz-entre-rios-82",
+      "province": "ENTRE RIOS",
+      "city": "LA PAZ",
+      "postalCode": "3190",
+      "branchName": "LA PAZ (ENTRE RIOS)",
+      "streetAddress": "Italia 750",
+      "addressLine": "Italia 750 · LA PAZ, ENTRE RIOS, 3190",
+      "label": "LA PAZ (ENTRE RIOS) · Italia 750 · LA PAZ, ENTRE RIOS, 3190"
+    },
+    {
+      "id": "andreani-3100-parana-83",
+      "province": "ENTRE RIOS",
+      "city": "PARANÁ",
+      "postalCode": "3100",
+      "branchName": "PARANÁ",
+      "streetAddress": "Almirante Brown 1182",
+      "addressLine": "Almirante Brown 1182 · PARANÁ, ENTRE RIOS, 3100",
+      "label": "PARANÁ · Almirante Brown 1182 · PARANÁ, ENTRE RIOS, 3100"
+    },
+    {
+      "id": "andreani-3600-formosa-84",
+      "province": "FORMOSA",
+      "city": "FORMOSA",
+      "postalCode": "3600",
+      "branchName": "FORMOSA",
+      "streetAddress": "Saavedra 423",
+      "addressLine": "Saavedra 423 · FORMOSA, FORMOSA, 3600",
+      "label": "FORMOSA · Saavedra 423 · FORMOSA, FORMOSA, 3600"
+    },
+    {
+      "id": "andreani-4600-jujuy-85",
+      "province": "JUJUY",
+      "city": "JUJUY",
+      "postalCode": "4600",
+      "branchName": "JUJUY",
+      "streetAddress": "San Martin 979",
+      "addressLine": "San Martin 979 · JUJUY, JUJUY, 4600",
+      "label": "JUJUY · San Martin 979 · JUJUY, JUJUY, 4600"
+    },
+    {
+      "id": "andreani-6300-santa-rosa-la-pampa-86",
+      "province": "LA PAMPA",
+      "city": "SANTA ROSA",
+      "postalCode": "6300",
+      "branchName": "SANTA ROSA (LA PAMPA)",
+      "streetAddress": "Pres Juan Domingo Peron 1935",
+      "addressLine": "Pres Juan Domingo Peron 1935 · SANTA ROSA, LA PAMPA, 6300",
+      "label": "SANTA ROSA (LA PAMPA) · Pres Juan Domingo Peron 1935 · SANTA ROSA, LA PAMPA, 6300"
+    },
+    {
+      "id": "andreani-5300-la-rioja-87",
+      "province": "LA RIOJA",
+      "city": "LA RIOJA",
+      "postalCode": "5300",
+      "branchName": "LA RIOJA",
+      "streetAddress": "Belgrano 202",
+      "addressLine": "Belgrano 202 · LA RIOJA, LA RIOJA, 5300",
+      "label": "LA RIOJA · Belgrano 202 · LA RIOJA, LA RIOJA, 5300"
+    },
+    {
+      "id": "andreani-5501-godoy-cruz-88",
+      "province": "MENDOZA",
+      "city": "GODOY CRUZ",
+      "postalCode": "5501",
+      "branchName": "GODOY CRUZ",
+      "streetAddress": "San Martin Sur 735",
+      "addressLine": "San Martin Sur 735 · GODOY CRUZ, MENDOZA, 5501",
+      "label": "GODOY CRUZ · San Martin Sur 735 · GODOY CRUZ, MENDOZA, 5501"
+    },
+    {
+      "id": "andreani-5517-lujan-de-cuyo-acceso-sur-89",
+      "province": "MENDOZA",
+      "city": "LUJAN DE CUYO",
+      "postalCode": "5517",
+      "branchName": "LUJAN DE CUYO (ACCESO SUR)",
+      "streetAddress": "Acceso Sur Km.14 Lateral Este",
+      "addressLine": "Acceso Sur Km.14 Lateral Este · LUJAN DE CUYO, MENDOZA, 5517",
+      "label": "LUJAN DE CUYO (ACCESO SUR) · Acceso Sur Km.14 Lateral Este · LUJAN DE CUYO, MENDOZA, 5517"
+    },
+    {
+      "id": "andreani-5500-mendoza-90",
+      "province": "MENDOZA",
+      "city": "MENDOZA",
+      "postalCode": "5500",
+      "branchName": "MENDOZA",
+      "streetAddress": "Av San Martin 505",
+      "addressLine": "Av San Martin 505 · MENDOZA, MENDOZA, 5500",
+      "label": "MENDOZA · Av San Martin 505 · MENDOZA, MENDOZA, 5500"
+    },
+    {
+      "id": "andreani-5570-san-martin-91",
+      "province": "MENDOZA",
+      "city": "SAN MARTÍN",
+      "postalCode": "5570",
+      "branchName": "SAN MARTÍN",
+      "streetAddress": "Ruta 50 Km 1035",
+      "addressLine": "Ruta 50 Km 1035 · SAN MARTÍN, MENDOZA, 5570",
+      "label": "SAN MARTÍN · Ruta 50 Km 1035 · SAN MARTÍN, MENDOZA, 5570"
+    },
+    {
+      "id": "andreani-5600-san-rafael-92",
+      "province": "MENDOZA",
+      "city": "SAN RAFAEL",
+      "postalCode": "5600",
+      "branchName": "SAN RAFAEL",
+      "streetAddress": "Chile 512",
+      "addressLine": "Chile 512 · SAN RAFAEL, MENDOZA, 5600",
+      "label": "SAN RAFAEL · Chile 512 · SAN RAFAEL, MENDOZA, 5600"
+    },
+    {
+      "id": "andreani-3380-eldorado-93",
+      "province": "MISIONES",
+      "city": "ELDORADO",
+      "postalCode": "3380",
+      "branchName": "ELDORADO",
+      "streetAddress": "Hipólito Irigoyen 1809",
+      "addressLine": "Hipólito Irigoyen 1809 · ELDORADO, MISIONES, 3380",
+      "label": "ELDORADO · Hipólito Irigoyen 1809 · ELDORADO, MISIONES, 3380"
+    },
+    {
+      "id": "andreani-3360-obera-94",
+      "province": "MISIONES",
+      "city": "OBERA",
+      "postalCode": "3360",
+      "branchName": "OBERA",
+      "streetAddress": "Av De Las Americas 1623",
+      "addressLine": "Av De Las Americas 1623 · OBERA, MISIONES, 3360",
+      "label": "OBERA · Av De Las Americas 1623 · OBERA, MISIONES, 3360"
+    },
+    {
+      "id": "andreani-3300-posadas-95",
+      "province": "MISIONES",
+      "city": "POSADAS",
+      "postalCode": "3300",
+      "branchName": "POSADAS",
+      "streetAddress": "Colon 1647",
+      "addressLine": "Colon 1647 · POSADAS, MISIONES, 3300",
+      "label": "POSADAS · Colon 1647 · POSADAS, MISIONES, 3300"
+    },
+    {
+      "id": "andreani-3300-posadas-barrio-itaembe-guazu-96",
+      "province": "MISIONES",
+      "city": "POSADAS",
+      "postalCode": "3300",
+      "branchName": "POSADAS (BARRIO ITAEMBE GUAZU)",
+      "streetAddress": "Ruta Nacional 12 (Km 1335) 10004",
+      "addressLine": "Ruta Nacional 12 (Km 1335) 10004 · POSADAS, MISIONES, 3300",
+      "label": "POSADAS (BARRIO ITAEMBE GUAZU) · Ruta Nacional 12 (Km 1335) 10004 · POSADAS, MISIONES, 3300"
+    },
+    {
+      "id": "andreani-8300-neuquen-beltran-97",
+      "province": "NEUQUEN",
+      "city": "NEUQUEN",
+      "postalCode": "8300",
+      "branchName": "NEUQUEN (BELTRÁN)",
+      "streetAddress": "Fray Luis Beltrán 367",
+      "addressLine": "Fray Luis Beltrán 367 · NEUQUEN, NEUQUEN, 8300",
+      "label": "NEUQUEN (BELTRÁN) · Fray Luis Beltrán 367 · NEUQUEN, NEUQUEN, 8300"
+    },
+    {
+      "id": "andreani-8340-zapala-98",
+      "province": "NEUQUEN",
+      "city": "ZAPALA",
+      "postalCode": "8340",
+      "branchName": "ZAPALA",
+      "streetAddress": "Etcheluz 108",
+      "addressLine": "Etcheluz 108 · ZAPALA, NEUQUEN, 8340",
+      "label": "ZAPALA · Etcheluz 108 · ZAPALA, NEUQUEN, 8340"
+    },
+    {
+      "id": "andreani-8400-bariloche-99",
+      "province": "RIO NEGRO",
+      "city": "BARILOCHE",
+      "postalCode": "8400",
+      "branchName": "BARILOCHE",
+      "streetAddress": "Elflein 248",
+      "addressLine": "Elflein 248 · BARILOCHE, RIO NEGRO, 8400",
+      "label": "BARILOCHE · Elflein 248 · BARILOCHE, RIO NEGRO, 8400"
+    },
+    {
+      "id": "andreani-8324-cipolletti-100",
+      "province": "RIO NEGRO",
+      "city": "CIPOLLETTI",
+      "postalCode": "8324",
+      "branchName": "CIPOLLETTI",
+      "streetAddress": "Av. General Pacheco 420",
+      "addressLine": "Av. General Pacheco 420 · CIPOLLETTI, RIO NEGRO, 8324",
+      "label": "CIPOLLETTI · Av. General Pacheco 420 · CIPOLLETTI, RIO NEGRO, 8324"
+    },
+    {
+      "id": "andreani-8430-el-bolson-101",
+      "province": "RIO NEGRO",
+      "city": "EL BOLSÓN",
+      "postalCode": "8430",
+      "branchName": "EL BOLSÓN",
+      "streetAddress": "Ruta 40 4580",
+      "addressLine": "Ruta 40 4580 · EL BOLSÓN, RIO NEGRO, 8430",
+      "label": "EL BOLSÓN · Ruta 40 4580 · EL BOLSÓN, RIO NEGRO, 8430"
+    },
+    {
+      "id": "andreani-8332-general-roca-102",
+      "province": "RIO NEGRO",
+      "city": "GENERAL ROCA",
+      "postalCode": "8332",
+      "branchName": "GENERAL ROCA",
+      "streetAddress": "Italia 1637",
+      "addressLine": "Italia 1637 · GENERAL ROCA, RIO NEGRO, 8332",
+      "label": "GENERAL ROCA · Italia 1637 · GENERAL ROCA, RIO NEGRO, 8332"
+    },
+    {
+      "id": "andreani-8520-san-antonio-oeste-103",
+      "province": "RIO NEGRO",
+      "city": "SAN ANTONIO OESTE",
+      "postalCode": "8520",
+      "branchName": "SAN ANTONIO OESTE",
+      "streetAddress": "Hipólito Yrigoyen 565",
+      "addressLine": "Hipólito Yrigoyen 565 · SAN ANTONIO OESTE, RIO NEGRO, 8520",
+      "label": "SAN ANTONIO OESTE · Hipólito Yrigoyen 565 · SAN ANTONIO OESTE, RIO NEGRO, 8520"
+    },
+    {
+      "id": "andreani-8500-viedma-104",
+      "province": "RIO NEGRO",
+      "city": "VIEDMA",
+      "postalCode": "8500",
+      "branchName": "VIEDMA",
+      "streetAddress": "Belgrano 1345",
+      "addressLine": "Belgrano 1345 · VIEDMA, RIO NEGRO, 8500",
+      "label": "VIEDMA · Belgrano 1345 · VIEDMA, RIO NEGRO, 8500"
+    },
+    {
+      "id": "andreani-4440-metan-105",
+      "province": "SALTA",
+      "city": "METÁN",
+      "postalCode": "4440",
+      "branchName": "METÁN",
+      "streetAddress": "San Martin 172",
+      "addressLine": "San Martin 172 · METÁN, SALTA, 4440",
+      "label": "METÁN · San Martin 172 · METÁN, SALTA, 4440"
+    },
+    {
+      "id": "andreani-4530-oran-106",
+      "province": "SALTA",
+      "city": "ORAN",
+      "postalCode": "4530",
+      "branchName": "ORAN",
+      "streetAddress": "Lamadrid 307",
+      "addressLine": "Lamadrid 307 · ORAN, SALTA, 4530",
+      "label": "ORAN · Lamadrid 307 · ORAN, SALTA, 4530"
+    },
+    {
+      "id": "andreani-4400-salta-107",
+      "province": "SALTA",
+      "city": "SALTA",
+      "postalCode": "4400",
+      "branchName": "SALTA",
+      "streetAddress": "Juramento 367",
+      "addressLine": "Juramento 367 · SALTA, SALTA, 4400",
+      "label": "SALTA · Juramento 367 · SALTA, SALTA, 4400"
+    },
+    {
+      "id": "andreani-4400-salta-av-tavella-108",
+      "province": "SALTA",
+      "city": "SALTA",
+      "postalCode": "4400",
+      "branchName": "SALTA (AV TAVELLA)",
+      "streetAddress": "Av Monseñor Tavella 3642",
+      "addressLine": "Av Monseñor Tavella 3642 · SALTA, SALTA, 4400",
+      "label": "SALTA (AV TAVELLA) · Av Monseñor Tavella 3642 · SALTA, SALTA, 4400"
+    },
+    {
+      "id": "andreani-4560-tartagal-109",
+      "province": "SALTA",
+      "city": "TARTAGAL",
+      "postalCode": "4560",
+      "branchName": "TARTAGAL",
+      "streetAddress": "Richieri 690",
+      "addressLine": "Richieri 690 · TARTAGAL, SALTA, 4560",
+      "label": "TARTAGAL · Richieri 690 · TARTAGAL, SALTA, 4560"
+    },
+    {
+      "id": "andreani-5730-villa-mercedes-lavaisse-110",
+      "province": "SAN LUIS",
+      "city": "VILLA MERCEDES",
+      "postalCode": "5730",
+      "branchName": "VILLA MERCEDES (LAVAISSE)",
+      "streetAddress": "Belgrano 452",
+      "addressLine": "Belgrano 452 · VILLA MERCEDES, SAN LUIS, 5730",
+      "label": "VILLA MERCEDES (LAVAISSE) · Belgrano 452 · VILLA MERCEDES, SAN LUIS, 5730"
+    },
+    {
+      "id": "andreani-9011-caleta-olivia-111",
+      "province": "SANTA CRUZ",
+      "city": "CALETA OLIVIA",
+      "postalCode": "9011",
+      "branchName": "CALETA OLIVIA",
+      "streetAddress": "Bartolomé Mitre 1640",
+      "addressLine": "Bartolomé Mitre 1640 · CALETA OLIVIA, SANTA CRUZ, 9011",
+      "label": "CALETA OLIVIA · Bartolomé Mitre 1640 · CALETA OLIVIA, SANTA CRUZ, 9011"
+    },
+    {
+      "id": "andreani-9405-el-calafate-112",
+      "province": "SANTA CRUZ",
+      "city": "EL CALAFATE",
+      "postalCode": "9405",
+      "branchName": "EL CALAFATE",
+      "streetAddress": "Pantin 31",
+      "addressLine": "Pantin 31 · EL CALAFATE, SANTA CRUZ, 9405",
+      "label": "EL CALAFATE · Pantin 31 · EL CALAFATE, SANTA CRUZ, 9405"
+    },
+    {
+      "id": "andreani-9400-rio-gallegos-113",
+      "province": "SANTA CRUZ",
+      "city": "RIO GALLEGOS",
+      "postalCode": "9400",
+      "branchName": "RIO GALLEGOS",
+      "streetAddress": "Alberdi 488",
+      "addressLine": "Alberdi 488 · RIO GALLEGOS, SANTA CRUZ, 9400",
+      "label": "RIO GALLEGOS · Alberdi 488 · RIO GALLEGOS, SANTA CRUZ, 9400"
+    },
+    {
+      "id": "andreani-2500-canada-de-gomez-bv-balcarce-114",
+      "province": "SANTA FE",
+      "city": "CAÑADA DE GOMEZ",
+      "postalCode": "2500",
+      "branchName": "CAÑADA DE GOMEZ (BV BALCARCE)",
+      "streetAddress": "Bv Balcarce 445",
+      "addressLine": "Bv Balcarce 445 · CAÑADA DE GOMEZ, SANTA FE, 2500",
+      "label": "CAÑADA DE GOMEZ (BV BALCARCE) · Bv Balcarce 445 · CAÑADA DE GOMEZ, SANTA FE, 2500"
+    },
+    {
+      "id": "andreani-2170-casilda-115",
+      "province": "SANTA FE",
+      "city": "CASILDA",
+      "postalCode": "2170",
+      "branchName": "CASILDA",
+      "streetAddress": "Buenos Aires 2447",
+      "addressLine": "Buenos Aires 2447 · CASILDA, SANTA FE, 2170",
+      "label": "CASILDA · Buenos Aires 2447 · CASILDA, SANTA FE, 2170"
+    },
+    {
+      "id": "andreani-2300-rafaela-av-intendente-zobboli-116",
+      "province": "SANTA FE",
+      "city": "RAFAELA",
+      "postalCode": "2300",
+      "branchName": "RAFAELA (AV. INTENDENTE ZOBBOLI)",
+      "streetAddress": "Av Intendente Zobboli 724",
+      "addressLine": "Av Intendente Zobboli 724 · RAFAELA, SANTA FE, 2300",
+      "label": "RAFAELA (AV. INTENDENTE ZOBBOLI) · Av Intendente Zobboli 724 · RAFAELA, SANTA FE, 2300"
+    },
+    {
+      "id": "andreani-3560-reconquista-bv-juan-d-peron-santa-fe-117",
+      "province": "SANTA FE",
+      "city": "RECONQUISTA",
+      "postalCode": "3560",
+      "branchName": "RECONQUISTA (BV JUAN D PERON – SANTA FE)",
+      "streetAddress": "Ruta 40s Km 2.3",
+      "addressLine": "Ruta 40s Km 2.3 · RECONQUISTA, SANTA FE, 3560",
+      "label": "RECONQUISTA (BV JUAN D PERON – SANTA FE) · Ruta 40s Km 2.3 · RECONQUISTA, SANTA FE, 3560"
+    },
+    {
+      "id": "andreani-2000-rosario-118",
+      "province": "SANTA FE",
+      "city": "ROSARIO",
+      "postalCode": "2000",
+      "branchName": "ROSARIO",
+      "streetAddress": "Av. San Martín 2127",
+      "addressLine": "Av. San Martín 2127 · ROSARIO, SANTA FE, 2000",
+      "label": "ROSARIO · Av. San Martín 2127 · ROSARIO, SANTA FE, 2000"
+    },
+    {
+      "id": "andreani-2008-rosario-av-eva-peron-119",
+      "province": "SANTA FE",
+      "city": "ROSARIO",
+      "postalCode": "2008",
+      "branchName": "ROSARIO (AV. EVA PERÓN)",
+      "streetAddress": "Av. Eva Peron 6243",
+      "addressLine": "Av. Eva Peron 6243 · ROSARIO, SANTA FE, 2008",
+      "label": "ROSARIO (AV. EVA PERÓN) · Av. Eva Peron 6243 · ROSARIO, SANTA FE, 2008"
+    },
+    {
+      "id": "andreani-2200-san-lorenzo-120",
+      "province": "SANTA FE",
+      "city": "SAN LORENZO",
+      "postalCode": "2200",
+      "branchName": "SAN LORENZO",
+      "streetAddress": "Av. San Martin 191",
+      "addressLine": "Av. San Martin 191 · SAN LORENZO, SANTA FE, 2200",
+      "label": "SAN LORENZO · Av. San Martin 191 · SAN LORENZO, SANTA FE, 2200"
+    },
+    {
+      "id": "andreani-3000-santa-fe-centro-121",
+      "province": "SANTA FE",
+      "city": "SANTA FE",
+      "postalCode": "3000",
+      "branchName": "SANTA FE (CENTRO)",
+      "streetAddress": "25 De Mayo 3340",
+      "addressLine": "25 De Mayo 3340 · SANTA FE, SANTA FE, 3000",
+      "label": "SANTA FE (CENTRO) · 25 De Mayo 3340 · SANTA FE, SANTA FE, 3000"
+    },
+    {
+      "id": "andreani-3016-santo-tome-ruta-19-122",
+      "province": "SANTA FE",
+      "city": "SANTO TOME",
+      "postalCode": "3016",
+      "branchName": "SANTO TOME (RUTA 19)",
+      "streetAddress": "Autovia Ruta 19km 2km. 2",
+      "addressLine": "Autovia Ruta 19km 2km. 2 · SANTO TOME, SANTA FE, 3016",
+      "label": "SANTO TOME (RUTA 19) · Autovia Ruta 19km 2km. 2 · SANTO TOME, SANTA FE, 3016"
+    },
+    {
+      "id": "andreani-2600-venado-tuerto-123",
+      "province": "SANTA FE",
+      "city": "VENADO TUERTO",
+      "postalCode": "2600",
+      "branchName": "VENADO TUERTO",
+      "streetAddress": "Bv 12 De Octubre 53",
+      "addressLine": "Bv 12 De Octubre 53 · VENADO TUERTO, SANTA FE, 2600",
+      "label": "VENADO TUERTO · Bv 12 De Octubre 53 · VENADO TUERTO, SANTA FE, 2600"
+    },
+    {
+      "id": "andreani-4200-santiago-del-estero-124",
+      "province": "SANTIAGO DEL ESTERO",
+      "city": "SANTIAGO DEL ESTERO",
+      "postalCode": "4200",
+      "branchName": "SANTIAGO DEL ESTERO",
+      "streetAddress": "Sarmiento 77",
+      "addressLine": "Sarmiento 77 · SANTIAGO DEL ESTERO, SANTIAGO DEL ESTERO, 4200",
+      "label": "SANTIAGO DEL ESTERO · Sarmiento 77 · SANTIAGO DEL ESTERO, SANTIAGO DEL ESTERO, 4200"
+    },
+    {
+      "id": "andreani-9420-rio-grande-125",
+      "province": "TIERRA DEL FUEGO",
+      "city": "RIO GRANDE",
+      "postalCode": "9420",
+      "branchName": "RIO GRANDE",
+      "streetAddress": "Leonardo Rosales 664",
+      "addressLine": "Leonardo Rosales 664 · RIO GRANDE, TIERRA DEL FUEGO, 9420",
+      "label": "RIO GRANDE · Leonardo Rosales 664 · RIO GRANDE, TIERRA DEL FUEGO, 9420"
+    },
+    {
+      "id": "andreani-9410-ushuaia-126",
+      "province": "TIERRA DEL FUEGO",
+      "city": "USHUAIA",
+      "postalCode": "9410",
+      "branchName": "USHUAIA",
+      "streetAddress": "San Martín 1543",
+      "addressLine": "San Martín 1543 · USHUAIA, TIERRA DEL FUEGO, 9410",
+      "label": "USHUAIA · San Martín 1543 · USHUAIA, TIERRA DEL FUEGO, 9410"
+    },
+    {
+      "id": "andreani-4000-concepcion-127",
+      "province": "TUCUMAN",
+      "city": "CONCEPCIÓN",
+      "postalCode": "4000",
+      "branchName": "CONCEPCIÓN",
+      "streetAddress": "24 De Septiembre 2344",
+      "addressLine": "24 De Septiembre 2344 · CONCEPCIÓN, TUCUMAN, 4000",
+      "label": "CONCEPCIÓN · 24 De Septiembre 2344 · CONCEPCIÓN, TUCUMAN, 4000"
+    },
+    {
+      "id": "andreani-4000-tucuman-128",
+      "province": "TUCUMAN",
+      "city": "TUCUMÁN",
+      "postalCode": "4000",
+      "branchName": "TUCUMÁN",
+      "streetAddress": "San Martín 1175",
+      "addressLine": "San Martín 1175 · TUCUMÁN, TUCUMAN, 4000",
+      "label": "TUCUMÁN · San Martín 1175 · TUCUMÁN, TUCUMAN, 4000"
+    },
+    {
+      "id": "andreani-4107-yerba-buena-129",
+      "province": "TUCUMAN",
+      "city": "YERBA BUENA",
+      "postalCode": "4107",
+      "branchName": "YERBA BUENA",
+      "streetAddress": "Aconquija 523",
+      "addressLine": "Aconquija 523 · YERBA BUENA, TUCUMAN, 4107",
+      "label": "YERBA BUENA · Aconquija 523 · YERBA BUENA, TUCUMAN, 4107"
+    }
+  ]
+}
