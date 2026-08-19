@@ -17,10 +17,12 @@ function mapAdoptionPet(
     }
   }>,
 ): AdoptionPet {
+  const animalType = pet.animalType === 'CAT' ? 'CAT' : 'DOG'
+
   return {
     id: pet.id,
     name: pet.name,
-    animalType: pet.animalType,
+    animalType,
     ageLabel: pet.ageLabel,
     city: pet.city,
     province: pet.province,

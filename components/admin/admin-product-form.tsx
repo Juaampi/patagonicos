@@ -24,7 +24,7 @@ type EditProduct = {
   id: string
   name: string
   slug: string
-  animalType: 'DOG' | 'CAT'
+  animalType: 'DOG' | 'CAT' | 'HUMAN'
   mainImageUrl?: string | null
   videoUrl?: string | null
   price: number
@@ -540,6 +540,7 @@ export function AdminProductForm({
         <select name="animalType" defaultValue={editProduct?.animalType ?? 'DOG'} className="rounded-[18px] border border-black/10 bg-[#f7f7f4] px-4 py-4 text-sm outline-none">
           <option value="DOG">Perros</option>
           <option value="CAT">Gatos</option>
+          <option value="HUMAN">Humanos</option>
         </select>
         <select name="categoryId" defaultValue={editProduct?.categoryId ?? ''} className="rounded-[18px] border border-black/10 bg-[#f7f7f4] px-4 py-4 text-sm outline-none">
           <option value="">Categoría</option>

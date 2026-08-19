@@ -17,7 +17,7 @@ type EditProduct = {
   id: string
   name: string
   slug: string
-  animalType: 'DOG' | 'CAT'
+  animalType: 'DOG' | 'CAT' | 'HUMAN'
   mainImageUrl?: string | null
   videoUrl?: string | null
   price: number

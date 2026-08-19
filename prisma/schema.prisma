@@ -15,6 +15,7 @@ enum ProductStatus {
 enum AnimalType {
   DOG
   CAT
+  HUMAN
 }
 
 enum ProductImageType {

@@ -28,6 +28,12 @@ const speciesMeta = {
     description:
       'Piezas más livianas, cómodas y térmicas para interior frío, traslados y mascotas que necesitan cobertura extra.',
   },
+  HUMAN: {
+    eyebrow: 'Humanos',
+    title: 'Productos para madres, padres y personas de la comunidad',
+    description:
+      'Una línea para sumar productos para humanos dentro del universo de la marca.',
+  },
 } as const
 
 function renderCategoryBlocks(animalProducts: Awaited<ReturnType<typeof getProductsByAnimal>>) {
@@ -58,9 +64,11 @@ export default async function HomePage() {
   const starProduct = await getStarProduct('DOG')
   const dogProducts = await getProductsByAnimal('DOG')
   const catProducts = await getProductsByAnimal('CAT')
-  const comboProducts = [...dogProducts, ...catProducts].filter((product) => product.comboArmable)
+  const humanProducts = await getProductsByAnimal('HUMAN')
+  const comboProducts = [...dogProducts, ...catProducts, ...humanProducts].filter((product) => product.comboArmable)
   const adoptionPets = await getPublicAdoptionPets()
   const hasCatProducts = catProducts.length > 0
+  const hasHumanProducts = humanProducts.length > 0
 
   return (
     <>
@@ -106,6 +114,17 @@ export default async function HomePage() {
             description={speciesMeta.CAT.description}
           />
           {renderCategoryBlocks(catProducts)}
+        </section>
+      ) : null}
+
+      {hasHumanProducts ? (
+        <section className="shell mt-24">
+          <SectionHeading
+            eyebrow={speciesMeta.HUMAN.eyebrow}
+            title={speciesMeta.HUMAN.title}
+            description={speciesMeta.HUMAN.description}
+          />
+          {renderCategoryBlocks(humanProducts)}
         </section>
       ) : null}
 

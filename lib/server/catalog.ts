@@ -74,7 +74,7 @@ export type AdminSnapshotProduct = {
   id: string
   name: string
   slug: string
-  animalType: 'DOG' | 'CAT'
+  animalType: 'DOG' | 'CAT' | 'HUMAN'
   mainImageUrl: string | null
   videoUrl: string | null
   price: number
@@ -831,7 +831,7 @@ export async function saveProductAction(
         data: {
           name,
           slug,
-          animalType: animalType === 'CAT' ? 'CAT' : 'DOG',
+          animalType: animalType === 'CAT' ? 'CAT' : animalType === 'HUMAN' ? 'HUMAN' : 'DOG',
           ...(mainImageUpload ? { mainImageUrl: mainImageUpload.secure_url } : {}),
           videoUrl: videoUrlValue || null,
           shortDescription,
@@ -884,7 +884,7 @@ export async function saveProductAction(
         data: {
           name,
           slug,
-          animalType: animalType === 'CAT' ? 'CAT' : 'DOG',
+          animalType: animalType === 'CAT' ? 'CAT' : animalType === 'HUMAN' ? 'HUMAN' : 'DOG',
           mainImageUrl: fallbackMainImageUrl,
           videoUrl: videoUrlValue || null,
           shortDescription,

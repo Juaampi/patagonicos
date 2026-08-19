@@ -24,6 +24,12 @@ export function CartPageClient({
   const comboDiscountAmount = comboSummary.twoForOneDiscount
   const comboLinkDiscountAmount = comboSummary.comboLinkDiscount
   const freeShippingDifference = Math.max(settings.localDeliveryFreeThreshold - subtotal, 0)
+  const humanGiftSuggestions = products.filter(
+    (product) =>
+      product.animalType === 'HUMAN' &&
+      product.variants.some((variant) => variant.stock > 0) &&
+      !items.some((item) => item.productId === product.id),
+  )
   const comboSuggestions = products.filter(
     (product) =>
       !items.some((item) => item.productId === product.id) &&
@@ -257,6 +263,104 @@ export function CartPageClient({
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        ) : null}
+
+        {humanGiftSuggestions.length > 0 ? (
+          <div className="card-surface overflow-hidden border border-rose-200 bg-[linear-gradient(135deg,#fff8f3_0%,#fff3ed_55%,#fce8e1_100%)] p-7">
+            <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-rose-800">Para vos también</p>
+                <h2 className="mt-2 font-display text-3xl tracking-[-0.05em] text-rose-950">Regalate algo vos también</h2>
+                <p className="mt-3 max-w-3xl text-sm leading-7 text-rose-950/80">
+                  Ya que estás comprando para tu perruno, te mostramos algunas prendas para vos que también están disponibles.
+                </p>
+              </div>
+            </div>
+            <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {humanGiftSuggestions.slice(0, 3).map((product) => {
+                const variant = product.variants.find((entry) => entry.stock > 0)
+                const image =
+                  (variant
+                    ? product.images.find((entry) => entry.type === 'COLOR' && entry.colorName === variant.colorName)
+                    : null) ??
+                  product.images[0] ??
+                  null
+
+                if (!variant) {
+                  return null
+                }
+
+                return (
+                  <div key={product.id} className="rounded-[24px] border border-rose-200 bg-white/92 p-4">
+                    <div className="flex gap-4">
+                      <div className="relative h-28 w-24 shrink-0 overflow-hidden rounded-[20px] bg-[#f7f1eb]">
+                        {image?.url || product.mainImageUrl ? (
+                          <Image
+                            src={image?.url ?? product.mainImageUrl ?? ''}
+                            alt={image?.alt ?? product.name}
+                            fill
+                            className="object-contain"
+                          />
+                        ) : null}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="line-clamp-2 text-base font-semibold text-black/84">{product.name}</p>
+                        <p className="mt-1 text-xs uppercase tracking-[0.16em] text-black/44">{product.category}</p>
+                        <p className="mt-3 text-sm text-black/60">
+                          {variant.colorName} · {variant.size}
+                        </p>
+                        <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+                          {product.compareAtPrice ? (
+                            <span className="text-black/38 line-through">{formatPrice(product.compareAtPrice)}</span>
+                          ) : null}
+                          <span className="font-semibold text-rose-950">{formatPrice(product.price)}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="mt-4 flex flex-wrap gap-3">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          addItem({
+                            id: `${product.id}:${variant.sku}`,
+                            productId: product.id,
+                            slug: product.slug,
+                            name: product.name,
+                            category: product.category,
+                            price: product.price,
+                            compareAtPrice: product.compareAtPrice,
+                            comboArmable: product.comboArmable,
+                            comboEligibleFrom: product.comboEligibleFrom?.map((combo) => ({
+                              productId: combo.productId,
+                              discountPercent: combo.discountPercent,
+                            })),
+                            imageUrl: image?.url ?? product.mainImageUrl,
+                            imageAlt: image?.alt ?? product.name,
+                            colorName: variant.colorName,
+                            colorHex: variant.colorHex,
+                            size: variant.size,
+                            sku: variant.sku,
+                            quantity: 1,
+                            maxStock: variant.stock,
+                          })
+                        }
+                        className="inline-flex items-center gap-2 rounded-full bg-rose-800 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-white transition hover:bg-black"
+                      >
+                        Agregar al carrito
+                        <ArrowRight className="h-4 w-4" />
+                      </button>
+                      <Link
+                        href={`/productos/${product.slug}`}
+                        className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-black/76 transition hover:bg-black hover:text-white"
+                      >
+                        Ver producto
+                      </Link>
+                    </div>
+                  </div>
+                )
+              })}
             </div>
           </div>
         ) : null}

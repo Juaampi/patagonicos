@@ -21,6 +21,11 @@ const speciesContent: Record<Product['animalType'], { eyebrow: string; title: st
     title: 'Abrigo liviano para gatos',
     description: 'Piezas térmicas, cómodas y más suaves en lectura visual para encontrar rápido lo que buscás.',
   },
+  HUMAN: {
+    eyebrow: 'Línea humanos',
+    title: 'Productos para madres, padres y personas de la comunidad',
+    description: 'Una línea pensada para sumar productos para humanos dentro del mismo catálogo.',
+  },
 }
 
 const sortOptions = [
@@ -113,11 +118,14 @@ export default async function ProductsPage({
   const products = await getAllProducts()
   const hasDogProducts = products.some((product) => product.animalType === 'DOG')
   const hasCatProducts = products.some((product) => product.animalType === 'CAT')
+  const hasHumanProducts = products.some((product) => product.animalType === 'HUMAN')
   const availableAnimals = {
     DOG: hasDogProducts,
     CAT: hasCatProducts,
+    HUMAN: hasHumanProducts,
   } as const
-  const requestedAnimal = params?.animal === 'CAT' ? 'CAT' : params?.animal === 'DOG' ? 'DOG' : null
+  const requestedAnimal =
+    params?.animal === 'CAT' ? 'CAT' : params?.animal === 'DOG' ? 'DOG' : params?.animal === 'HUMAN' ? 'HUMAN' : null
   const selectedAnimal = requestedAnimal && availableAnimals[requestedAnimal] ? requestedAnimal : null
   const selectedCategory = params?.category?.trim() ? params.category.trim() : null
   const selectedSort = sortOptions.some((option) => option.value === params?.sort)
@@ -227,6 +235,14 @@ export default async function ProductsPage({
                   className={`rounded-full border px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.16em] transition ${getFilterChipClass(selectedAnimal === 'CAT')}`}
                 >
                   Gatos
+                </Link>
+              ) : null}
+              {hasHumanProducts ? (
+                <Link
+                  href={buildProductsHref('HUMAN', normalizedCategory, selectedSort, finderParams)}
+                  className={`rounded-full border px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.16em] transition ${getFilterChipClass(selectedAnimal === 'HUMAN')}`}
+                >
+                  Humanos
                 </Link>
               ) : null}
             </div>

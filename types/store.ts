@@ -45,7 +45,7 @@ export type Product = {
   id: string
   slug: string
   name: string
-  animalType: 'DOG' | 'CAT'
+  animalType: 'DOG' | 'CAT' | 'HUMAN'
   salesCount?: number
   category: string
   price: number
