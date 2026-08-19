@@ -12,7 +12,7 @@ export type StoreSettingsSnapshot = {
   petSizeFinderEnabled: boolean
 }
 
-export const TRANSFER_PAYMENT_ALIAS = 'patagonicos.ok'
+export const TRANSFER_PAYMENT_ALIAS = 'patagonicos.store'
 export const TRANSFER_DISCOUNT_PERCENT = 10
 
 export function getCouponRestrictionReason(
