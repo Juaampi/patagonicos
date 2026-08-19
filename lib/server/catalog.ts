@@ -141,7 +141,7 @@ const defaultCategories = [
   {
     name: 'Parkas',
     slug: 'parkas',
-    description: 'Parkas premium con cobertura dorsal y perfil outdoor.',
+    description: 'Parkas premium con cobertura dorsal y diseño de indumentaria para mascotas.',
   },
   {
     name: 'Buzos',

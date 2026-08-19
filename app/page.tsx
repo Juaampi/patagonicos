@@ -172,7 +172,7 @@ export default async function HomePage() {
           <SectionHeading
             eyebrow="Preguntas frecuentes"
             title="Envíos, uso y talles sin ruido visual"
-            description="Información clara, técnica y alineada con una marca outdoor, no con un petshop clásico."
+            description="Información clara, técnica y alineada con una marca de indumentaria para mascotas."
           />
         </div>
         <div className="space-y-4">

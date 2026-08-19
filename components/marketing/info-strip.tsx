@@ -1,7 +1,7 @@
 const items = [
   'Campera térmica + botitas',
   'Envío gratis a todo Argentina',
-  'Bariloche: entrega en el día antes de las 14:30 hs',
+  'Tiempos de entrega claros en cada compra',
 ]
 
 export function InfoStrip() {

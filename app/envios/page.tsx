@@ -24,7 +24,7 @@ export default async function ShippingPage() {
             Desde la compra hasta la entrega, todo pensado para que el proceso sea claro, rápido y fácil de seguir.
           </h1>
           <p className="mt-5 max-w-4xl text-base leading-8 text-black/62">
-            Comprando antes de las 17 hs, el pedido se despacha en el día. Si la compra entra después de ese horario, sale al día siguiente. Trabajamos con una logística ágil para sostener despachos rápidos, pago seguro con Mercado Pago y seguimiento claro desde tu panel.
+            Trabajamos con una logística ágil para sostener despachos rápidos, pago seguro con Mercado Pago y seguimiento claro desde tu panel.
           </p>
 
           <div className="mt-8 grid gap-4 lg:grid-cols-3">
@@ -73,7 +73,7 @@ export default async function ShippingPage() {
                   icon: Truck,
                   title: '3. Despacho rápido',
                   copy:
-                    'Si comprás antes de las 17 hs, el pedido sale en el día. Si comprás después, se despacha al día siguiente. Esa promesa aparece clara para que el cliente sepa qué esperar.',
+                    'Te mostramos tiempos estimados de despacho y entrega para que el cliente sepa qué esperar antes de comprar.',
                 },
                 {
                   icon: UserRound,
@@ -127,7 +127,7 @@ export default async function ShippingPage() {
               <div className="mt-5 space-y-3">
                 {[
                   'Pago online con Mercado Pago.',
-                  'Despacho en el día antes de las 17 hs.',
+                  'Tiempos de despacho y entrega claros.',
                   'Seguimiento del pedido desde el panel del cliente.',
                   'Resumen final claro con envío y descuentos.',
                 ].map((item) => (

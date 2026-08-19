@@ -173,7 +173,7 @@ export function BarilocheDeliveryCountdown({
         <p className={cn('font-semibold', accentClass)}>
           Comprando dentro de {state.countdownLabel}
         </p>
-        <p className={mutedClass}>en Bariloche se entrega en el día.</p>
+        <p className={mutedClass}>en Bariloche contamos con coordinación local de entrega.</p>
       </div>
     ) : (
       <div className={cn('space-y-1', className)}>

@@ -7,7 +7,7 @@ export const heroSlides = [
     image: 'https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=1600&q=80',
   },
   {
-    title: 'Minimalismo outdoor, pensado para clima real',
+    title: 'Indumentaria para mascotas, pensada para clima real',
     description: 'Texturas limpias, siluetas funcionales y materiales listos para acompañar aventura, confort y protección.',
     image: 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=1600&q=80',
   },
@@ -338,7 +338,7 @@ export const faqItems = [
     answer: 'El viento, la nieve y la humedad bajan la temperatura corporal con rapidez, sobre todo en perros de pelo corto, cachorros, seniors y razas pequeñas.',
   },
   {
-    question: '¿La entrega en el día aplica siempre?',
+    question: '¿Cómo se informa el tiempo de entrega?',
     answer: 'Sí dentro de Bariloche, comprando antes de las 14 hs y sujeto a disponibilidad de stock.',
   },
   {

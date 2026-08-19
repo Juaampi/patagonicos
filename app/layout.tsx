@@ -21,9 +21,9 @@ const grotesk = Space_Grotesk({
 })
 
 export const metadata: Metadata = {
-  title: 'Patagónicos | Abrigo outdoor para animales en Bariloche',
+  title: 'Patagónicos | Indumentaria para mascotas en Bariloche',
   description:
-    'Marca premium de indumentaria outdoor para animales en Bariloche. Camperas, abrigo técnico y protección real para frío, nieve, viento y humedad.',
+    'Marca premium de indumentaria para mascotas en Bariloche. Camperas, abrigo y protección real para frío, nieve, viento y humedad.',
 }
 
 const GOOGLE_TAG_ID = process.env.NEXT_PUBLIC_GOOGLE_TAG_ID || 'G-KZNYV9TE96'

@@ -294,7 +294,7 @@ function buildEmailShell(title: string, eyebrow: string, body: string) {
             <img src="${logoUrl}" alt="Patagónicos" width="44" height="44" style="display:block;width:44px;height:44px;border-radius:12px;background:#ffffff;" />
             <div>
               <div style="font-size:16px;font-weight:700;letter-spacing:0.01em;color:#ffffff;">Patagónicos</div>
-              <div style="margin-top:2px;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.72);">Outdoor para mascotas</div>
+              <div style="margin-top:2px;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.72);">Indumentaria para mascotas</div>
             </div>
           </div>
           <div style="margin-top:22px;font-size:11px;font-weight:700;letter-spacing:0.28em;text-transform:uppercase;color:rgba(255,255,255,0.72);">${eyebrow}</div>
