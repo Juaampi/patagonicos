@@ -7,6 +7,7 @@ import {
   getFeaturedCatalogProducts,
   getRelatedCatalogProducts,
 } from './server/catalog'
+import { isDogfaceProduct } from './product-highlights'
 
 export async function getAllProducts() {
   return optimizeStoreProductsImages(await getCatalogProducts())
@@ -20,7 +21,8 @@ export async function getFeaturedProducts(animalType?: Product['animalType']) {
 export async function getStarProduct(animalType?: Product['animalType']) {
   const products = optimizeStoreProductsImages(await getCatalogProducts())
   const filtered = animalType ? products.filter((product) => product.animalType === animalType) : products
-  return filtered[0] ?? products[0]
+  const dogfaceProduct = filtered.find((product) => isDogfaceProduct(product))
+  return dogfaceProduct ?? filtered[0] ?? products[0]
 }
 
 export async function getProductBySlug(slug: string) {

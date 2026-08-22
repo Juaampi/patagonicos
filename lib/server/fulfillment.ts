@@ -75,7 +75,7 @@ function deriveLegacyAmountToCollect(order: {
 }
 
 export const defaultStoreSettings = {
-  localDeliveryFreeThreshold: 80000,
+  localDeliveryFreeThreshold: 120000,
   localDeliveryCost: 4500,
   nationalShippingCost: 13000,
   barilocheCutoffHour: 14,

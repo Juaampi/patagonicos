@@ -10,6 +10,7 @@ import { BarilocheDeliveryCountdown } from '@/components/marketing/bariloche-del
 import { ProductImageWatermark } from '@/components/products/product-image-watermark'
 import { trackViewItem } from '@/lib/client/analytics'
 import { getComboDiscountedPrice, getComboSavings, getFreeUnitsForQuantity, getTwoForOnePricing } from '@/lib/combo-pricing'
+import { isBestSellerHighlight, qualifiesForFreeShippingBadge } from '@/lib/product-highlights'
 import { getFeatureChips } from '@/lib/product-display'
 import { TRANSFER_DISCOUNT_PERCENT } from '@/lib/store-settings'
 import type { StoreSettingsSnapshot } from '@/lib/store-settings'
@@ -256,6 +257,8 @@ export function ProductDetail({
   const comboDiscountedPrice = getComboDiscountedPrice(product.price, comboDiscountPercent)
   const comboSavings = getComboSavings(product.price, comboDiscountPercent)
   const twoForOnePricing = getTwoForOnePricing(product.price)
+  const showBestSellerBadge = isBestSellerHighlight(product)
+  const showFreeShippingBadge = qualifiesForFreeShippingBadge(product)
   const [cartFeedback, setCartFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
   const [isAddingToCart, setIsAddingToCart] = useState(false)
   const [mobileButtonInView, setMobileButtonInView] = useState(false)
@@ -500,6 +503,20 @@ export function ProductDetail({
             </div>
           ) : null}
           <h1 className="mt-3 font-display text-3xl tracking-[-0.05em] text-black">{product.name}</h1>
+          {(showBestSellerBadge || showFreeShippingBadge) ? (
+            <div className="mt-4 flex flex-wrap gap-2">
+              {showBestSellerBadge ? (
+                <div className="inline-flex rounded-full border border-black/10 bg-black px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-white">
+                  Producto más vendido
+                </div>
+              ) : null}
+              {showFreeShippingBadge ? (
+                <div className="inline-flex rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-amber-800">
+                  Envío gratis
+                </div>
+              ) : null}
+            </div>
+          ) : null}
           <div className="mt-5 flex items-start justify-between gap-4">
             <p className="text-[2.1rem] font-semibold leading-none text-black">{formatPrice(product.price)}</p>
             {product.compareAtPrice ? (
@@ -905,6 +922,20 @@ export function ProductDetail({
           <div className="mt-4 flex items-end justify-between gap-4">
             <div>
               <h1 className="font-display text-4xl tracking-[-0.05em] md:text-5xl">{product.name}</h1>
+              {(showBestSellerBadge || showFreeShippingBadge) ? (
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {showBestSellerBadge ? (
+                    <div className="inline-flex rounded-full border border-black/10 bg-black px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-white">
+                      Producto más vendido
+                    </div>
+                  ) : null}
+                  {showFreeShippingBadge ? (
+                    <div className="inline-flex rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-amber-800">
+                      Envío gratis
+                    </div>
+                  ) : null}
+                </div>
+              ) : null}
               <p className="mt-4 max-w-xl whitespace-pre-line text-base leading-8 text-black/62">{product.shortDescription}</p>
               {product.comboArmable ? (
                 <div className="mt-5 inline-flex rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-emerald-800">

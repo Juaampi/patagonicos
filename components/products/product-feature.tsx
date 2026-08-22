@@ -6,6 +6,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useMemo, useRef, useState } from 'react'
 import { useCart } from '@/components/cart/cart-provider'
 import { getComboDiscountedPrice, getComboSavings, getTwoForOnePricing } from '@/lib/combo-pricing'
+import { isBestSellerHighlight, qualifiesForFreeShippingBadge } from '@/lib/product-highlights'
 import { getColorImages, getMainImage, getProductColors, isColorOutOfStock } from '@/lib/variant-utils'
 import type { Product, ProductImage } from '@/types/store'
 import { formatPrice } from '@/lib/utils'
@@ -47,6 +48,8 @@ export function ProductFeature({ product }: { product: Product }) {
   const comboDiscountedPrice = getComboDiscountedPrice(product.price, comboDiscountPercent)
   const comboSavings = getComboSavings(product.price, comboDiscountPercent)
   const twoForOnePricing = getTwoForOnePricing(product.price)
+  const showBestSellerBadge = isBestSellerHighlight(product)
+  const showFreeShippingBadge = qualifiesForFreeShippingBadge(product)
 
   const gallery = useMemo(() => {
     const items: ProductImage[] = []
@@ -161,7 +164,7 @@ export function ProductFeature({ product }: { product: Product }) {
           </div>
 
           <div className="flex flex-col p-3 md:p-4 xl:p-5">
-            <p className="eyebrow">Producto más vendido</p>
+            <p className="eyebrow">{showBestSellerBadge ? 'Producto más vendido' : 'Producto destacado'}</p>
             <div className="mt-4 flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
               <div>
                 {salesBadgeLabel ? (
@@ -169,6 +172,18 @@ export function ProductFeature({ product }: { product: Product }) {
                     {salesBadgeLabel}
                   </div>
                 ) : null}
+                <div className="mb-3 flex flex-wrap gap-2">
+                  {showBestSellerBadge ? (
+                    <div className="inline-flex items-center rounded-full border border-black/10 bg-black px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-white">
+                      Más vendido
+                    </div>
+                  ) : null}
+                  {showFreeShippingBadge ? (
+                    <div className="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-amber-800">
+                      Envío gratis
+                    </div>
+                  ) : null}
+                </div>
                 <p className="text-[11px] uppercase tracking-[0.2em] text-black/45">{product.category}</p>
                 <h2 className="mt-2 font-display text-3xl tracking-[-0.06em] md:text-4xl">{product.name}</h2>
                 {product.comboArmable ? (

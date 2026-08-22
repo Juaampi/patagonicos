@@ -49,8 +49,8 @@ export function ShoppingBenefits({
                 <p className="mt-1 text-sm leading-6 text-black/60">
                   Envío gratis con tu compra superior a {formatPrice(localDeliveryFreeThreshold)}.
                 </p>
-                <p className="mt-1 text-sm leading-6 text-black/60">Despacho en el día, sin demoras.</p>
-                <p className="mt-1 text-sm leading-6 text-black/60">Seguimiento en todo momento.</p>
+                <p className="mt-1 text-sm leading-6 text-black/60">Despacho rápido según disponibilidad y preparación real.</p>
+                <p className="mt-1 text-sm leading-6 text-black/60">Seguimiento y estado del pedido durante todo el proceso.</p>
               </div>
             </div>
           </article>

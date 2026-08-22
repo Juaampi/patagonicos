@@ -78,27 +78,37 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       cartPulseKey,
       addItem(item) {
         const normalizedItem = normalizeStoredItem(item)
+        let addedQuantity = 0
 
         setItems((current) => {
           const existingIndex = current.findIndex((entry) => entry.sku === normalizedItem.sku)
           if (existingIndex === -1) {
+            addedQuantity = normalizedItem.quantity
             return [...current, normalizedItem]
           }
 
-          return current.map((entry, index) =>
-            index === existingIndex
-              ? {
-                  ...entry,
-                  maxStock: Math.max(entry.maxStock, normalizedItem.maxStock, entry.quantity, 1),
-                  quantity: Math.min(
-                    entry.quantity + normalizedItem.quantity,
-                    Math.max(entry.maxStock, normalizedItem.maxStock, entry.quantity, 1),
-                  ),
-                }
-              : entry,
-          )
+          return current.map((entry, index) => {
+            if (index !== existingIndex) {
+              return entry
+            }
+
+            const maxStock = Math.max(entry.maxStock, normalizedItem.maxStock, entry.quantity, 1)
+            const nextQuantity = Math.min(entry.quantity + normalizedItem.quantity, maxStock)
+            addedQuantity = Math.max(0, nextQuantity - entry.quantity)
+
+            return {
+              ...entry,
+              maxStock,
+              quantity: nextQuantity,
+            }
+          })
         })
-        trackAddToCart(normalizedItem)
+        if (addedQuantity > 0) {
+          trackAddToCart({
+            ...normalizedItem,
+            quantity: addedQuantity,
+          })
+        }
         setCartPulseKey((current) => current + 1)
         window.dispatchEvent(new CustomEvent('pa2-cart-pulse'))
       },

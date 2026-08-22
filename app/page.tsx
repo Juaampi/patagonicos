@@ -18,9 +18,9 @@ export const dynamic = 'force-dynamic'
 const speciesMeta = {
   DOG: {
     eyebrow: 'Perros',
-    title: 'Indumentaria pensada en los días frescos',
+    title: 'Indumentaria para lluvia, viento y aventura',
     description:
-      'Camperas térmicas, parkas, buzos, botas y accesorios pensados para nieve, viento y caminatas de invierno real.',
+      'Impermeables, camperas, buzos, botas y accesorios pensados para uso real, trekking, viento y salidas de todos los días.',
   },
   CAT: {
     eyebrow: 'Gatos',

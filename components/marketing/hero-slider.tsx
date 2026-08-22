@@ -21,14 +21,13 @@ export function HeroSlider() {
                 Indumentaria para mascotas
               </p>
               <p className="mt-3 text-sm font-semibold uppercase tracking-[0.16em] text-white/88 md:text-[15px]">
-                Temporada otoño-invierno
+                Lluvia · viento · aventura
               </p>
               <h1 className="mt-5 max-w-[11ch] font-display text-[clamp(2.45rem,8vw,5.1rem)] font-black leading-[0.92] tracking-[-0.075em] text-white">
-                Abrigados para cada aventura.
+                Protección real para cada salida.
               </h1>
               <p className="mt-5 max-w-[34rem] text-[14px] leading-6 text-white/84 md:mt-6 md:text-[17px] md:leading-8">
-                En Patagónicos donamos el 5% de cada compra a refugios de animales en toda
-                Argentina, porque sabemos que ellos también pasan frío y necesidades.
+                Prendas pensadas para lluvia, viento, trekking y uso real. En Patagónicos además donamos el 5% de cada compra a refugios de animales de toda Argentina.
               </p>
             </div>
           </div>
